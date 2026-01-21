@@ -874,6 +874,7 @@ class ColorMenuView extends WatchUi.View {
     }
     
     function getSelectedIndex() { return mSelectedIndex; }
+    function getScrollOffset() { return mScrollOffset; }
     
     function scrollUp() {
         if (mSelectedIndex > 0) {
