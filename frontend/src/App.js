@@ -544,7 +544,7 @@ function GoalPicker({ state, type, onStart, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// NAME ENTRY VIEW - per spec (QWERTY reversed keyboard!)
+// NAME ENTRY VIEW - translated to selected language
 // ═══════════════════════════════════════════════════════════════
 function NameEntryView({ state, onSave, onClose }) {
   const [name, setName] = useState(state.userName || '');
@@ -553,14 +553,18 @@ function NameEntryView({ state, onSave, onClose }) {
   const keyboard = KEYBOARDS[lang];
   const isRtl = lang === 1; // Hebrew
   
+  // Translations
+  const TR_NAME_TITLE = ["Name", "שם", "Nombre", "Nom", "Name", "名称"];
+  const TR_CONFIRM = ["Confirm", "אישור", "Confirmar", "Confirmer", "Bestätigen", "确认"];
+  
   return (
     <div 
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* Title - top: 8%, FONT_XTINY: 22px, WHITE color */}
+      {/* Title - translated */}
       <div style={{ marginTop: '8%' }}>
-        <span style={{ fontSize: '22px', color: '#fff' }}>Name</span>
+        <span style={{ fontSize: '22px', color: '#fff' }}>{TR_NAME_TITLE[lang]}</span>
       </div>
       
       {/* Input + Confirm - top: 38%, flex-direction: column, gap: 12px */}
