@@ -362,7 +362,7 @@ function LanguageMenu({ state, onSelect, onClose }) {
 
 // ═══════════════════════════════════════════════════════════════
 // COLOR MENU - each color name displayed in its own color!
-// Swipe scrolling (no arrows), centered layout
+// Swipe/drag scrolling (no arrows), centered layout
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
@@ -378,17 +378,63 @@ function ColorMenu({ state, onSelect, onClose }) {
   useEffect(() => {
     if (state.color > 4) {
       setScrollOffset(Math.min(state.color - 2, 5)); // Center current color
+    } else {
+      setScrollOffset(0);
     }
   }, [state.color]);
   
-  // Handle wheel/scroll
-  const handleWheel = (e) => {
-    e.preventDefault();
-    if (e.deltaY > 0 && scrollOffset + visibleItems < 10) {
-      setScrollOffset(scrollOffset + 1);
-    } else if (e.deltaY < 0 && scrollOffset > 0) {
-      setScrollOffset(scrollOffset - 1);
+  // Mouse drag state
+  const [isDragging, setIsDragging] = useState(false);
+  const [dragStartY, setDragStartY] = useState(0);
+  const [dragAccum, setDragAccum] = useState(0);
+  
+  // Handle mouse wheel
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const handleWheel = (e) => {
+      e.preventDefault();
+      if (e.deltaY > 0 && scrollOffset + visibleItems < 10) {
+        setScrollOffset(prev => Math.min(prev + 1, 5));
+      } else if (e.deltaY < 0 && scrollOffset > 0) {
+        setScrollOffset(prev => Math.max(prev - 1, 0));
+      }
+    };
+    
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, [scrollOffset, visibleItems]);
+  
+  // Mouse drag handlers
+  const handleMouseDown = (e) => {
+    setIsDragging(true);
+    setDragStartY(e.clientY);
+    setDragAccum(0);
+  };
+  
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    const diff = dragStartY - e.clientY;
+    const newAccum = dragAccum + diff;
+    
+    if (Math.abs(newAccum) > 40) { // Threshold for scroll
+      if (newAccum > 0 && scrollOffset + visibleItems < 10) {
+        setScrollOffset(prev => Math.min(prev + 1, 5));
+      } else if (newAccum < 0 && scrollOffset > 0) {
+        setScrollOffset(prev => Math.max(prev - 1, 0));
+      }
+      setDragAccum(0);
+      setDragStartY(e.clientY);
+    } else {
+      setDragAccum(newAccum);
+      setDragStartY(e.clientY);
     }
+  };
+  
+  const handleMouseUp = () => {
+    setIsDragging(false);
+    setDragAccum(0);
   };
   
   // Touch handling for swipe
@@ -405,9 +451,9 @@ function ColorMenu({ state, onSelect, onClose }) {
     
     if (Math.abs(diff) > 30) { // Threshold for swipe
       if (diff > 0 && scrollOffset + visibleItems < 10) {
-        setScrollOffset(scrollOffset + 1);
+        setScrollOffset(prev => Math.min(prev + 1, 5));
       } else if (diff < 0 && scrollOffset > 0) {
-        setScrollOffset(scrollOffset - 1);
+        setScrollOffset(prev => Math.max(prev - 1, 0));
       }
       setTouchStart(touchEnd);
     }
