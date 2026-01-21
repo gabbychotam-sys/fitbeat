@@ -762,27 +762,6 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
     </div>
   );
 }
-        <>
-          <span style={{ position: 'absolute', top: '12%', left: '22%', fontSize: '24px', opacity: 0.6 }}>👏</span>
-          <span style={{ position: 'absolute', top: '18%', right: '22%', fontSize: '20px', opacity: 0.5 }}>🎉</span>
-          <span style={{ position: 'absolute', bottom: '22%', left: '18%', fontSize: '22px', opacity: 0.5 }}>⭐</span>
-          <span style={{ position: 'absolute', bottom: '15%', right: '20%', fontSize: '24px', opacity: 0.6 }}>👏</span>
-        </>
-      )}
-      
-      {/* Tap to dismiss hint */}
-      <span style={{ 
-        position: 'absolute',
-        bottom: '8%',
-        fontSize: '12px', 
-        color: '#666'
-      }}>
-        tap to dismiss
-      </span>
-    </div>
-  );
-}
-
 // ═══════════════════════════════════════════════════════════════
 // MAIN SIMULATOR COMPONENT
 // ═══════════════════════════════════════════════════════════════
