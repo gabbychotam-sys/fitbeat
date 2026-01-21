@@ -822,27 +822,29 @@ function FitBeatSimulator() {
           
           let newState = { ...s, elapsedWalkSec: newSec };
           
-          // Check 50% alert - 🎈 balloons!
+          // Check 50% alert - 3 lines format
           if (!s.timeHalfwayShown && newSec >= halfway && newSec < goalSec) {
             newState.timeHalfwayShown = true;
+            const name = s.userName || '';
             setAlert({ 
-              line1: TR_WELL_DONE[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-              line2: TR_HALF_WAY[s.lang],
-              alertType: 'halfway',
+              line1: name ? `${name},` : '',
+              line2: TR_KEEP_GOING[s.lang],
+              line3: TR_HALF_WAY[s.lang],
               color: COLOR_HEX[s.color]
             });
             setView('alert');
           }
           
-          // Check goal completion - TIME RESETS! 👏
+          // Check goal completion - TIME RESETS! - 3 lines format
           if (!s.timeGoalShown && newSec >= goalSec) {
             newState.timeGoalShown = true;
             newState.timeGoalActive = false;
             newState.elapsedWalkSec = 0;
+            const name = s.userName || '';
             setAlert({ 
-              line1: TR_GOAL_DONE_LINE1[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-              line2: TR_GOAL_DONE_LINE2[s.lang],
-              alertType: 'goal',
+              line1: name ? `${name},` : '',
+              line2: TR_GREAT_JOB[s.lang],
+              line3: TR_GOAL_COMPLETED[s.lang],
               color: COLOR_HEX[s.color]
             });
             setView('alert');
