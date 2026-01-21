@@ -881,25 +881,7 @@ class ColorMenuView extends WatchUi.View {
             dc.drawText(w / 2 + w / 12, y + 2, Graphics.FONT_SMALL, COLOR_NAMES[idx][lang], Graphics.TEXT_JUSTIFY_LEFT);
         }
         
-        // Draw scroll indicator dots at bottom (no arrows!)
-        var dotRadius = 4;
-        var dotSpacing = 12;
-        var numDots = 6;
-        var dotsWidth = (numDots - 1) * dotSpacing;
-        var dotsStartX = (w - dotsWidth) / 2;
-        var dotsY = h - h / 10;
-        var activeDot = (mScrollOffset / 2).toNumber();
-        if (activeDot > 5) { activeDot = 5; }
-        
-        for (var d = 0; d < numDots; d++) {
-            var dotXPos = dotsStartX + (d * dotSpacing);
-            if (d == activeDot) {
-                dc.setColor(currentColor, currentColor);
-            } else {
-                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-            }
-            dc.fillCircle(dotXPos, dotsY, dotRadius);
-        }
+        // No scroll indicator dots - clean design with finger/swipe scrolling
     }
     
     function getScrollOffset() { return mScrollOffset; }
