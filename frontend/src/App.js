@@ -159,12 +159,12 @@ function WatchDisplay({ state, onZoneClick }) {
         data-testid="distance-zone"
       >
         {/* Distance row */}
-        <div className="flex items-center justify-between mb-1">
+        <div className="flex items-center justify-between mb-1 cursor-pointer" onClick={() => onZoneClick('distance')}>
           <div className="flex items-baseline gap-1">
-            {/* FONT_MEDIUM: 39px for numbers */}
-            <span style={{ fontSize: '39px', fontWeight: '600', color: mainColor }}>{distStr}</span>
-            {/* FONT_XTINY: 22px for labels */}
-            <span style={{ fontSize: '22px', color: '#888' }}>{unit}</span>
+            {/* FONT_MEDIUM: 32px for numbers */}
+            <span style={{ fontSize: '32px', fontWeight: '600', color: mainColor }}>{distStr}</span>
+            {/* FONT_XTINY: 18px for labels */}
+            <span style={{ fontSize: '18px', color: '#888' }}>{unit}</span>
           </div>
           <RunnerIcon />
         </div>
