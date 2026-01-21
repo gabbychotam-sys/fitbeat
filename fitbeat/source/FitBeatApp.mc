@@ -694,9 +694,9 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
 
-        // Color - open custom scrollable view (no scrollbar!)
+        // Color - open CustomMenu (native smooth scrolling!)
         if (colorZone != null && tapY >= colorZone[0] && tapY <= colorZone[1]) {
-            WatchUi.pushView(new ColorMenuView(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
+            WatchUi.pushView(new ColorMenu(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
             return true;
         }
 
