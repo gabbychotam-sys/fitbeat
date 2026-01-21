@@ -826,15 +826,16 @@ var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 class ColorMenuView extends WatchUi.View {
     var mScrollOffset = 0;
     var mItemHeight = 40;  // Height per item in pixels
-    var mStartY = 56;      // Start Y position (h/5 for 280px screen)
+    var mStartY = 50;      // Start Y position
     var mVisibleItems = 5;
     
     function initialize() {
         View.initialize();
-        // Start with current color visible
+        // Start with current color visible (centered if possible)
         var currentIdx = getColorIndex();
-        if (currentIdx > 4) {
-            mScrollOffset = currentIdx - 4;
+        if (currentIdx > 2) {
+            mScrollOffset = currentIdx - 2;
+            if (mScrollOffset > 5) { mScrollOffset = 5; }
         }
     }
     
@@ -848,7 +849,7 @@ class ColorMenuView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // Title - translated!
+        // Title - centered!
         dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(w / 2, h / 12, Graphics.FONT_SMALL, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
         
@@ -856,7 +857,7 @@ class ColorMenuView extends WatchUi.View {
         mItemHeight = h / 7;
         mStartY = h / 5;
         
-        // Draw visible color items
+        // Draw visible color items - CENTERED
         for (var i = 0; i < mVisibleItems; i++) {
             var idx = i + mScrollOffset;
             if (idx >= 10) { break; }
@@ -866,27 +867,37 @@ class ColorMenuView extends WatchUi.View {
             // Highlight current selected color
             if (idx == currentIdx) {
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-                dc.fillRectangle(w / 6, y - 2, w * 2 / 3, mItemHeight - 4);
+                dc.fillRoundedRectangle(w / 6, y - 2, w * 2 / 3, mItemHeight - 4, 8);
             }
             
-            // Draw color dot
+            // Draw color dot - centered position
+            var dotX = w / 3;
             dc.setColor(COLOR_HEX[idx], COLOR_HEX[idx]);
-            dc.fillCircle(w / 5, y + mItemHeight / 3, h / 30);
+            dc.fillCircle(dotX, y + mItemHeight / 3, h / 28);
             
-            // Draw color name in its own color!
+            // Draw color name in its own color - centered!
             dc.setColor(COLOR_HEX[idx], Graphics.COLOR_TRANSPARENT);
-            dc.drawText(w / 3, y, Graphics.FONT_SMALL, COLOR_NAMES[idx][lang], Graphics.TEXT_JUSTIFY_LEFT);
+            dc.drawText(w / 2 + w / 12, y + 2, Graphics.FONT_SMALL, COLOR_NAMES[idx][lang], Graphics.TEXT_JUSTIFY_LEFT);
         }
         
-        // Draw scroll indicators if needed
-        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
-        if (mScrollOffset > 0) {
-            // Up arrow indicator
-            dc.drawText(w / 2, mStartY - 20, Graphics.FONT_XTINY, "^", Graphics.TEXT_JUSTIFY_CENTER);
-        }
-        if (mScrollOffset + mVisibleItems < 10) {
-            // Down arrow indicator
-            dc.drawText(w / 2, h - 30, Graphics.FONT_XTINY, "v", Graphics.TEXT_JUSTIFY_CENTER);
+        // Draw scroll indicator dots at bottom (no arrows!)
+        var dotRadius = 4;
+        var dotSpacing = 12;
+        var numDots = 6;
+        var dotsWidth = (numDots - 1) * dotSpacing;
+        var dotsStartX = (w - dotsWidth) / 2;
+        var dotsY = h - h / 10;
+        var activeDot = (mScrollOffset / 2).toNumber();
+        if (activeDot > 5) { activeDot = 5; }
+        
+        for (var d = 0; d < numDots; d++) {
+            var dotXPos = dotsStartX + (d * dotSpacing);
+            if (d == activeDot) {
+                dc.setColor(currentColor, currentColor);
+            } else {
+                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+            }
+            dc.fillCircle(dotXPos, dotsY, dotRadius);
         }
     }
     
