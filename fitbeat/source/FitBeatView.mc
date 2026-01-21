@@ -63,7 +63,6 @@ class FitBeatView extends WatchUi.View {
     var mHrZoneBottom = 0;
     
     var mAlertActive = false;
-    var mAlertTimer = 0;
 
     function initialize() {
         View.initialize();
