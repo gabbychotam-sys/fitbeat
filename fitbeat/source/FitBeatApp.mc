@@ -899,6 +899,36 @@ class ColorMenuView extends WatchUi.View {
 class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
     function initialize() { BehaviorDelegate.initialize(); }
     
+    // Handle tap on color items
+    function onTap(evt) {
+        var view = WatchUi.getCurrentView()[0];
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var coords = evt.getCoordinates();
+        if (coords == null) { return false; }
+        
+        var tapY = coords[1];
+        var h = 280;  // Screen height
+        var itemH = h / 7;
+        var startY = h / 5;
+        
+        // Check if tap is in color list area
+        if (tapY >= startY) {
+            var itemIndex = ((tapY - startY) / itemH).toNumber();
+            var actualIndex = itemIndex + view.getScrollOffset();
+            
+            if (actualIndex >= 0 && actualIndex < 10) {
+                // Select this color and close
+                Application.Storage.setValue("color", actualIndex);
+                WatchUi.popView(WatchUi.SLIDE_RIGHT);
+                WatchUi.requestUpdate();
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
     function onSelect() {
         var view = WatchUi.getCurrentView()[0];
         if (view != null && view instanceof ColorMenuView) {
