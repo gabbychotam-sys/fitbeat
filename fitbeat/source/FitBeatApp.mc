@@ -818,9 +818,9 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
 }
 
 // ╔════════════════════════════════════════════════════════════════╗
-// ║  COLOR MENU - Custom View with scrolling (NO scrollbar!)       ║
-// ║  Fixed title, smooth scrolling using onNextPage/onPreviousPage ║
-// ║  Based on Garmin forum recommendations for touchscreen devices ║
+// ║  COLOR MENU - Custom View with SMOOTH ANIMATED scrolling       ║
+// ║  Uses Timer for 50ms animation frames (20Hz - Garmin max)      ║
+// ║  Based on Garmin forum recommendations for smooth scrolling    ║
 // ╚════════════════════════════════════════════════════════════════╝
 
 // Translations for "Color" title
@@ -830,12 +830,15 @@ var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 var gColorMenuView = null;
 
 class ColorMenuView extends WatchUi.View {
-    var mScrollOffset = 0;  // Pixel offset for scrolling
-    var mItemHeight = 50;   // Height per item
-    var mTitleHeight = 45;  // Fixed title area
+    var mScrollOffset = 0;    // Current pixel offset
+    var mTargetOffset = 0;    // Target offset for animation
+    var mItemHeight = 50;     // Height per item
+    var mTitleHeight = 45;    // Fixed title area
     var mVisibleHeight = 235; // 280 - 45 = visible area for items
     var mTotalHeight = 500;   // 10 items * 50px
-    var mMaxOffset = 265;     // mTotalHeight - mVisibleHeight = 500 - 235
+    var mMaxOffset = 265;     // mTotalHeight - mVisibleHeight
+    var mAnimTimer = null;    // Animation timer
+    var mAnimSpeed = 8;       // Pixels per frame (smooth animation)
     
     function initialize() {
         View.initialize();
@@ -849,6 +852,10 @@ class ColorMenuView extends WatchUi.View {
                 mScrollOffset = mMaxOffset;
             }
         }
+        mTargetOffset = mScrollOffset;
+        
+        // Create animation timer
+        mAnimTimer = new Timer.Timer();
     }
     
     function onUpdate(dc) {
@@ -913,17 +920,60 @@ class ColorMenuView extends WatchUi.View {
         dc.drawLine(w / 6, mTitleHeight - 2, w * 5 / 6, mTitleHeight - 2);
     }
     
-    // Scroll by one item - called by delegate
-    function scrollDown() {
-        mScrollOffset = mScrollOffset + mItemHeight;
+    // Animation timer callback - smooth scrolling
+    function onAnimTimer() {
+        var diff = mTargetOffset - mScrollOffset;
+        
+        if (diff > 0) {
+            // Scrolling down
+            if (diff > mAnimSpeed) {
+                mScrollOffset = mScrollOffset + mAnimSpeed;
+            } else {
+                mScrollOffset = mTargetOffset;
+            }
+        } else if (diff < 0) {
+            // Scrolling up
+            if (diff < -mAnimSpeed) {
+                mScrollOffset = mScrollOffset - mAnimSpeed;
+            } else {
+                mScrollOffset = mTargetOffset;
+            }
+        }
+        
+        // Clamp
+        if (mScrollOffset < 0) { mScrollOffset = 0; }
         if (mScrollOffset > mMaxOffset) { mScrollOffset = mMaxOffset; }
+        
         WatchUi.requestUpdate();
+        
+        // Stop timer when reached target
+        if (mScrollOffset == mTargetOffset) {
+            mAnimTimer.stop();
+        }
     }
     
+    // Start smooth scroll animation to target
+    function animateScroll(targetOffset) {
+        mTargetOffset = targetOffset;
+        if (mTargetOffset < 0) { mTargetOffset = 0; }
+        if (mTargetOffset > mMaxOffset) { mTargetOffset = mMaxOffset; }
+        
+        // Start animation timer at 50ms (20Hz - Garmin maximum)
+        mAnimTimer.start(method(:onAnimTimer), 50, true);
+    }
+    
+    // Scroll down one item with animation
+    function scrollDown() {
+        var newTarget = mTargetOffset + mItemHeight;
+        if (newTarget > mMaxOffset) { newTarget = mMaxOffset; }
+        animateScroll(newTarget);
+    }
+    
+    // Scroll up one item with animation
     function scrollUp() {
-        mScrollOffset = mScrollOffset - mItemHeight;
-        if (mScrollOffset < 0) { mScrollOffset = 0; }
-        WatchUi.requestUpdate();
+        var newTarget = mTargetOffset - mItemHeight;
+        if (newTarget < 0) { newTarget = 0; }
+        animateScroll(newTarget);
     }
     
     // Get item index at Y position (for tap selection)
@@ -937,6 +987,13 @@ class ColorMenuView extends WatchUi.View {
             return idx;
         }
         return -1;
+    }
+    
+    // Clean up timer on exit
+    function stopTimer() {
+        if (mAnimTimer != null) {
+            mAnimTimer.stop();
+        }
     }
 }
 
@@ -975,6 +1032,7 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
         
         if (selectedIdx >= 0 && selectedIdx < 10) {
             Application.Storage.setValue("color", selectedIdx);
+            gColorMenuView.stopTimer();
             gColorMenuView = null;
             WatchUi.popView(WatchUi.SLIDE_RIGHT);
             return true;
@@ -983,6 +1041,9 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
     }
     
     function onBack() {
+        if (gColorMenuView != null) {
+            gColorMenuView.stopTimer();
+        }
         gColorMenuView = null;
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         return true;
