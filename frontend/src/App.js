@@ -909,22 +909,26 @@ function FitBeatSimulator() {
       
       let newState = { ...s, distanceCm: newDist };
       
-      // Check 50% alert
+      // Check 50% alert - 🎈 balloons!
       if (s.distGoalActive && !s.distHalfwayShown && newDist >= halfway && newDist < goalCm) {
         newState.distHalfwayShown = true;
         setAlert({ 
           line1: TR_WELL_DONE[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-          line2: TR_HALF_WAY[s.lang]
+          line2: TR_HALF_WAY[s.lang],
+          alertType: 'halfway',
+          color: COLOR_HEX[s.color]
         });
         setView('alert');
       }
       
-      // Check goal completion - DISTANCE CONTINUES!
+      // Check goal completion - 👏 DISTANCE CONTINUES!
       if (s.distGoalActive && !s.distGoalShown && newDist >= goalCm) {
         newState.distGoalShown = true;
         setAlert({ 
           line1: TR_GOAL_DONE_LINE1[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-          line2: TR_GOAL_DONE_LINE2[s.lang]
+          line2: TR_GOAL_DONE_LINE2[s.lang],
+          alertType: 'goal',
+          color: COLOR_HEX[s.color]
         });
         setView('alert');
       }
