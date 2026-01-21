@@ -259,12 +259,12 @@ function SettingsView({ state, onUpdate, onClose }) {
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          bottom: '5%',
-          fontSize: '26px',
+          bottom: '12%',
+          fontSize: '18px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
           color: '#000',
-          padding: '8px 30px',
+          padding: '6px 24px',
           borderRadius: '20px',
           border: 'none',
           cursor: 'pointer'
