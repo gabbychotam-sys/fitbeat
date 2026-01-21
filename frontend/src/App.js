@@ -172,28 +172,28 @@ function WatchDisplay({ state, onZoneClick }) {
         
         {/* Time row */}
         <div 
-          className="flex items-center justify-between mt-3 mb-1 cursor-pointer"
+          className="flex items-center justify-between mt-2 mb-1 cursor-pointer"
           onClick={(e) => { e.stopPropagation(); onZoneClick('timeGoal'); }}
           data-testid="time-goal-zone"
         >
           <div className="flex items-baseline gap-1">
-            <span style={{ fontSize: '39px', fontWeight: '600', color: mainColor }}>{elapsedMin}</span>
-            <span style={{ fontSize: '22px', color: '#888' }}>{TR_MINUTES[lang]}</span>
+            <span style={{ fontSize: '32px', fontWeight: '600', color: mainColor }}>{elapsedMin}</span>
+            <span style={{ fontSize: '18px', color: '#888' }}>{TR_MINUTES[lang]}</span>
           </div>
           <ClockIcon />
         </div>
         <StaircaseBar frac={timeFrac} />
       </div>
       
-      {/* HEART RATE - bottom: 6%, FONT_NUMBER_MILD: 62px */}
+      {/* HEART RATE - bottom: 5%, FONT_NUMBER_MILD: 48px */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 cursor-pointer hover:opacity-80"
-        style={{ bottom: '6%' }}
+        style={{ bottom: '5%' }}
         onClick={() => onZoneClick('hr')}
         data-testid="hr-zone"
       >
-        <span style={{ fontSize: '28px', color: mainColor }}>♥</span>
-        <span style={{ fontSize: '62px', fontWeight: 'bold', color: '#fff' }}>{heartRate}</span>
+        <span style={{ fontSize: '24px', color: mainColor }}>♥</span>
+        <span style={{ fontSize: '48px', fontWeight: 'bold', color: '#fff' }}>{heartRate}</span>
       </div>
     </div>
   );
