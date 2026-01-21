@@ -278,20 +278,19 @@ class FitBeatView extends WatchUi.View {
         
         // Create AlertView with auto-dismiss timer (3 seconds)
         var alertView = new AlertView(l1, l2, l3);
-        var alertDelegate = new AlertViewDelegate();
+        var alertDelegate = new AlertViewDelegate(alertView);
         
         // Push FULL SCREEN alert view with 3 lines and selected color!
         WatchUi.pushView(alertView, alertDelegate, WatchUi.SLIDE_UP);
         
         // Mark alert as active (prevents goal checks during alert)
         mAlertActive = true;
-        mAlertTimer = 3;
+        // Timer is now managed by AlertView itself!
     }
     
     // Called when alert is dismissed (by timer or user)
     function onAlertDismissed() {
         mAlertActive = false;
-        mAlertTimer = 0;
     }
 
     function _getUserName() {
