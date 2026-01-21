@@ -701,12 +701,18 @@ function NameEntryView({ state, onSave, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ALERT VIEW - Full screen with emojis! 🎈 👏
+// ALERT VIEW - 3 LINES, selected color, auto-dismiss after 3 seconds
 // ═══════════════════════════════════════════════════════════════
-function AlertView({ line1, line2, alertType, color, onDismiss }) {
-  // alertType: 'halfway' (🎈) or 'goal' (👏) or 'hr'
+function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
   const mainColor = color || '#00FF00';
-  const emoji = alertType === 'halfway' ? '🎈' : alertType === 'goal' ? '👏' : '❤️';
+  
+  // Auto-dismiss after 3 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onDismiss();
+    }, 3000);
+    return () => clearTimeout(timer);
+  }, [onDismiss]);
   
   return (
     <div 
@@ -715,49 +721,47 @@ function AlertView({ line1, line2, alertType, color, onDismiss }) {
         width: '280px', 
         height: '280px', 
         borderRadius: '50%',
-        background: `radial-gradient(circle, ${mainColor}20 0%, #000 70%)`,
-        border: `3px solid ${mainColor}`,
-        boxShadow: `0 0 30px ${mainColor}60, inset 0 0 50px ${mainColor}20`
+        backgroundColor: '#000'
       }}
       onClick={onDismiss}
       data-testid="alert-view"
     >
-      {/* Emoji at top */}
-      <span style={{ fontSize: '48px', marginBottom: '12px' }}>{emoji}</span>
-      
-      {/* Line 1 - Big text */}
+      {/* Line 1 - Name (e.g., "גבי,") */}
       <span style={{ 
-        fontSize: '24px', 
+        fontSize: '28px', 
         fontWeight: 'bold', 
-        color: '#fff', 
+        color: mainColor, 
         marginBottom: '8px',
-        textAlign: 'center',
-        padding: '0 20px'
+        textAlign: 'center'
       }}>
         {line1}
       </span>
       
-      {/* Line 2 - Smaller text */}
+      {/* Line 2 - Message (e.g., "תנוח קצת") */}
       <span style={{ 
-        fontSize: '18px', 
+        fontSize: '24px', 
+        fontWeight: 'bold',
         color: mainColor,
         textAlign: 'center',
-        padding: '0 20px'
+        marginBottom: '8px'
       }}>
         {line2}
       </span>
       
-      {/* Decorative elements */}
-      {alertType === 'halfway' && (
-        <>
-          <span style={{ position: 'absolute', top: '15%', left: '20%', fontSize: '24px', opacity: 0.6 }}>🎈</span>
-          <span style={{ position: 'absolute', top: '20%', right: '20%', fontSize: '20px', opacity: 0.5 }}>🎈</span>
-          <span style={{ position: 'absolute', bottom: '25%', left: '15%', fontSize: '18px', opacity: 0.4 }}>🎈</span>
-          <span style={{ position: 'absolute', bottom: '20%', right: '18%', fontSize: '22px', opacity: 0.5 }}>🎈</span>
-        </>
+      {/* Line 3 - Details (e.g., "עברת את הדופק שהגדרת") */}
+      {line3 && (
+        <span style={{ 
+          fontSize: '18px', 
+          color: mainColor,
+          textAlign: 'center',
+          padding: '0 20px'
+        }}>
+          {line3}
+        </span>
       )}
-      
-      {alertType === 'goal' && (
+    </div>
+  );
+}
         <>
           <span style={{ position: 'absolute', top: '12%', left: '22%', fontSize: '24px', opacity: 0.6 }}>👏</span>
           <span style={{ position: 'absolute', top: '18%', right: '22%', fontSize: '20px', opacity: 0.5 }}>🎉</span>
