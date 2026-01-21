@@ -361,13 +361,38 @@ function LanguageMenu({ state, onSelect, onClose }) {
 
 // ═══════════════════════════════════════════════════════════════
 // COLOR MENU - each color name displayed in its own color!
+// With scroll support for all 10 colors
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const visibleItems = 5;
   
   // Translations for "Color" title
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
+  
+  // Start with current color visible
+  useEffect(() => {
+    if (state.color > 4) {
+      setScrollOffset(state.color - 4);
+    }
+  }, [state.color]);
+  
+  const scrollUp = () => {
+    if (scrollOffset > 0) {
+      setScrollOffset(scrollOffset - 1);
+    }
+  };
+  
+  const scrollDown = () => {
+    if (scrollOffset + visibleItems < 10) {
+      setScrollOffset(scrollOffset + 1);
+    }
+  };
+  
+  // Get visible colors based on scroll offset
+  const visibleColors = COLOR_NAMES.slice(scrollOffset, scrollOffset + visibleItems);
   
   return (
     <div 
@@ -381,36 +406,63 @@ function ColorMenu({ state, onSelect, onClose }) {
         </span>
       </div>
       
+      {/* Scroll up indicator */}
+      {scrollOffset > 0 && (
+        <div 
+          className="absolute cursor-pointer"
+          style={{ top: '15%', left: '50%', transform: 'translateX(-50%)' }}
+          onClick={scrollUp}
+          data-testid="color-scroll-up"
+        >
+          <span style={{ fontSize: '20px', color: mainColor }}>▲</span>
+        </div>
+      )}
+      
       {/* Color list - each color name in its own color! */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 overflow-y-auto"
-        style={{ top: '22%', width: '200px', maxHeight: '200px' }}
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ top: '22%', width: '200px' }}
       >
-        {COLOR_NAMES.map((names, i) => (
-          <div 
-            key={i}
-            className="flex items-center gap-[10px] cursor-pointer"
-            style={{ 
-              padding: '5px 0',
-              fontSize: '24px',
-              backgroundColor: state.color === i ? 'rgba(255,255,255,0.1)' : 'transparent',
-              borderRadius: '5px',
-              paddingLeft: '10px'
-            }}
-            onClick={() => onSelect(i)}
-            data-testid={`color-option-${i}`}
-          >
-            <div style={{ 
-              width: '14px', 
-              height: '14px', 
-              borderRadius: '50%', 
-              backgroundColor: COLOR_HEX[i] 
-            }} />
-            {/* Color name in its own color! */}
-            <span style={{ color: COLOR_HEX[i] }}>{names[lang] || names[0]}</span>
-          </div>
-        ))}
+        {visibleColors.map((names, i) => {
+          const actualIndex = i + scrollOffset;
+          return (
+            <div 
+              key={actualIndex}
+              className="flex items-center gap-[10px] cursor-pointer"
+              style={{ 
+                padding: '5px 0',
+                fontSize: '24px',
+                backgroundColor: state.color === actualIndex ? 'rgba(255,255,255,0.15)' : 'transparent',
+                borderRadius: '5px',
+                paddingLeft: '10px'
+              }}
+              onClick={() => onSelect(actualIndex)}
+              data-testid={`color-option-${actualIndex}`}
+            >
+              <div style={{ 
+                width: '14px', 
+                height: '14px', 
+                borderRadius: '50%', 
+                backgroundColor: COLOR_HEX[actualIndex] 
+              }} />
+              {/* Color name in its own color! */}
+              <span style={{ color: COLOR_HEX[actualIndex] }}>{names[lang] || names[0]}</span>
+            </div>
+          );
+        })}
       </div>
+      
+      {/* Scroll down indicator */}
+      {scrollOffset + visibleItems < 10 && (
+        <div 
+          className="absolute cursor-pointer"
+          style={{ bottom: '8%', left: '50%', transform: 'translateX(-50%)' }}
+          onClick={scrollDown}
+          data-testid="color-scroll-down"
+        >
+          <span style={{ fontSize: '20px', color: mainColor }}>▼</span>
+        </div>
+      )}
     </div>
   );
 }
