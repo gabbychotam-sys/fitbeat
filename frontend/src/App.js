@@ -464,9 +464,12 @@ function ColorMenu({ state, onSelect, onClose }) {
   
   return (
     <div 
-      className="relative bg-black overflow-hidden flex flex-col items-center"
-      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
-      onWheel={handleWheel}
+      className="relative bg-black overflow-hidden flex flex-col items-center select-none"
+      style={{ width: '280px', height: '280px', borderRadius: '50%', cursor: isDragging ? 'grabbing' : 'grab' }}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       ref={containerRef}
