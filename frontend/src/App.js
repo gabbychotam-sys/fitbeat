@@ -99,7 +99,7 @@ function WatchDisplay({ state, onZoneClick }) {
     const filled = Math.ceil(frac * 5);
     const heights = [100, 80, 60, 40, 20]; // RTL: tallest on right
     return (
-      <div className="flex gap-[4px] h-[10px] items-end justify-end" style={{ width: '250px' }}>
+      <div className="flex gap-[3px] h-[8px] items-end justify-end" style={{ width: '220px' }}>
         {heights.map((h, i) => (
           <div
             key={i}
