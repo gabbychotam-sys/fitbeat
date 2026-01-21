@@ -5,59 +5,78 @@ Build a watch face application named "FitBeat" for a Garmin Fenix 8 Solar watch 
 - Main screen displaying Time, Distance, Duration, and Heart Rate
 - Separate, independently functioning goals for distance and time
 - RTL (Right-to-Left) step-style progress bars
-- Color customization for all icons and key elements
+- Color customization for all icons and key elements (10 colors)
 - Alerts at 50% (balloons) and 100% (clapping hands) goal completion
 - Multi-language support (English, Hebrew, Spanish, French, German, Chinese)
 - Time goal resets on app close, Distance goal persists
+- Translated units: km/min in selected language
+
+## User's Preferred Language
+Hebrew (עברית)
 
 ## Current Architecture
 ```
 /app/
 ├── backend/
-│   └── server.py         # FastAPI server - ZIP download & state API
+│   └── server.py         # FastAPI server - ZIP download API
 ├── frontend/
 │   └── src/
-│       └── App.js        # React simulator (source of truth)
+│       └── App.js        # React simulator (source of truth for UI)
 └── fitbeat/              # Garmin Monkey C source code
     ├── source/
-    │   ├── FitBeatApp.mc # App entry, delegates, menus, settings
+    │   ├── FitBeatApp.mc # App entry, delegates, menus, settings, COLOR MENU
     │   └── FitBeatView.mc# Main watch face view, drawing, timers
     ├── resources/        # Fonts, strings, drawables
     └── monkey.jungle     # Build configuration
 ```
 
-## Completed Features (v4.3.2) - January 21, 2025
+## What's Been Implemented (January 21, 2025)
 
-### Web Simulator (React)
-- [x] Full interactive watch face simulator
-- [x] All 6 languages with complete translations
-- [x] Color menu with colored text per color
-- [x] RTL staircase progress bars
-- [x] MM:SS time format
-- [x] 3-line alerts with selected color, auto-dismiss after 3 seconds
-- [x] Separate distance and time goals
-- [x] Test controls for simulation
+### ✅ Completed Features:
+1. **Main Watch Display**: Time (MM:SS), Distance, HR with colored icons
+2. **RTL Progress Bars**: Staircase style, right-to-left
+3. **10 Colors**: Green, Cyan, Blue, Purple, Red, Orange, Yellow, Pink, Lime, White
+4. **6 Languages**: Full translation for UI, alerts, units
+5. **Translated Units**: TR_KM (ק״מ in Hebrew), TR_MINUTES (דקות in Hebrew)
+6. **3-Line Alerts**: Name, message, details - in selected color, auto-dismiss 3 sec
+7. **Goal Pickers**: Distance and Time with translated units
+8. **Settings Screen**: Language, Name, Color, Save - all translated
+9. **Web Simulator**: Full React implementation matching Garmin code
 
-### Native Garmin Code (Monkey C)
-- [x] ColorMenuView with colored text per color
-- [x] All translations in Settings screen (title, Name, Color, Save)
-- [x] Max HR menu title translated
-- [x] MM:SS time format in main view
-- [x] RTL staircase progress bars
-- [x] 3-line AlertView with selected color
-- [x] Auto-dismiss alerts after 3 seconds
-- [x] Separate distance/time goal tracking
-- [x] TR_KEEP_GOING translation added
+### 🔴 Open Issue - Color Menu Scrolling:
+**User Requirements:**
+- NO scrollbar on left side
+- Fixed title at top
+- Spacing between colors
+- Smooth finger scrolling
 
-### Bug Fixes Applied (January 21, 2025)
-1. Changed `ColorMenu()` to `ColorMenuView()` in line 696
-2. Fixed `TR_COLOR_TITLE` to use existing `TR_COLOR` variable in Settings
-3. Added `TR_MAX_HR_TITLE` translation array and used in MaxHRMenu
-4. Added `TR_KEEP_GOING` translation for alert messages
-5. Updated AlertView to accept 3 parameters and use selected color
-6. Updated all `_showFullScreenAlert` calls to 3-line format
-7. Changed auto-dismiss timer from 5 to 3 seconds
-8. Added MM:SS format in FitBeatView.mc (elapsedMin + elapsedSec)
+**Current Implementation:**
+- `ColorMenuView extends WatchUi.View` (Custom View)
+- `ColorMenuDelegate extends WatchUi.BehaviorDelegate`
+- `onSwipe` for finger scrolling
+- `onTap` for selection
+- `onKey` for physical buttons
+
+**Problem:** Scrolling doesn't work smoothly on the actual watch device
+
+**Alternatives Tried:**
+1. `CustomMenu` - scrolling works but has mandatory scrollbar (can't remove)
+2. `Custom View + InputDelegate` - scrolling didn't work
+3. `Custom View + BehaviorDelegate` - scrolling is jerky/stuck
+
+## Key Code Locations
+
+### Color Menu (lines ~820-980 in FitBeatApp.mc):
+- `ColorMenuView` - draws colors with pixel-based scrolling
+- `ColorMenuDelegate` - handles onSwipe, onTap, onKey
+- `mItemHeight = 55`, `mMaxOffset = 315`
+- `scrollAmount = 100` per swipe
+
+### Translations:
+- `COLOR_NAMES` - 10 colors × 6 languages
+- `COLOR_HEX` - 10 hex values
+- `TR_COLOR_TITLE` - "Color" in 6 languages
+- `TR_KM` - uses Hebrew gershayim ״ (U+05F4), not ASCII "
 
 ## Build Instructions
 ```cmd
@@ -65,21 +84,17 @@ cd "C:\Users\gabbyc\Desktop\fitbeat\fitbeat"
 java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-5122605dc\bin\monkeybrains.jar" -o FitBeat.prg -f monkey.jungle -y developer_key.der -d fenix8solar51mm
 ```
 
-## Download
-ZIP available at: `{BACKEND_URL}/api/download/fitbeat`
+## URLs
+- **Download ZIP**: https://garmin-fitness.preview.emergentagent.com/api/download/fitbeat
+- **Simulator**: https://garmin-fitness.preview.emergentagent.com
 
-## Translations Status
-| Item | Status |
-|------|--------|
-| Settings title | ✅ |
-| Language item | ✅ (stays "Language") |
-| Name item | ✅ |
-| Color item | ✅ |
-| Save button | ✅ |
-| Color menu title | ✅ |
-| Color names | ✅ (in color!) |
-| Max HR title | ✅ |
-| All alerts | ✅ |
+## Next Steps for New Agent
+1. Research Garmin forums for smooth scrolling in Custom View
+2. Consider `WatchUi.Picker` or alternative approaches
+3. If user agrees, can revert to `CustomMenu` (with scrollbar but working scroll)
 
-## User's Preferred Language
-Hebrew (עברית)
+## Technical Notes
+- Garmin `CustomMenu` has built-in scrollbar that CANNOT be removed
+- `BehaviorDelegate.onSwipe()` is the correct way to handle swipe gestures
+- Screen size: 280×280 pixels (Fenix 8 Solar 51mm)
+- `TR_KM` must use Hebrew gershayim ״ (U+05F4) not ASCII " to avoid compile errors
