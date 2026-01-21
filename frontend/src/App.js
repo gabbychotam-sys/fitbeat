@@ -38,10 +38,17 @@ const LANG_UNITS = ["mi", "km", "km", "km", "km", "km"];
 
 const TR_MINUTES = ["min", "דקות", "min", "min", "min", "分"];
 const TR_STEPS = ["steps", "צעדים", "pasos", "pas", "Schritte", "步"];
-const TR_WELL_DONE = ["Well done", "כל הכבוד", "¡Bien hecho!", "Bravo", "Gut gemacht", "干得好"];
+
+// Alert messages - 3 lines format
+// Line 1: Name greeting
+// Line 2: Action message
+// Line 3: Details
+const TR_REST_NOW = ["Take a rest", "תנוח קצת", "Descansa", "Repose-toi", "Ruh dich aus", "休息一下"];
+const TR_HR_EXCEEDED = ["Heart rate exceeded", "עברת את הדופק שהגדרת", "FC superada", "FC dépassée", "HF überschritten", "心率超标"];
+const TR_KEEP_GOING = ["Keep going!", "המשך!", "¡Sigue!", "Continue!", "Weiter!", "继续!"];
 const TR_HALF_WAY = ["Halfway there", "עברת חצי מהדרך", "A mitad de camino", "À mi-chemin", "Halb geschafft", "到一半了"];
-const TR_GOAL_DONE_LINE1 = ["Great job", "יפה מאוד", "Excelente", "Super", "Sehr gut", "太棒了"];
-const TR_GOAL_DONE_LINE2 = ["Goal completed", "סיימת את היעד", "Objetivo completado", "Objectif atteint", "Ziel erreicht", "完成目标"];
+const TR_GREAT_JOB = ["Great job!", "יפה מאוד!", "¡Excelente!", "Super!", "Sehr gut!", "太棒了!"];
+const TR_GOAL_COMPLETED = ["Goal completed", "סיימת את היעד", "Objetivo completado", "Objectif atteint", "Ziel erreicht", "完成目标"];
 const TR_START = ["START", "התחל", "INICIAR", "DÉMARRER", "STARTEN", "开始"];
 const TR_MAX_HR = ["Max Heart Rate", "דופק מקסימלי", "FC Máxima", "FC Max", "Max HF", "最大心率"];
 const TR_AUTO = ["Auto", "אוטו", "Auto", "Auto", "Auto", "自动"];
