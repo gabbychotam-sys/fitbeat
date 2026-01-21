@@ -370,23 +370,24 @@ function ColorMenu({ state, onSelect, onClose }) {
   const containerRef = useRef(null);
   
   // Pixel-based scrolling (like Garmin code)
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const itemHeight = 48;
+  const itemHeight = 50;
   const titleHeight = 45;
   const screenHeight = 280;
-  const maxOffset = Math.max(0, (10 * itemHeight) - (screenHeight - titleHeight));
+  const maxOffset = 245; // Pre-calculated: (10 * 50) - (280 - 45) = 265
+  
+  const [scrollOffset, setScrollOffset] = useState(() => {
+    // Start with current color centered
+    if (state.color > 2) {
+      let offset = (state.color - 2) * itemHeight;
+      return Math.min(offset, maxOffset);
+    }
+    return 0;
+  });
   
   // Translations for "Color" title
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
   
-  // Start with current color visible
-  useEffect(() => {
-    let offset = state.color * itemHeight;
-    if (offset > maxOffset) offset = maxOffset;
-    setScrollOffset(offset);
-  }, [state.color, maxOffset]);
-  
-  // Scroll function (pixels)
+  // Scroll function (pixels) - BIGGER amount
   const scroll = (pixels) => {
     setScrollOffset(prev => {
       let newOffset = prev + pixels;
@@ -408,8 +409,8 @@ function ColorMenu({ state, onSelect, onClose }) {
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     const diff = dragStartY - e.clientY;
-    if (Math.abs(diff) > 10) {
-      scroll(diff);
+    if (Math.abs(diff) > 5) {
+      scroll(diff * 2);  // More responsive
       setDragStartY(e.clientY);
     }
   };
@@ -418,27 +419,19 @@ function ColorMenu({ state, onSelect, onClose }) {
     setIsDragging(false);
   };
   
-  // Mouse wheel
+  // Mouse wheel - scroll full item
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
     const handleWheel = (e) => {
       e.preventDefault();
-      scroll(e.deltaY > 0 ? 60 : -60);
+      scroll(e.deltaY > 0 ? 100 : -100);  // Full item scroll
     };
     
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleWheel);
   }, []);
-  
-  // Get item at Y position
-  const getItemAt = (tapY) => {
-    if (tapY < titleHeight) return -1;
-    const relativeY = tapY - titleHeight + scrollOffset;
-    const idx = Math.floor(relativeY / itemHeight);
-    return (idx >= 0 && idx < 10) ? idx : -1;
-  };
   
   return (
     <div 
@@ -464,17 +457,17 @@ function ColorMenu({ state, onSelect, onClose }) {
       >
         <div style={{ transform: `translateY(-${scrollOffset}px)` }}>
           {COLOR_NAMES.map((names, i) => {
-            const y = i * itemHeight;
             return (
               <div 
                 key={i}
-                className="flex items-center justify-center gap-[14px] cursor-pointer"
+                className="flex items-center gap-[14px] cursor-pointer"
                 style={{ 
                   height: `${itemHeight}px`,
                   backgroundColor: state.color === i ? 'rgba(255,255,255,0.15)' : 'transparent',
                   borderRadius: '8px',
                   margin: '0 10%',
-                  width: '80%'
+                  width: '80%',
+                  paddingLeft: '10%'
                 }}
                 onClick={() => onSelect(i)}
                 data-testid={`color-option-${i}`}
@@ -485,7 +478,7 @@ function ColorMenu({ state, onSelect, onClose }) {
                   borderRadius: '50%', 
                   backgroundColor: COLOR_HEX[i] 
                 }} />
-                <span style={{ color: COLOR_HEX[i], fontSize: '22px', fontWeight: '500', minWidth: '80px' }}>
+                <span style={{ color: COLOR_HEX[i], fontSize: '22px', fontWeight: '500' }}>
                   {names[lang] || names[0]}
                 </span>
               </div>
