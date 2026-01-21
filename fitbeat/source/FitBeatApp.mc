@@ -917,15 +917,15 @@ class ColorMenuView extends WatchUi.View {
     }
 }
 
-class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
-    function initialize() { BehaviorDelegate.initialize(); }
+class ColorMenuDelegate extends WatchUi.InputDelegate {
+    function initialize() { InputDelegate.initialize(); }
     
     // Handle tap on color items - select color directly
-    function onTap(evt) {
+    function onTap(clickEvent) {
         var view = WatchUi.getCurrentView()[0];
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
         
-        var coords = evt.getCoordinates();
+        var coords = clickEvent.getCoordinates();
         if (coords == null) { return false; }
         
         var tapY = coords[1];
@@ -960,33 +960,27 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
     
-    function onSelect() {
-        // Select button pressed - just close the menu
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        WatchUi.requestUpdate();
-        return true;
-    }
-    
-    // Physical button scrolling
-    function onNextPage() {
+    function onKey(keyEvent) {
         var view = WatchUi.getCurrentView()[0];
-        if (view != null && view instanceof ColorMenuView) {
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_DOWN || key == WatchUi.KEY_PAGE_DOWN) {
             view.scrollDown();
-        }
-        return true;
-    }
-    
-    function onPreviousPage() {
-        var view = WatchUi.getCurrentView()[0];
-        if (view != null && view instanceof ColorMenuView) {
+            return true;
+        } else if (key == WatchUi.KEY_UP || key == WatchUi.KEY_PAGE_UP) {
             view.scrollUp();
+            return true;
+        } else if (key == WatchUi.KEY_ENTER || key == WatchUi.KEY_START) {
+            // Select current color and close
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            return true;
+        } else if (key == WatchUi.KEY_ESC || key == WatchUi.KEY_LAP) {
+            // Back - close without saving
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            return true;
         }
-        return true;
-    }
-    
-    function onBack() { 
-        WatchUi.popView(WatchUi.SLIDE_RIGHT); 
-        return true;
+        return false;
     }
 }
 
