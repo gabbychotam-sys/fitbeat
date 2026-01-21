@@ -542,7 +542,8 @@ function GoalPicker({ state, type, onStart, onClose }) {
   const [goal, setGoal] = useState(type === 'distance' ? state.goalDist : state.goalTimeMin);
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
-  const unit = type === 'distance' ? LANG_UNITS[lang] : 'min';
+  // Use translated units!
+  const unit = type === 'distance' ? TR_KM[lang] : TR_MINUTES[lang];
   const min = type === 'distance' ? 1 : 10;
   const max = type === 'distance' ? 20 : 120;
   const step = type === 'distance' ? 1 : 10;
