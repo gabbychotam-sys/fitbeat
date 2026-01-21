@@ -1018,7 +1018,7 @@ function FitBeatSimulator() {
         return <AlertView 
           line1={alert?.line1} 
           line2={alert?.line2} 
-          alertType={alert?.alertType}
+          line3={alert?.line3}
           color={alert?.color}
           onDismiss={() => { setAlert(null); setView('main'); }} 
         />;
