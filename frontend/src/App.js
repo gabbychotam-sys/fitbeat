@@ -196,7 +196,8 @@ function WatchDisplay({ state, onZoneClick }) {
           data-testid="time-goal-zone"
         >
           <div className="flex items-baseline gap-1">
-            <span style={{ fontSize: '32px', fontWeight: '600', color: mainColor }}>{elapsedMin}</span>
+            {/* Show minutes:seconds format */}
+            <span style={{ fontSize: '32px', fontWeight: '600', color: mainColor }}>{timeDisplayStr}</span>
             <span style={{ fontSize: '18px', color: '#888' }}>{TR_MINUTES[lang]}</span>
           </div>
           <ClockIcon />
