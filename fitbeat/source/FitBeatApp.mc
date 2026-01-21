@@ -817,108 +817,159 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
 }
 
 // ╔════════════════════════════════════════════════════════════════╗
-// ║  COLOR MENU - Using Garmin's CustomMenu with built-in scrolling! ║
-// ║  Each color name displayed in its own color                      ║
+// ║  COLOR MENU - Custom View with colored text (NO scrollbar!)    ║
+// ║  Each color name displayed in its own color - BIGGER & CENTERED ║
 // ╚════════════════════════════════════════════════════════════════╝
 
 // Translations for "Color" title
 var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 
-// Custom menu item for each color - draws colored text!
-class ColorMenuItem extends WatchUi.CustomMenuItem {
-    var mColorIndex;
-    var mColorName;
-    var mColorHex;
+class ColorMenuView extends WatchUi.View {
+    var mScrollOffset = 0;
+    var mVisibleItems = 5;
     
-    function initialize(colorIndex, colorName, colorHex) {
-        CustomMenuItem.initialize(colorIndex, {});
-        mColorIndex = colorIndex;
-        mColorName = colorName;
-        mColorHex = colorHex;
-    }
-    
-    function draw(dc) {
-        var w = dc.getWidth();
-        var h = dc.getHeight();
-        var currentIdx = getColorIndex();
-        
-        // Background - highlight if this is the current color
-        if (mColorIndex == currentIdx) {
-            dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-            dc.clear();
-        } else {
-            dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-            dc.clear();
-        }
-        
-        // Draw color circle on the left
-        var circleX = w / 4;
-        var circleY = h / 2;
-        var circleR = h / 4;
-        dc.setColor(mColorHex, mColorHex);
-        dc.fillCircle(circleX, circleY, circleR);
-        
-        // Draw color name in its own color!
-        dc.setColor(mColorHex, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2 + w / 10, h / 2, Graphics.FONT_SMALL, mColorName, 
-                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-    }
-}
-
-// Custom menu title
-class ColorMenuTitle extends WatchUi.Drawable {
     function initialize() {
-        Drawable.initialize({});
+        View.initialize();
+        // Start with current color visible (centered)
+        var currentIdx = getColorIndex();
+        if (currentIdx > 2) {
+            mScrollOffset = currentIdx - 2;
+            if (mScrollOffset > 5) { mScrollOffset = 5; }
+        }
     }
     
-    function draw(dc) {
+    function onUpdate(dc) {
         var w = dc.getWidth();
         var h = dc.getHeight();
         var lang = getLang();
-        var color = getMainColor();
+        var currentColor = getMainColor();
+        var currentIdx = getColorIndex();
         
+        // Clear background
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, h / 2, Graphics.FONT_SMALL, TR_COLOR_TITLE[lang], 
-                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        // Title - centered at top
+        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, h / 10, Graphics.FONT_MEDIUM, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
+        
+        // Calculate item dimensions - BIGGER items
+        var itemH = h / 6;  // Bigger items
+        var startY = h / 5 + 10;
+        
+        // Draw visible color items - CENTERED, NO scrollbar
+        for (var i = 0; i < mVisibleItems; i++) {
+            var idx = i + mScrollOffset;
+            if (idx >= 10) { break; }
+            
+            var y = startY + (i * itemH);
+            var centerY = y + itemH / 2;
+            
+            // Highlight current selected color
+            if (idx == currentIdx) {
+                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+                dc.fillRoundedRectangle(w / 8, y, w * 3 / 4, itemH - 4, 10);
+            }
+            
+            // Draw BIGGER color circle - centered
+            var circleX = w / 3;
+            var circleR = h / 18;  // Bigger circle
+            dc.setColor(COLOR_HEX[idx], COLOR_HEX[idx]);
+            dc.fillCircle(circleX, centerY, circleR);
+            
+            // Draw color name in its own color - BIGGER font, centered
+            dc.setColor(COLOR_HEX[idx], Graphics.COLOR_TRANSPARENT);
+            dc.drawText(w / 2 + w / 10, centerY, Graphics.FONT_MEDIUM, COLOR_NAMES[idx][lang], 
+                        Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+        }
+    }
+    
+    function scrollUp() {
+        if (mScrollOffset > 0) {
+            mScrollOffset--;
+            WatchUi.requestUpdate();
+        }
+    }
+    
+    function scrollDown() {
+        if (mScrollOffset + mVisibleItems < 10) {
+            mScrollOffset++;
+            WatchUi.requestUpdate();
+        }
+    }
+    
+    function getScrollOffset() { return mScrollOffset; }
+    
+    function selectColorAt(tapY) {
+        var h = 280;  // Screen height
+        var itemH = h / 6;
+        var startY = h / 5 + 10;
+        
+        if (tapY < startY) { return -1; }
+        
+        var relativeY = tapY - startY;
+        var itemIndex = (relativeY / itemH).toNumber();
+        var actualIndex = itemIndex + mScrollOffset;
+        
+        if (actualIndex >= 0 && actualIndex < 10) {
+            return actualIndex;
+        }
+        return -1;
     }
 }
 
-// Function to create and show the color menu
-function showColorMenu() {
-    var lang = getLang();
-    var currentIdx = getColorIndex();
+class ColorMenuDelegate extends WatchUi.InputDelegate {
+    function initialize() { InputDelegate.initialize(); }
     
-    // Create CustomMenu with built-in scrolling!
-    // Parameters: itemHeight, backgroundColor, options
-    var menu = new WatchUi.CustomMenu(50, Graphics.COLOR_BLACK, {
-        :title => new ColorMenuTitle(),
-        :focus => currentIdx  // Start with current color focused
-    });
-    
-    // Add all 10 colors
-    for (var i = 0; i < 10; i++) {
-        menu.addItem(new ColorMenuItem(i, COLOR_NAMES[i][lang], COLOR_HEX[i]));
+    function onTap(clickEvent) {
+        var view = WatchUi.getCurrentView()[0];
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var coords = clickEvent.getCoordinates();
+        if (coords == null) { return false; }
+        
+        var tapY = coords[1];
+        var selectedIdx = view.selectColorAt(tapY);
+        
+        if (selectedIdx >= 0 && selectedIdx < 10) {
+            Application.Storage.setValue("color", selectedIdx);
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            return true;
+        }
+        return false;
     }
     
-    WatchUi.pushView(menu, new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
-}
-
-// Delegate for color menu - handles selection
-class ColorMenuDelegate extends WatchUi.Menu2InputDelegate {
-    function initialize() { Menu2InputDelegate.initialize(); }
-    
-    function onSelect(item) {
-        // item.getId() returns the color index we set in initialize
-        var colorIndex = item.getId();
-        Application.Storage.setValue("color", colorIndex);
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    function onSwipe(swipeEvent) {
+        var view = WatchUi.getCurrentView()[0];
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var direction = swipeEvent.getDirection();
+        if (direction == WatchUi.SWIPE_UP) {
+            view.scrollDown();
+            return true;
+        } else if (direction == WatchUi.SWIPE_DOWN) {
+            view.scrollUp();
+            return true;
+        }
+        return false;
     }
     
-    function onBack() {
-        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+    function onKey(keyEvent) {
+        var view = WatchUi.getCurrentView()[0];
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var key = keyEvent.getKey();
+        if (key == WatchUi.KEY_DOWN) {
+            view.scrollDown();
+            return true;
+        } else if (key == WatchUi.KEY_UP) {
+            view.scrollUp();
+            return true;
+        } else if (key == WatchUi.KEY_ESC) {
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            return true;
+        }
+        return false;
     }
 }
 
