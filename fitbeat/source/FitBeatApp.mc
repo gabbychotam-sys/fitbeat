@@ -965,17 +965,17 @@ class ColorMenuDelegate extends WatchUi.InputDelegate {
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
         
         var key = keyEvent.getKey();
-        if (key == WatchUi.KEY_DOWN || key == WatchUi.KEY_PAGE_DOWN) {
+        if (key == WatchUi.KEY_DOWN) {
             view.scrollDown();
             return true;
-        } else if (key == WatchUi.KEY_UP || key == WatchUi.KEY_PAGE_UP) {
+        } else if (key == WatchUi.KEY_UP) {
             view.scrollUp();
             return true;
         } else if (key == WatchUi.KEY_ENTER || key == WatchUi.KEY_START) {
             // Select current color and close
             WatchUi.popView(WatchUi.SLIDE_RIGHT);
             return true;
-        } else if (key == WatchUi.KEY_ESC || key == WatchUi.KEY_LAP) {
+        } else if (key == WatchUi.KEY_ESC) {
             // Back - close without saving
             WatchUi.popView(WatchUi.SLIDE_RIGHT);
             return true;
