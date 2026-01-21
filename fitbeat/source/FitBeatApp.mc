@@ -693,9 +693,23 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
 
-        // Color
+        // Color - open CustomMenu with built-in scrolling
         if (colorZone != null && tapY >= colorZone[0] && tapY <= colorZone[1]) {
-            WatchUi.pushView(new ColorMenuView(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
+            var lang = getLang();
+            var currentIdx = getColorIndex();
+            
+            // Create CustomMenu - itemHeight=55 for BIGGER items
+            var menu = new WatchUi.CustomMenu(55, Graphics.COLOR_BLACK, {
+                :title => new ColorMenuTitle(),
+                :focus => currentIdx
+            });
+            
+            // Add all 10 colors
+            for (var i = 0; i < 10; i++) {
+                menu.addItem(new ColorMenuItem(i, COLOR_NAMES[i][lang], COLOR_HEX[i]));
+            }
+            
+            WatchUi.pushView(menu, new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
             return true;
         }
 
