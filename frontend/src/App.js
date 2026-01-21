@@ -361,18 +361,21 @@ function LanguageMenu({ state, onSelect, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COLOR MENU - Fixed title, smooth scrolling, spaced items
+// COLOR MENU - Fixed title, item-by-item scrolling (matches Garmin)
+// Uses onNextPage/onPreviousPage logic: scroll one item per action
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
   const containerRef = useRef(null);
   
-  // Pixel-based scrolling with more spacing
-  const itemHeight = 55;  // More spacing between items
-  const titleHeight = 50; // Fixed title area
+  // Match native Garmin code values
+  const itemHeight = 50;    // mItemHeight in Monkey C
+  const titleHeight = 45;   // mTitleHeight in Monkey C
   const screenHeight = 280;
-  const maxOffset = 315; // (10 * 55) - (280 - 50) = 550 - 230 = 320
+  const visibleHeight = 235; // 280 - 45
+  const totalHeight = 500;   // 10 * 50
+  const maxOffset = 265;     // totalHeight - visibleHeight
   
   const [scrollOffset, setScrollOffset] = useState(() => {
     if (state.color > 2) {
@@ -384,96 +387,110 @@ function ColorMenu({ state, onSelect, onClose }) {
   
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
   
-  // Smooth scroll function
-  const scroll = (pixels) => {
-    setScrollOffset(prev => {
-      let newOffset = prev + pixels;
-      if (newOffset < 0) newOffset = 0;
-      if (newOffset > maxOffset) newOffset = maxOffset;
-      return newOffset;
-    });
+  // Scroll one item at a time (matches onNextPage/onPreviousPage)
+  const scrollDown = () => {
+    setScrollOffset(prev => Math.min(prev + itemHeight, maxOffset));
   };
   
-  // Mouse drag for swipe
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStartY, setDragStartY] = useState(0);
-  
-  const handleMouseDown = (e) => {
-    setIsDragging(true);
-    setDragStartY(e.clientY);
+  const scrollUp = () => {
+    setScrollOffset(prev => Math.max(prev - itemHeight, 0));
   };
   
-  const handleMouseMove = (e) => {
-    if (!isDragging) return;
-    const diff = dragStartY - e.clientY;
-    if (Math.abs(diff) > 3) {
-      scroll(diff * 1.5);
-      setDragStartY(e.clientY);
-    }
-  };
-  
-  const handleMouseUp = () => setIsDragging(false);
-  
-  // Mouse wheel - smooth scroll
+  // Mouse wheel - scroll one item
   useEffect(() => {
     const container = containerRef.current;
     if (!container) return;
     
     const handleWheel = (e) => {
       e.preventDefault();
-      scroll(e.deltaY > 0 ? 55 : -55);  // Scroll one item
+      if (e.deltaY > 0) {
+        scrollDown();
+      } else {
+        scrollUp();
+      }
     };
     
     container.addEventListener('wheel', handleWheel, { passive: false });
     return () => container.removeEventListener('wheel', handleWheel);
   }, []);
   
+  // Touch/drag handling
+  const [dragStartY, setDragStartY] = useState(null);
+  
+  const handleTouchStart = (e) => {
+    setDragStartY(e.touches ? e.touches[0].clientY : e.clientY);
+  };
+  
+  const handleTouchEnd = (e) => {
+    if (dragStartY === null) return;
+    const endY = e.changedTouches ? e.changedTouches[0].clientY : e.clientY;
+    const diff = dragStartY - endY;
+    
+    // Swipe threshold
+    if (Math.abs(diff) > 20) {
+      if (diff > 0) {
+        scrollDown(); // Swipe up = scroll down
+      } else {
+        scrollUp();   // Swipe down = scroll up
+      }
+    }
+    setDragStartY(null);
+  };
+  
   return (
     <div 
       className="relative bg-black overflow-hidden select-none"
-      style={{ width: '280px', height: '280px', borderRadius: '50%', cursor: isDragging ? 'grabbing' : 'grab' }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      style={{ width: '280px', height: '280px', borderRadius: '50%', cursor: 'pointer' }}
       ref={containerRef}
+      onMouseDown={handleTouchStart}
+      onMouseUp={handleTouchEnd}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
     >
-      {/* ═══ SCROLLABLE ITEMS (behind title) ═══ */}
+      {/* ═══ SCROLLABLE ITEMS (below title) ═══ */}
       <div 
         className="absolute w-full"
         style={{ 
           top: `${titleHeight}px`, 
-          height: `${screenHeight - titleHeight}px`, 
+          height: `${visibleHeight}px`, 
           overflow: 'hidden' 
         }}
       >
-        <div style={{ transform: `translateY(-${scrollOffset}px)`, transition: 'transform 0.1s ease-out' }}>
-          {COLOR_NAMES.map((names, i) => (
-            <div 
-              key={i}
-              className="flex items-center gap-[14px] cursor-pointer"
-              style={{ 
-                height: `${itemHeight}px`,
-                backgroundColor: state.color === i ? 'rgba(255,255,255,0.15)' : 'transparent',
-                borderRadius: '10px',
-                margin: '0 10%',
-                width: '80%',
-                paddingLeft: '8%'
-              }}
-              onClick={() => onSelect(i)}
-              data-testid={`color-option-${i}`}
-            >
-              <div style={{ 
-                width: `${itemHeight / 4}px`, 
-                height: `${itemHeight / 4}px`, 
-                borderRadius: '50%', 
-                backgroundColor: COLOR_HEX[i] 
-              }} />
-              <span style={{ color: COLOR_HEX[i], fontSize: '22px', fontWeight: '500' }}>
-                {names[lang] || names[0]}
-              </span>
-            </div>
-          ))}
+        <div style={{ transform: `translateY(-${scrollOffset}px)`, transition: 'transform 0.15s ease-out' }}>
+          {COLOR_NAMES.map((names, i) => {
+            const y = i * itemHeight;
+            const centerY = y + itemHeight / 2;
+            const isVisible = (centerY - scrollOffset) > 0 && (centerY - scrollOffset) < visibleHeight;
+            
+            return (
+              <div 
+                key={i}
+                className="flex items-center gap-3 cursor-pointer"
+                style={{ 
+                  height: `${itemHeight}px`,
+                  backgroundColor: state.color === i ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  borderRadius: '8px',
+                  margin: '0 10%',
+                  width: '80%',
+                  paddingLeft: '8%',
+                  opacity: isVisible ? 1 : 0.3
+                }}
+                onClick={() => onSelect(i)}
+                data-testid={`color-option-${i}`}
+              >
+                <div style={{ 
+                  width: '24px', 
+                  height: '24px', 
+                  borderRadius: '50%', 
+                  backgroundColor: COLOR_HEX[i],
+                  flexShrink: 0
+                }} />
+                <span style={{ color: COLOR_HEX[i], fontSize: '20px', fontWeight: '500' }}>
+                  {names[lang] || names[0]}
+                </span>
+              </div>
+            );
+          })}
         </div>
       </div>
       
@@ -488,7 +505,7 @@ function ColorMenu({ state, onSelect, onClose }) {
           borderBottom: `2px solid ${mainColor}`
         }}
       >
-        <span style={{ fontSize: '24px', color: mainColor, fontWeight: 'bold' }}>
+        <span style={{ fontSize: '22px', color: mainColor, fontWeight: 'bold' }}>
           {TR_COLOR_TITLE[lang]}
         </span>
       </div>
