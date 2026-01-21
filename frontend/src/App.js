@@ -516,23 +516,7 @@ function ColorMenu({ state, onSelect, onClose }) {
         })}
       </div>
       
-      {/* Scroll indicator dots at bottom */}
-      <div 
-        className="absolute flex gap-1"
-        style={{ bottom: '8%', left: '50%', transform: 'translateX(-50%)' }}
-      >
-        {[0, 1, 2, 3, 4, 5].map((i) => (
-          <div 
-            key={i}
-            style={{
-              width: '6px',
-              height: '6px',
-              borderRadius: '50%',
-              backgroundColor: i === Math.floor(scrollOffset / 2) ? mainColor : '#444'
-            }}
-          />
-        ))}
-      </div>
+      {/* No scroll indicator dots - clean design with finger scrolling */}
     </div>
   );
 }
