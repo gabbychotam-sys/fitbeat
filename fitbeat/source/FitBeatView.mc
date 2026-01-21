@@ -415,12 +415,24 @@ class FitBeatView extends WatchUi.View {
     }
 
     function _onTick() as Void {
-        // Auto-dismiss alert
+        // Auto-dismiss alert after countdown
         if (mAlertActive && mAlertTimer > 0) {
             mAlertTimer -= 1;
             if (mAlertTimer <= 0) {
+                // Try to pop the alert view safely
+                try {
+                    // Check if current view is AlertView before popping
+                    var currentView = WatchUi.getCurrentView();
+                    if (currentView != null) {
+                        var view = currentView[0];
+                        if (view != null && view instanceof AlertView) {
+                            WatchUi.popView(WatchUi.SLIDE_DOWN);
+                        }
+                    }
+                } catch(e) {
+                    // If pop fails, just continue
+                }
                 mAlertActive = false;
-                WatchUi.popView(WatchUi.SLIDE_DOWN);
             }
         }
         
