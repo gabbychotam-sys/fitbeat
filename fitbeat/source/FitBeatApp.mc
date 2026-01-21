@@ -698,8 +698,8 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
             var lang = getLang();
             var currentIdx = getColorIndex();
             
-            // Create CustomMenu - itemHeight=55 for BIGGER items
-            var menu = new WatchUi.CustomMenu(55, Graphics.COLOR_BLACK, {
+            // Create CustomMenu - itemHeight=60 for BIGGER items
+            var menu = new WatchUi.CustomMenu(60, Graphics.COLOR_BLACK, {
                 :title => new ColorMenuTitle(),
                 :focus => currentIdx
             });
