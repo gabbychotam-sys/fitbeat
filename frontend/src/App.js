@@ -820,14 +820,16 @@ function FitBeatSimulator() {
             setView('alert');
           }
           
-          // Check goal completion - TIME RESETS!
+          // Check goal completion - TIME RESETS! 👏
           if (!s.timeGoalShown && newSec >= goalSec) {
             newState.timeGoalShown = true;
             newState.timeGoalActive = false;
             newState.elapsedWalkSec = 0;
             setAlert({ 
               line1: TR_GOAL_DONE_LINE1[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-              line2: TR_GOAL_DONE_LINE2[s.lang]
+              line2: TR_GOAL_DONE_LINE2[s.lang],
+              alertType: 'goal',
+              color: COLOR_HEX[s.color]
             });
             setView('alert');
           }
