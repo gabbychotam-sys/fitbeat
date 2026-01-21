@@ -643,10 +643,11 @@ class FitBeatView extends WatchUi.View {
         y += barH + h / 25;
         mDistZoneBottom = y;
 
-        // ═══ TIME (minutes walked) ═══
+        // ═══ TIME (minutes:seconds walked) ═══
         mTimeGoalZoneTop = y;
         var elapsedMin = (mElapsedWalkSec / 60).toNumber();
-        var timeMinStr = elapsedMin.toString();
+        var elapsedSec = mElapsedWalkSec - (elapsedMin * 60);
+        var timeMinStr = elapsedMin.toString() + ":" + _twoDigits(elapsedSec);
         if (_isHebrew(lang)) { timeMinStr = "" + timeMinStr + ""; }
         dc.setColor(color, Graphics.COLOR_BLACK);
         dc.drawText(padSide, y, fNumbers, timeMinStr, Graphics.TEXT_JUSTIFY_LEFT);
