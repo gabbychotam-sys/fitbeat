@@ -818,9 +818,8 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
 }
 
 // ╔════════════════════════════════════════════════════════════════╗
-// ║  COLOR MENU - Custom View with SMOOTH ANIMATED scrolling       ║
-// ║  Uses Timer for 50ms animation frames (20Hz - Garmin max)      ║
-// ║  Based on Garmin forum recommendations for smooth scrolling    ║
+// ║  COLOR MENU - Custom View with FAST SMOOTH scrolling           ║
+// ║  Uses Timer at 25ms for faster animation + larger fonts        ║
 // ╚════════════════════════════════════════════════════════════════╝
 
 // Translations for "Color" title
@@ -832,13 +831,13 @@ var gColorMenuView = null;
 class ColorMenuView extends WatchUi.View {
     var mScrollOffset = 0;    // Current pixel offset
     var mTargetOffset = 0;    // Target offset for animation
-    var mItemHeight = 50;     // Height per item
-    var mTitleHeight = 45;    // Fixed title area
-    var mVisibleHeight = 235; // 280 - 45 = visible area for items
-    var mTotalHeight = 500;   // 10 items * 50px
-    var mMaxOffset = 265;     // mTotalHeight - mVisibleHeight
+    var mItemHeight = 56;     // Height per item (larger for bigger fonts)
+    var mTitleHeight = 48;    // Fixed title area
+    var mVisibleHeight = 232; // 280 - 48 = visible area for items
+    var mTotalHeight = 560;   // 10 items * 56px
+    var mMaxOffset = 328;     // mTotalHeight - mVisibleHeight
     var mAnimTimer = null;    // Animation timer
-    var mAnimSpeed = 8;       // Pixels per frame (smooth animation)
+    var mAnimSpeed = 14;      // Pixels per frame (faster animation)
     
     function initialize() {
         View.initialize();
@@ -846,8 +845,8 @@ class ColorMenuView extends WatchUi.View {
         
         // Start with current color visible
         var currentIdx = getColorIndex();
-        if (currentIdx > 2) {
-            mScrollOffset = (currentIdx - 2) * mItemHeight;
+        if (currentIdx > 1) {
+            mScrollOffset = (currentIdx - 1) * mItemHeight;
             if (mScrollOffset > mMaxOffset) {
                 mScrollOffset = mMaxOffset;
             }
@@ -890,18 +889,18 @@ class ColorMenuView extends WatchUi.View {
                 // Highlight current selected color
                 if (i == currentIdx) {
                     dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-                    dc.fillRoundedRectangle(w / 10, y + 3, w * 4 / 5, mItemHeight - 6, 8);
+                    dc.fillRoundedRectangle(w / 10, y + 4, w * 4 / 5, mItemHeight - 8, 8);
                 }
                 
-                // Draw color circle
+                // Draw color circle - BIGGER
                 var circleX = w / 4;
-                var circleR = 12;
+                var circleR = 14;
                 dc.setColor(COLOR_HEX[i], COLOR_HEX[i]);
                 dc.fillCircle(circleX, centerY, circleR);
                 
-                // Draw color name in its own color
+                // Draw color name - LARGER FONT (FONT_LARGE instead of FONT_MEDIUM)
                 dc.setColor(COLOR_HEX[i], Graphics.COLOR_TRANSPARENT);
-                dc.drawText(w / 2, centerY, Graphics.FONT_MEDIUM, COLOR_NAMES[i][lang], 
+                dc.drawText(w / 2, centerY, Graphics.FONT_LARGE, COLOR_NAMES[i][lang], 
                             Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
             }
         }
@@ -910,9 +909,9 @@ class ColorMenuView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.fillRectangle(0, 0, w, mTitleHeight);
         
-        // Title text
+        // Title text - LARGER
         dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, mTitleHeight / 2, Graphics.FONT_MEDIUM, TR_COLOR_TITLE[lang], 
+        dc.drawText(w / 2, mTitleHeight / 2, Graphics.FONT_LARGE, TR_COLOR_TITLE[lang], 
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         
         // Divider line under title
@@ -920,7 +919,7 @@ class ColorMenuView extends WatchUi.View {
         dc.drawLine(w / 6, mTitleHeight - 2, w * 5 / 6, mTitleHeight - 2);
     }
     
-    // Animation timer callback - smooth scrolling
+    // Animation timer callback - fast smooth scrolling
     function onAnimTimer() {
         var diff = mTargetOffset - mScrollOffset;
         
@@ -958,8 +957,8 @@ class ColorMenuView extends WatchUi.View {
         if (mTargetOffset < 0) { mTargetOffset = 0; }
         if (mTargetOffset > mMaxOffset) { mTargetOffset = mMaxOffset; }
         
-        // Start animation timer at 50ms (20Hz - Garmin maximum)
-        mAnimTimer.start(method(:onAnimTimer), 50, true);
+        // Start animation timer at 25ms (40Hz - faster than before!)
+        mAnimTimer.start(method(:onAnimTimer), 25, true);
     }
     
     // Scroll down one item with animation
