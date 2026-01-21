@@ -721,12 +721,14 @@ class AlertView extends WatchUi.View {
     var mLine1;
     var mLine2;
     var mLine3;
+    var mColor;
 
-    function initialize(line1, line2) {
+    function initialize(line1, line2, line3) {
         WatchUi.View.initialize();
         mLine1 = line1;
         mLine2 = line2;
-        mLine3 = "";
+        mLine3 = line3 != null ? line3 : "";
+        mColor = getMainColor();
     }
 
     function onUpdate(dc) {
@@ -739,13 +741,16 @@ class AlertView extends WatchUi.View {
         var fBig = (gHeLargeFont != null) ? gHeLargeFont : Graphics.FONT_LARGE;
         var fSmall = (gHeSmallFont != null) ? gHeSmallFont : Graphics.FONT_SMALL;
 
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        // Use selected color for all text!
+        dc.setColor(mColor, Graphics.COLOR_TRANSPARENT);
 
-        if (mLine3 != "") {
-            dc.drawText(w/2, (h*28)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*44)/100, fBig, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*62)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
+        if (mLine3 != null && !mLine3.equals("")) {
+            // 3 lines format
+            dc.drawText(w/2, (h*25)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*45)/100, fBig, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*65)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
         } else {
+            // 2 lines format
             dc.drawText(w/2, (h*36)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
             dc.drawText(w/2, (h*56)/100, fSmall, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
         }
