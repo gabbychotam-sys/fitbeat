@@ -521,7 +521,13 @@ class TimeGoalPickerDelegate extends WatchUi.BehaviorDelegate {
 // ╔════════════════════════════════════════════════════════════╗
 // ║  SETTINGS VIEW - CUSTOM VIEW (NOT Menu2!)                 ║
 // ║  Shows: Language, Name, Color + Save button               ║
+// ║  TRANSLATED to selected language!                         ║
 // ╚════════════════════════════════════════════════════════════╝
+
+// Translations for Settings screen
+var TR_SETTINGS_TITLE = ["Settings", "הגדרות", "Ajustes", "Paramètres", "Einstellungen", "设置"];
+var TR_NAME_LABEL = ["Name", "שם", "Nombre", "Nom", "Name", "名称"];
+var TR_SAVE_BTN = ["Save", "שמור", "Guardar", "Sauvegarder", "Speichern", "保存"];
 
 class SettingsView extends WatchUi.View {
     var mLangZone = null;
@@ -550,9 +556,9 @@ class SettingsView extends WatchUi.View {
         var padSide = w / 10;
         var y = h / 10;
 
-        // Title: Settings
+        // Title: Settings - TRANSLATED!
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, y, titleFont, "Settings", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, y, titleFont, TR_SETTINGS_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
         y += titleH + h / 25;
 
         // Divider
