@@ -134,15 +134,15 @@ function WatchDisplay({ state, onZoneClick }) {
         boxShadow: `0 0 30px ${mainColor}40`
       }}
     >
-      {/* TIME ZONE - top: 8%, FONT_NUMBER_MEDIUM: 69px */}
+      {/* TIME ZONE - top: 3%, FONT_NUMBER_MEDIUM: 69px */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ top: '8%' }}
+        style={{ top: '3%', zIndex: 10 }}
         onClick={() => onZoneClick('time')}
         data-testid="time-zone"
       >
         <span style={{ 
-          fontSize: '69px', 
+          fontSize: '52px', 
           fontWeight: 'bold', 
           color: mainColor,
           fontFamily: 'monospace'
@@ -151,10 +151,10 @@ function WatchDisplay({ state, onZoneClick }) {
         </span>
       </div>
       
-      {/* DISTANCE + TIME BARS - centered at 54% */}
+      {/* DISTANCE + TIME BARS - centered at 50% */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-        style={{ top: '54%', width: '250px' }}
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ top: '50%', width: '220px' }}
         onClick={() => onZoneClick('distance')}
         data-testid="distance-zone"
       >
