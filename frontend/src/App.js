@@ -5,7 +5,7 @@ import axios from "axios";
 const BACKEND_URL = process.env.REACT_APP_BACKEND_URL;
 const API = `${BACKEND_URL}/api`;
 
-// Color definitions
+// Color definitions - exact hex values from spec
 const COLOR_HEX = [
   "#00FF00", // Green
   "#00FFFF", // Cyan
@@ -33,26 +33,32 @@ const COLOR_NAMES = [
 ];
 
 const LANG_NAMES = ["English", "עברית", "Español", "Français", "Deutsch", "中文"];
-const LANG_NAMES_MENU = ["English", "Hebrew", "Spanish", "French", "German", "Chinese"];
+const LANG_NAMES_MENU = ["English", "עברית", "Español", "Français", "Deutsch", "中文"];
 const LANG_UNITS = ["mi", "km", "km", "km", "km", "km"];
 
 const TR_MINUTES = ["min", "דקות", "min", "min", "min", "分"];
+const TR_STEPS = ["steps", "צעדים", "pasos", "pas", "Schritte", "步"];
 const TR_WELL_DONE = ["Well done", "כל הכבוד", "¡Bien hecho!", "Bravo", "Gut gemacht", "干得好"];
 const TR_HALF_WAY = ["Halfway there", "עברת חצי מהדרך", "A mitad de camino", "À mi-chemin", "Halb geschafft", "到一半了"];
 const TR_GOAL_DONE_LINE1 = ["Great job", "יפה מאוד", "Excelente", "Super", "Sehr gut", "太棒了"];
 const TR_GOAL_DONE_LINE2 = ["Goal completed", "סיימת את היעד", "Objetivo completado", "Objectif atteint", "Ziel erreicht", "完成目标"];
+const TR_START = ["START", "התחל", "INICIAR", "DÉMARRER", "STARTEN", "开始"];
+const TR_MAX_HR = ["Max Heart Rate", "דופק מקסימלי", "FC Máxima", "FC Max", "Max HF", "最大心率"];
+const TR_AUTO = ["Auto", "אוטו", "Auto", "Auto", "Auto", "自动"];
 
-// Keyboards for each language
+// QWERTY REVERSED keyboards for each language (as per Garmin spec!)
 const KEYBOARDS = {
-  0: [["P","O","I","U","Y","T","R","E","W","Q"],["L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]],
-  1: [["ק","ר","א","ט","ו","ן","ם","פ"],["ש","ד","ג","כ","ע","י","ח","ל","ך","ף"],["ז","ס","ב","ה","נ","מ","צ","ת","ץ"]],
-  2: [["P","O","I","U","Y","T","R","E","W","Q"],["Ñ","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]],
-  3: [["P","O","I","U","Y","T","R","E","W","Q"],["À","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z","É","È"]],
-  4: [["P","O","I","U","Y","T","R","E","W","Q"],["Ü","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z","Ä","Ö"]],
-  5: [["李","王","张","刘","陈","杨"],["赵","黄","周","吴","徐","孙"],["朱","马","胡","郭","林","何"]],
+  0: [["P","O","I","U","Y","T","R","E","W","Q"],["L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]], // English
+  1: [["ק","ר","א","ט","ו","ן","ם","פ"],["ש","ד","ג","כ","ע","י","ח","ל","ך","ף"],["ז","ס","ב","ה","נ","מ","צ","ת","ץ"]], // Hebrew
+  2: [["P","O","I","U","Y","T","R","E","W","Q"],["Ñ","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]], // Spanish
+  3: [["P","O","I","U","Y","T","R","E","W","Q"],["À","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z","É","È"]], // French
+  4: [["P","O","I","U","Y","T","R","E","W","Q"],["Ü","L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z","Ä","Ö"]], // German
+  5: [["李","王","张","刘","陈","杨"],["赵","黄","周","吴","徐","孙"],["朱","马","胡","郭","林","何"]], // Chinese
 };
 
-// Main Watch Display Component
+// ═══════════════════════════════════════════════════════════════
+// MAIN WATCH DISPLAY - Garmin Font Sizes per spec
+// ═══════════════════════════════════════════════════════════════
 function WatchDisplay({ state, onZoneClick }) {
   const { lang, color, distanceCm, elapsedWalkSec, goalDist, goalTimeMin } = state;
   const mainColor = COLOR_HEX[color];
@@ -72,7 +78,11 @@ function WatchDisplay({ state, onZoneClick }) {
   const timeFrac = goalSec > 0 ? Math.min(elapsedWalkSec / goalSec, 1) : 0;
   
   // Current time
-  const now = new Date();
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const interval = setInterval(() => setNow(new Date()), 1000);
+    return () => clearInterval(interval);
+  }, []);
   const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
   
   // Heart rate (simulated)
@@ -84,16 +94,16 @@ function WatchDisplay({ state, onZoneClick }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Staircase bar component (RTL)
+  // Staircase bar component (RTL - right to left, big to small)
   const StaircaseBar = ({ frac }) => {
     const filled = Math.ceil(frac * 5);
-    const heights = [100, 80, 60, 40, 20];
+    const heights = [100, 80, 60, 40, 20]; // RTL: tallest on right
     return (
-      <div className="flex gap-[2px] h-3 items-end justify-end" dir="rtl">
+      <div className="flex gap-[4px] h-[10px] items-end justify-end" style={{ width: '250px' }}>
         {heights.map((h, i) => (
           <div
             key={i}
-            className="w-8 rounded-sm transition-colors"
+            className="flex-1 rounded-sm transition-colors"
             style={{
               height: `${h}%`,
               backgroundColor: i < filled ? mainColor : '#333',
@@ -104,167 +114,208 @@ function WatchDisplay({ state, onZoneClick }) {
     );
   };
 
-  // Runner icon
+  // Runner icon 🏃
   const RunnerIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" fill={mainColor}>
-      <circle cx="12" cy="4" r="2" />
-      <path d="M13 7h-2v6h2V7z" />
-      <path d="M10 13l-2 5h2l2-5h-2z" />
-      <path d="M14 11l2 5h-2l-2-5h2z" />
-      <path d="M9 9h6v2H9V9z" />
-    </svg>
+    <span style={{ color: mainColor, fontSize: '24px' }}>🏃</span>
   );
 
-  // Clock icon
+  // Clock icon ⏱️
   const ClockIcon = () => (
-    <svg width="24" height="24" viewBox="0 0 24 24" stroke={mainColor} fill="none" strokeWidth="2">
-      <circle cx="12" cy="12" r="9" />
-      <path d="M12 6v6" />
-      <path d="M12 12h4" />
-    </svg>
-  );
-
-  // Heart icon
-  const HeartIcon = () => (
-    <svg width="28" height="28" viewBox="0 0 24 24" fill={mainColor}>
-      <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
-    </svg>
+    <span style={{ color: mainColor, fontSize: '24px' }}>⏱️</span>
   );
 
   return (
     <div 
-      className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center relative overflow-hidden"
-      style={{ boxShadow: `0 0 20px ${mainColor}40` }}
+      className="relative bg-black overflow-hidden"
+      style={{ 
+        width: '280px', 
+        height: '280px', 
+        borderRadius: '50%',
+        boxShadow: `0 0 30px ${mainColor}40`
+      }}
     >
-      {/* Time Zone - clickable */}
+      {/* TIME ZONE - top: 8%, FONT_NUMBER_MEDIUM: 69px */}
       <div 
-        className="mt-2 cursor-pointer hover:opacity-80 transition-opacity"
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
+        style={{ top: '8%' }}
         onClick={() => onZoneClick('time')}
         data-testid="time-zone"
       >
-        <span className="text-4xl font-bold" style={{ color: mainColor }}>{timeStr}</span>
+        <span style={{ 
+          fontSize: '69px', 
+          fontWeight: 'bold', 
+          color: mainColor,
+          fontFamily: 'monospace'
+        }}>
+          {timeStr}
+        </span>
       </div>
       
-      {/* Distance Zone - clickable */}
+      {/* DISTANCE + TIME BARS - centered at 54% */}
       <div 
-        className="w-full px-5 mt-2 cursor-pointer hover:opacity-80 transition-opacity"
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 cursor-pointer"
+        style={{ top: '54%', width: '250px' }}
         onClick={() => onZoneClick('distance')}
         data-testid="distance-zone"
       >
-        <div className="flex items-center justify-between">
+        {/* Distance row */}
+        <div className="flex items-center justify-between mb-1">
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-semibold" style={{ color: mainColor }}>{distStr}</span>
-            <span className="text-sm" style={{ color: mainColor }}>{unit}</span>
+            {/* FONT_MEDIUM: 39px for numbers */}
+            <span style={{ fontSize: '39px', fontWeight: '600', color: mainColor }}>{distStr}</span>
+            {/* FONT_XTINY: 22px for labels */}
+            <span style={{ fontSize: '22px', color: '#888' }}>{unit}</span>
           </div>
           <RunnerIcon />
         </div>
-        <div className="mt-1">
-          <StaircaseBar frac={distFrac} />
-        </div>
-      </div>
-      
-      {/* Time Goal Zone - clickable */}
-      <div 
-        className="w-full px-5 mt-3 cursor-pointer hover:opacity-80 transition-opacity"
-        onClick={() => onZoneClick('timeGoal')}
-        data-testid="time-goal-zone"
-      >
-        <div className="flex items-center justify-between">
+        <StaircaseBar frac={distFrac} />
+        
+        {/* Time row */}
+        <div 
+          className="flex items-center justify-between mt-3 mb-1 cursor-pointer"
+          onClick={(e) => { e.stopPropagation(); onZoneClick('timeGoal'); }}
+          data-testid="time-goal-zone"
+        >
           <div className="flex items-baseline gap-1">
-            <span className="text-2xl font-semibold" style={{ color: mainColor }}>{elapsedMin}</span>
-            <span className="text-sm" style={{ color: mainColor }}>{TR_MINUTES[lang]}</span>
+            <span style={{ fontSize: '39px', fontWeight: '600', color: mainColor }}>{elapsedMin}</span>
+            <span style={{ fontSize: '22px', color: '#888' }}>{TR_MINUTES[lang]}</span>
           </div>
           <ClockIcon />
         </div>
-        <div className="mt-1">
-          <StaircaseBar frac={timeFrac} />
-        </div>
+        <StaircaseBar frac={timeFrac} />
       </div>
       
-      {/* Heart Rate Zone - clickable */}
+      {/* HEART RATE - bottom: 6%, FONT_NUMBER_MILD: 62px */}
       <div 
-        className="absolute bottom-8 flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 cursor-pointer hover:opacity-80"
+        style={{ bottom: '6%' }}
         onClick={() => onZoneClick('hr')}
         data-testid="hr-zone"
       >
-        <HeartIcon />
-        <span className="text-4xl font-bold" style={{ color: mainColor }}>{heartRate}</span>
+        <span style={{ fontSize: '28px', color: mainColor }}>♥</span>
+        <span style={{ fontSize: '62px', fontWeight: 'bold', color: '#fff' }}>{heartRate}</span>
       </div>
     </div>
   );
 }
 
-// Settings View
+// ═══════════════════════════════════════════════════════════════
+// SETTINGS VIEW - per spec
+// ═══════════════════════════════════════════════════════════════
 function SettingsView({ state, onUpdate, onClose }) {
   const mainColor = COLOR_HEX[state.color];
+  const lang = state.lang;
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center p-4 overflow-hidden">
-      <h2 className="text-lg font-bold mb-2" style={{ color: mainColor }}>Settings</h2>
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* Title - top: 8%, FONT_SMALL: 34px */}
+      <div style={{ marginTop: '8%' }}>
+        <span style={{ fontSize: '34px', fontWeight: 'bold', color: mainColor }}>Settings</span>
+      </div>
       
-      <div className="w-full space-y-2 text-sm px-4">
+      {/* Settings list - centered at 48% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
+        style={{ top: '48%', width: '220px' }}
+      >
         {/* Language Row */}
         <div 
-          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
           onClick={() => onUpdate('showLangMenu', true)}
           data-testid="settings-language"
         >
-          <span className="text-white">Language</span>
-          <span className="text-gray-400">{LANG_NAMES_MENU[state.lang]} &gt;</span>
+          {/* FONT_TINY: 30px for labels */}
+          <span style={{ fontSize: '30px', color: '#fff' }}>Language</span>
+          {/* FONT_XTINY: 22px for values */}
+          <span style={{ fontSize: '22px', color: '#888' }}>{LANG_NAMES_MENU[lang]} &gt;</span>
         </div>
         
         {/* Name Row */}
         <div 
-          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
           onClick={() => onUpdate('showNameEntry', true)}
           data-testid="settings-name"
         >
-          <span className="text-white">Name</span>
-          <span className="text-gray-400">{state.userName || '-'} &gt;</span>
+          <span style={{ fontSize: '30px', color: '#fff' }}>Name</span>
+          <span style={{ fontSize: '22px', color: '#888' }}>{state.userName || '-'} &gt;</span>
         </div>
         
         {/* Color Row */}
         <div 
-          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
           onClick={() => onUpdate('showColorMenu', true)}
           data-testid="settings-color"
         >
-          <span className="text-white">Color</span>
+          <span style={{ fontSize: '30px', color: '#fff' }}>Color</span>
           <div className="flex items-center gap-2">
-            <div className="w-3 h-3 rounded-full" style={{ backgroundColor: mainColor }} />
-            <span className="text-gray-400">{COLOR_NAMES[state.color][0]} &gt;</span>
+            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: mainColor }} />
+            <span style={{ fontSize: '22px', color: '#888' }}>{COLOR_NAMES[state.color][0]} &gt;</span>
           </div>
         </div>
       </div>
       
+      {/* Save button - bottom: 5% */}
       <button 
-        className="mt-4 px-8 py-2 rounded-full font-bold text-black"
-        style={{ backgroundColor: mainColor }}
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ 
+          bottom: '5%',
+          fontSize: '26px',
+          fontWeight: 'bold',
+          backgroundColor: mainColor,
+          color: '#000',
+          padding: '8px 30px',
+          borderRadius: '20px',
+          border: 'none',
+          cursor: 'pointer'
+        }}
         onClick={onClose}
         data-testid="settings-save"
       >
-        Save
+        Save ✓
       </button>
     </div>
   );
 }
 
-// Language Menu
+// ═══════════════════════════════════════════════════════════════
+// LANGUAGE MENU - per spec
+// ═══════════════════════════════════════════════════════════════
 function LanguageMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center p-4 overflow-hidden">
-      <h2 className="text-lg font-bold mb-2" style={{ color: mainColor }}>Language</h2>
-      <div className="w-full space-y-1 text-sm px-4 overflow-y-auto max-h-[200px]">
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* Title - top: 8%, FONT_XTINY: 22px */}
+      <div style={{ marginTop: '8%' }}>
+        <span style={{ fontSize: '22px', color: mainColor }}>Language</span>
+      </div>
+      
+      {/* Language list - centered at 58% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-y-auto"
+        style={{ top: '58%', width: '200px', maxHeight: '180px', textAlign: 'center' }}
+      >
         {LANG_NAMES_MENU.map((name, i) => (
           <div 
             key={i}
-            className={`py-2 px-3 cursor-pointer rounded ${state.lang === i ? 'bg-gray-800' : 'hover:bg-gray-900'}`}
+            className="cursor-pointer border-b"
+            style={{ 
+              padding: '5px 0',
+              borderColor: '#333',
+              fontSize: '22px',
+              color: state.lang === i ? mainColor : '#888',
+              fontWeight: state.lang === i ? 'bold' : 'normal'
+            }}
             onClick={() => onSelect(i)}
             data-testid={`lang-option-${i}`}
           >
-            <span className="text-white">{name}</span>
+            {name}
           </div>
         ))}
       </div>
@@ -272,23 +323,52 @@ function LanguageMenu({ state, onSelect, onClose }) {
   );
 }
 
-// Color Menu
+// ═══════════════════════════════════════════════════════════════
+// COLOR MENU - per spec
+// ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
+  const lang = state.lang;
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center p-4 overflow-hidden">
-      <h2 className="text-lg font-bold mb-2" style={{ color: mainColor }}>Color</h2>
-      <div className="w-full space-y-1 text-sm px-4 overflow-y-auto max-h-[200px]">
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* Title - top: 5%, with underline */}
+      <div style={{ marginTop: '5%', borderBottom: `2px solid ${mainColor}`, paddingBottom: '4px' }}>
+        <span style={{ fontSize: '22px', color: mainColor }}>
+          {lang === 1 ? 'צבע' : 'Color'}
+        </span>
+      </div>
+      
+      {/* Color list - top: 22% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 overflow-y-auto"
+        style={{ top: '22%', width: '200px', maxHeight: '200px' }}
+      >
         {COLOR_NAMES.map((names, i) => (
           <div 
             key={i}
-            className={`py-2 px-3 cursor-pointer rounded flex items-center gap-2 ${state.color === i ? 'bg-gray-800' : 'hover:bg-gray-900'}`}
+            className="flex items-center gap-[10px] cursor-pointer"
+            style={{ 
+              padding: '5px 0',
+              fontSize: '24px',
+              color: '#fff',
+              backgroundColor: state.color === i ? 'rgba(255,255,255,0.1)' : 'transparent',
+              borderRadius: '5px',
+              paddingLeft: '10px'
+            }}
             onClick={() => onSelect(i)}
             data-testid={`color-option-${i}`}
           >
-            <div className="w-4 h-4 rounded-full" style={{ backgroundColor: COLOR_HEX[i] }} />
-            <span className="text-white">{names[0]}</span>
+            <div style={{ 
+              width: '14px', 
+              height: '14px', 
+              borderRadius: '50%', 
+              backgroundColor: COLOR_HEX[i] 
+            }} />
+            <span>{names[lang] || names[0]}</span>
           </div>
         ))}
       </div>
@@ -296,23 +376,46 @@ function ColorMenu({ state, onSelect, onClose }) {
   );
 }
 
-// Max HR Menu
+// ═══════════════════════════════════════════════════════════════
+// MAX HR MENU - per spec
+// ═══════════════════════════════════════════════════════════════
 function MaxHRMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
+  const lang = state.lang;
   const options = ['Auto', '50%', '55%', '60%', '65%', '70%', '75%', '80%', '85%', '90%'];
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center p-4 overflow-hidden">
-      <h2 className="text-lg font-bold mb-2" style={{ color: mainColor }}>Max HR</h2>
-      <div className="w-full space-y-1 text-sm px-4 overflow-y-auto max-h-[200px]">
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* Title - top: 5%, FONT_XTINY: 22px, white-space: nowrap */}
+      <div style={{ marginTop: '5%', whiteSpace: 'nowrap' }}>
+        <span style={{ fontSize: '22px', color: mainColor }}>{TR_MAX_HR[lang]}</span>
+      </div>
+      
+      {/* Options list - top: 22% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 overflow-y-auto"
+        style={{ top: '22%', width: '200px', maxHeight: '200px' }}
+      >
         {options.map((opt, i) => (
           <div 
             key={i}
-            className={`py-2 px-3 cursor-pointer rounded ${state.hrMode === i ? 'bg-gray-800' : 'hover:bg-gray-900'}`}
+            className="cursor-pointer text-center"
+            style={{ 
+              padding: '6px 20px',
+              fontSize: '24px',
+              color: '#fff',
+              backgroundColor: state.hrMode === i ? 'rgba(0, 255, 102, 0.3)' : 'transparent',
+              border: state.hrMode === i ? `2px solid ${mainColor}` : '2px solid transparent',
+              borderRadius: '5px',
+              marginBottom: '4px'
+            }}
             onClick={() => onSelect(i)}
             data-testid={`hr-option-${i}`}
           >
-            <span className="text-white">{opt}</span>
+            {state.hrMode === i ? '✓ ' : ''}{i === 0 ? TR_AUTO[lang] : opt}
           </div>
         ))}
       </div>
@@ -320,97 +423,174 @@ function MaxHRMenu({ state, onSelect, onClose }) {
   );
 }
 
-// Goal Picker (Distance)
+// ═══════════════════════════════════════════════════════════════
+// GOAL PICKER - per spec (arrows at top/bottom)
+// ═══════════════════════════════════════════════════════════════
 function GoalPicker({ state, type, onStart, onClose }) {
   const [goal, setGoal] = useState(type === 'distance' ? state.goalDist : state.goalTimeMin);
   const mainColor = COLOR_HEX[state.color];
-  const unit = type === 'distance' ? LANG_UNITS[state.lang] : 'min';
+  const lang = state.lang;
+  const unit = type === 'distance' ? LANG_UNITS[lang] : 'min';
   const min = type === 'distance' ? 1 : 10;
   const max = type === 'distance' ? 20 : 120;
   const step = type === 'distance' ? 1 : 10;
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center justify-center p-4">
-      <div className="flex items-center gap-4">
-        <div className="flex items-baseline gap-1">
-          <span className="text-5xl font-bold text-white">{goal}</span>
-          <span className="text-xl" style={{ color: mainColor }}>{unit}</span>
-        </div>
-        <div className="flex flex-col gap-2">
-          <button 
-            className="w-10 h-10 flex items-center justify-center"
-            onClick={() => setGoal(g => Math.min(max, g + step))}
-            data-testid="goal-up"
-          >
-            <div style={{ 
-              width: 0, height: 0, 
-              borderLeft: '12px solid transparent', 
-              borderRight: '12px solid transparent', 
-              borderBottom: `16px solid ${mainColor}` 
-            }} />
-          </button>
-          <button 
-            className="w-10 h-10 flex items-center justify-center"
-            onClick={() => setGoal(g => Math.max(min, g - step))}
-            data-testid="goal-down"
-          >
-            <div style={{ 
-              width: 0, height: 0, 
-              borderLeft: '12px solid transparent', 
-              borderRight: '12px solid transparent', 
-              borderTop: `16px solid ${mainColor}` 
-            }} />
-          </button>
-        </div>
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* UP Arrow - top: 5% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
+        style={{ top: '5%' }}
+        onClick={() => setGoal(g => Math.min(max, g + step))}
+        data-testid="goal-up"
+      >
+        <div style={{ 
+          width: 0, height: 0, 
+          borderLeft: '20px solid transparent', 
+          borderRight: '20px solid transparent', 
+          borderBottom: `25px solid ${mainColor}` 
+        }} />
       </div>
       
+      {/* Number + Unit - top: 24%, Unit on LEFT of number! */}
+      <div 
+        className="absolute left-[42%] -translate-x-1/2 flex items-baseline gap-2"
+        style={{ top: '24%', flexDirection: 'row-reverse' }}
+      >
+        {/* Number - 80px */}
+        <span style={{ fontSize: '80px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
+        {/* Unit - FONT_TINY: 30px */}
+        <span style={{ fontSize: '30px', color: mainColor }}>{unit}</span>
+      </div>
+      
+      {/* START button - top: 65% */}
       <button 
-        className="mt-6 px-12 py-3 rounded-full font-bold text-black text-lg"
-        style={{ backgroundColor: mainColor }}
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ 
+          top: '65%',
+          fontSize: '18px',
+          fontWeight: 'bold',
+          backgroundColor: mainColor,
+          color: '#000',
+          padding: '6px 25px',
+          borderRadius: '20px',
+          border: 'none',
+          cursor: 'pointer'
+        }}
         onClick={() => onStart(goal)}
         data-testid="goal-start"
       >
-        START
+        {TR_START[lang]}
       </button>
+      
+      {/* DOWN Arrow - bottom: 5% */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
+        style={{ bottom: '5%' }}
+        onClick={() => setGoal(g => Math.max(min, g - step))}
+        data-testid="goal-down"
+      >
+        <div style={{ 
+          width: 0, height: 0, 
+          borderLeft: '20px solid transparent', 
+          borderRight: '20px solid transparent', 
+          borderTop: `25px solid ${mainColor}` 
+        }} />
+      </div>
     </div>
   );
 }
 
-// Name Entry View
+// ═══════════════════════════════════════════════════════════════
+// NAME ENTRY VIEW - per spec (QWERTY reversed keyboard!)
+// ═══════════════════════════════════════════════════════════════
 function NameEntryView({ state, onSave, onClose }) {
   const [name, setName] = useState(state.userName || '');
   const mainColor = COLOR_HEX[state.color];
-  const keyboard = KEYBOARDS[state.lang];
-  const isRtl = state.lang === 1; // Hebrew
+  const lang = state.lang;
+  const keyboard = KEYBOARDS[lang];
+  const isRtl = lang === 1; // Hebrew
   
   return (
-    <div className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center p-3 overflow-hidden">
-      {/* Name field with checkmark */}
-      <div className="flex items-center w-[200px] h-8 border rounded mt-2" style={{ borderColor: mainColor }}>
+    <div 
+      className="relative bg-black overflow-hidden flex flex-col items-center"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+    >
+      {/* Title - top: 8%, FONT_XTINY: 22px, WHITE color */}
+      <div style={{ marginTop: '8%' }}>
+        <span style={{ fontSize: '22px', color: '#fff' }}>Name</span>
+      </div>
+      
+      {/* Input + Confirm - top: 38%, flex-direction: column, gap: 12px */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
+        style={{ top: '38%', gap: '12px' }}
+      >
+        {/* Input box - 150px × 35px */}
         <input 
-          className="flex-1 bg-transparent text-white text-center outline-none px-2"
+          className="text-center outline-none"
+          style={{ 
+            width: '150px', 
+            height: '35px', 
+            border: `2px solid ${mainColor}`,
+            backgroundColor: 'transparent',
+            color: '#fff',
+            fontSize: '18px',
+            borderRadius: '4px'
+          }}
           value={name}
           onChange={e => setName(e.target.value.slice(0, 12))}
           data-testid="name-input"
         />
+        
+        {/* Confirm button - 100px width (smaller than input!) */}
         <button 
-          className="h-full w-8 flex items-center justify-center text-black font-bold"
-          style={{ backgroundColor: mainColor }}
+          style={{ 
+            width: '100px',
+            padding: '6px 10px',
+            backgroundColor: mainColor,
+            color: '#000',
+            fontSize: '14px',
+            fontWeight: 'bold',
+            border: 'none',
+            borderRadius: '4px',
+            cursor: 'pointer'
+          }}
           onClick={() => onSave(name)}
           data-testid="name-save"
         >
-          V
+          ✓ Confirm
         </button>
       </div>
       
-      {/* Keyboard */}
-      <div className="mt-2 space-y-1" style={{ direction: isRtl ? 'rtl' : 'ltr' }}>
+      {/* Keyboard - top: 58%, width: 240px */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ top: '58%', width: '240px' }}
+      >
+        {/* Letter rows */}
         {keyboard.map((row, ri) => (
-          <div key={ri} className="flex justify-center gap-[2px]">
+          <div 
+            key={ri} 
+            className="flex justify-center"
+            style={{ gap: '4px', marginBottom: '4px', direction: isRtl ? 'rtl' : 'ltr' }}
+          >
             {row.map((key, ki) => (
               <button 
                 key={ki}
-                className="w-6 h-6 bg-gray-700 rounded text-white text-xs hover:bg-gray-600"
+                style={{ 
+                  width: '22px', 
+                  height: '22px', 
+                  fontSize: '12px',
+                  backgroundColor: '#333',
+                  color: '#fff',
+                  border: 'none',
+                  borderRadius: '2px',
+                  cursor: 'pointer'
+                }}
                 onClick={() => name.length < 12 && setName(n => n + key)}
                 data-testid={`key-${key}`}
               >
@@ -420,43 +600,104 @@ function NameEntryView({ state, onSave, onClose }) {
           </div>
         ))}
         
-        {/* Space and Backspace */}
-        <div className="flex justify-center gap-1 mt-1">
+        {/* Control row: ✓ | ␣ | ⌫ */}
+        <div className="flex justify-center" style={{ gap: '4px', marginTop: '4px' }}>
+          {/* Confirm key */}
           <button 
-            className="w-24 h-6 bg-gray-700 rounded text-white text-xs hover:bg-gray-600"
+            style={{ 
+              width: '34px', 
+              height: '22px', 
+              fontSize: '12px',
+              backgroundColor: '#444',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '2px',
+              cursor: 'pointer'
+            }}
+            onClick={() => onSave(name)}
+          >
+            ✓
+          </button>
+          
+          {/* Space key */}
+          <button 
+            style={{ 
+              width: '55px', 
+              height: '22px', 
+              fontSize: '12px',
+              backgroundColor: '#333',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '2px',
+              cursor: 'pointer'
+            }}
             onClick={() => name.length < 12 && setName(n => n + ' ')}
             data-testid="key-space"
           >
             ␣
           </button>
+          
+          {/* Backspace key */}
           <button 
-            className="w-12 h-6 bg-gray-700 rounded text-white text-xs hover:bg-gray-600"
+            style={{ 
+              width: '34px', 
+              height: '22px', 
+              fontSize: '12px',
+              backgroundColor: '#444',
+              color: '#fff',
+              border: 'none',
+              borderRadius: '2px',
+              cursor: 'pointer'
+            }}
             onClick={() => setName(n => n.slice(0, -1))}
             data-testid="key-backspace"
           >
-            ←
+            ⌫
           </button>
+          
+          {/* ABC/אבג toggle for Hebrew */}
+          {lang === 1 && (
+            <button 
+              style={{ 
+                width: '34px', 
+                height: '22px', 
+                fontSize: '10px',
+                backgroundColor: '#444',
+                color: '#fff',
+                border: 'none',
+                borderRadius: '2px',
+                cursor: 'pointer'
+              }}
+            >
+              ABC
+            </button>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// Alert View
+// ═══════════════════════════════════════════════════════════════
+// ALERT VIEW
+// ═══════════════════════════════════════════════════════════════
 function AlertView({ line1, line2, onDismiss }) {
   return (
     <div 
-      className="w-[280px] h-[280px] rounded-full bg-black flex flex-col items-center justify-center cursor-pointer"
+      className="relative bg-black flex flex-col items-center justify-center cursor-pointer"
+      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
       onClick={onDismiss}
       data-testid="alert-view"
     >
-      <span className="text-2xl font-bold text-white mb-4">{line1}</span>
-      <span className="text-lg text-gray-300">{line2}</span>
+      <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#fff', marginBottom: '16px' }}>{line1}</span>
+      <span style={{ fontSize: '20px', color: '#ccc' }}>{line2}</span>
     </div>
   );
 }
 
-// Main Simulator Component
+// ═══════════════════════════════════════════════════════════════
+// MAIN SIMULATOR COMPONENT
+// ═══════════════════════════════════════════════════════════════
 function FitBeatSimulator() {
   const [state, setState] = useState({
     lang: 0,
@@ -476,7 +717,7 @@ function FitBeatSimulator() {
     timeGoalShown: false,
   });
   
-  const [view, setView] = useState('main'); // main, settings, langMenu, colorMenu, hrMenu, distPicker, timePicker, nameEntry, alert
+  const [view, setView] = useState('main');
   const [alert, setAlert] = useState(null);
   const timerRef = useRef(null);
   
@@ -517,7 +758,7 @@ function FitBeatSimulator() {
             setView('alert');
           }
           
-          // Check goal completion
+          // Check goal completion - TIME RESETS!
           if (!s.timeGoalShown && newSec >= goalSec) {
             newState.timeGoalShown = true;
             newState.timeGoalActive = false;
@@ -561,7 +802,7 @@ function FitBeatSimulator() {
     });
   };
   
-  // Start distance goal
+  // Start distance goal - DOES NOT reset time!
   const startDistanceGoal = (goal) => {
     setState(s => {
       const newState = {
@@ -578,7 +819,7 @@ function FitBeatSimulator() {
     setView('main');
   };
   
-  // Start time goal
+  // Start time goal - DOES NOT reset distance!
   const startTimeGoal = (goal) => {
     setState(s => {
       const newState = {
@@ -614,7 +855,7 @@ function FitBeatSimulator() {
         setView('alert');
       }
       
-      // Check goal completion
+      // Check goal completion - DISTANCE CONTINUES!
       if (s.distGoalActive && !s.distGoalShown && newDist >= goalCm) {
         newState.distGoalShown = true;
         setAlert({ 
@@ -622,7 +863,6 @@ function FitBeatSimulator() {
           line2: TR_GOAL_DONE_LINE2[s.lang]
         });
         setView('alert');
-        // Distance continues! No reset!
       }
       
       saveState(newState);
@@ -653,8 +893,8 @@ function FitBeatSimulator() {
     setView('main');
   };
   
+  // Simulate app exit - Time RESETS, Distance PERSISTS!
   const simulateExit = () => {
-    // On exit: Time resets, Distance persists!
     setState(s => {
       const newState = {
         ...s,
@@ -695,7 +935,7 @@ function FitBeatSimulator() {
 
   return (
     <div className="min-h-screen bg-gray-900 flex flex-col items-center py-8">
-      <h1 className="text-3xl font-bold text-white mb-2">🎽 FitBeat v4.3.2 Simulator</h1>
+      <h1 className="text-3xl font-bold text-white mb-2">🏃 FitBeat v4.3.2 Simulator</h1>
       <p className="text-gray-400 mb-6">Garmin Fenix 8 Solar 51mm (280×280px)</p>
       
       {/* Watch Display */}
@@ -717,48 +957,12 @@ function FitBeatSimulator() {
       <div className="bg-gray-800 rounded-lg p-4 w-[400px]">
         <h3 className="text-white font-bold mb-3">🧪 Test Controls</h3>
         <div className="grid grid-cols-3 gap-2">
-          <button 
-            className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm"
-            onClick={resetAll}
-            data-testid="btn-reset"
-          >
-            🔄 Reset
-          </button>
-          <button 
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm"
-            onClick={() => addDistance(50000)}
-            data-testid="btn-add-500m"
-          >
-            +500m
-          </button>
-          <button 
-            className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm"
-            onClick={() => addDistance(100000)}
-            data-testid="btn-add-1km"
-          >
-            +1km
-          </button>
-          <button 
-            className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded text-sm"
-            onClick={() => setState(s => ({ ...s, elapsedWalkSec: s.elapsedWalkSec + 30 }))}
-            data-testid="btn-add-30s"
-          >
-            +30s
-          </button>
-          <button 
-            className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm"
-            onClick={simulateExit}
-            data-testid="btn-exit"
-          >
-            🚪 Exit App
-          </button>
-          <button 
-            className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm"
-            onClick={() => setView('main')}
-            data-testid="btn-back"
-          >
-            ⬅️ Back
-          </button>
+          <button className="bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded text-sm" onClick={resetAll} data-testid="btn-reset">🔄 Reset</button>
+          <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm" onClick={() => addDistance(50000)} data-testid="btn-add-500m">+500m</button>
+          <button className="bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded text-sm" onClick={() => addDistance(100000)} data-testid="btn-add-1km">+1km</button>
+          <button className="bg-yellow-600 hover:bg-yellow-700 text-white px-3 py-2 rounded text-sm" onClick={() => setState(s => ({ ...s, elapsedWalkSec: s.elapsedWalkSec + 30 }))} data-testid="btn-add-30s">+30s</button>
+          <button className="bg-red-600 hover:bg-red-700 text-white px-3 py-2 rounded text-sm" onClick={simulateExit} data-testid="btn-exit">🚪 Exit App</button>
+          <button className="bg-purple-600 hover:bg-purple-700 text-white px-3 py-2 rounded text-sm" onClick={() => setView('main')} data-testid="btn-back">⬅️ Back</button>
         </div>
         
         {/* Current State Debug */}
@@ -784,7 +988,7 @@ function FitBeatSimulator() {
         
         <div className="mt-4 p-3 bg-gray-900 rounded text-xs text-gray-400 font-mono">
           <p className="text-yellow-400 mb-1">🔨 Build Command (CMD):</p>
-          <code className="text-green-400 break-all">
+          <code className="text-green-400 break-all text-[10px]">
             cd "C:\Users\gabbyc\Desktop\fitbeat\fitbeat"<br/>
             java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-5122605dc\bin\monkeybrains.jar" -o FitBeat.prg -f monkey.jungle -y developer_key.der -d fenix8solar51mm
           </code>
@@ -800,8 +1004,8 @@ function FitBeatSimulator() {
           <li>✅ Distance goal doesn't reset time</li>
           <li>✅ 50% alerts (🎈) and completion alerts (👏)</li>
           <li>✅ All icons change to selected color</li>
-          <li>✅ Language-specific keyboard (Hebrew/English/Spanish/French/German/Chinese)</li>
-          <li>✅ Garmin Menu2 for settings</li>
+          <li>✅ QWERTY reversed keyboard (P-Q on top)</li>
+          <li>✅ 6 languages with native keyboards</li>
           <li>✅ On exit: Time resets, Distance persists</li>
         </ul>
       </div>
