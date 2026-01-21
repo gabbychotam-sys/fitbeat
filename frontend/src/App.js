@@ -361,13 +361,14 @@ function LanguageMenu({ state, onSelect, onClose }) {
 
 // ═══════════════════════════════════════════════════════════════
 // COLOR MENU - each color name displayed in its own color!
-// With scroll support for all 10 colors
+// Swipe scrolling (no arrows), centered layout
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
   const [scrollOffset, setScrollOffset] = useState(0);
   const visibleItems = 5;
+  const containerRef = useRef(null);
   
   // Translations for "Color" title
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
@@ -375,19 +376,39 @@ function ColorMenu({ state, onSelect, onClose }) {
   // Start with current color visible
   useEffect(() => {
     if (state.color > 4) {
-      setScrollOffset(state.color - 4);
+      setScrollOffset(Math.min(state.color - 2, 5)); // Center current color
     }
   }, [state.color]);
   
-  const scrollUp = () => {
-    if (scrollOffset > 0) {
+  // Handle wheel/scroll
+  const handleWheel = (e) => {
+    e.preventDefault();
+    if (e.deltaY > 0 && scrollOffset + visibleItems < 10) {
+      setScrollOffset(scrollOffset + 1);
+    } else if (e.deltaY < 0 && scrollOffset > 0) {
       setScrollOffset(scrollOffset - 1);
     }
   };
   
-  const scrollDown = () => {
-    if (scrollOffset + visibleItems < 10) {
-      setScrollOffset(scrollOffset + 1);
+  // Touch handling for swipe
+  const [touchStart, setTouchStart] = useState(null);
+  
+  const handleTouchStart = (e) => {
+    setTouchStart(e.touches[0].clientY);
+  };
+  
+  const handleTouchMove = (e) => {
+    if (!touchStart) return;
+    const touchEnd = e.touches[0].clientY;
+    const diff = touchStart - touchEnd;
+    
+    if (Math.abs(diff) > 30) { // Threshold for swipe
+      if (diff > 0 && scrollOffset + visibleItems < 10) {
+        setScrollOffset(scrollOffset + 1);
+      } else if (diff < 0 && scrollOffset > 0) {
+        setScrollOffset(scrollOffset - 1);
+      }
+      setTouchStart(touchEnd);
     }
   };
   
@@ -398,71 +419,70 @@ function ColorMenu({ state, onSelect, onClose }) {
     <div 
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+      onWheel={handleWheel}
+      onTouchStart={handleTouchStart}
+      onTouchMove={handleTouchMove}
+      ref={containerRef}
     >
-      {/* Title - translated to selected language */}
-      <div style={{ marginTop: '5%', borderBottom: `2px solid ${mainColor}`, paddingBottom: '4px' }}>
+      {/* Title - centered */}
+      <div style={{ marginTop: '8%', borderBottom: `2px solid ${mainColor}`, paddingBottom: '4px' }}>
         <span style={{ fontSize: '22px', color: mainColor }}>
           {TR_COLOR_TITLE[lang]}
         </span>
       </div>
       
-      {/* Scroll up indicator */}
-      {scrollOffset > 0 && (
-        <div 
-          className="absolute cursor-pointer"
-          style={{ top: '15%', left: '50%', transform: 'translateX(-50%)' }}
-          onClick={scrollUp}
-          data-testid="color-scroll-up"
-        >
-          <span style={{ fontSize: '20px', color: mainColor }}>▲</span>
-        </div>
-      )}
-      
-      {/* Color list - each color name in its own color! */}
+      {/* Color list - centered, swipe to scroll */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2"
-        style={{ top: '22%', width: '200px' }}
+        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
+        style={{ top: '20%', width: '220px' }}
       >
         {visibleColors.map((names, i) => {
           const actualIndex = i + scrollOffset;
           return (
             <div 
               key={actualIndex}
-              className="flex items-center gap-[10px] cursor-pointer"
+              className="flex items-center justify-center gap-[12px] cursor-pointer w-full"
               style={{ 
-                padding: '5px 0',
+                padding: '6px 0',
                 fontSize: '24px',
                 backgroundColor: state.color === actualIndex ? 'rgba(255,255,255,0.15)' : 'transparent',
-                borderRadius: '5px',
-                paddingLeft: '10px'
+                borderRadius: '8px',
               }}
               onClick={() => onSelect(actualIndex)}
               data-testid={`color-option-${actualIndex}`}
             >
               <div style={{ 
-                width: '14px', 
-                height: '14px', 
+                width: '16px', 
+                height: '16px', 
                 borderRadius: '50%', 
                 backgroundColor: COLOR_HEX[actualIndex] 
               }} />
-              {/* Color name in its own color! */}
-              <span style={{ color: COLOR_HEX[actualIndex] }}>{names[lang] || names[0]}</span>
+              {/* Color name in its own color - centered */}
+              <span style={{ color: COLOR_HEX[actualIndex], minWidth: '80px', textAlign: 'center' }}>
+                {names[lang] || names[0]}
+              </span>
             </div>
           );
         })}
       </div>
       
-      {/* Scroll down indicator */}
-      {scrollOffset + visibleItems < 10 && (
-        <div 
-          className="absolute cursor-pointer"
-          style={{ bottom: '8%', left: '50%', transform: 'translateX(-50%)' }}
-          onClick={scrollDown}
-          data-testid="color-scroll-down"
-        >
-          <span style={{ fontSize: '20px', color: mainColor }}>▼</span>
-        </div>
-      )}
+      {/* Scroll indicator dots at bottom */}
+      <div 
+        className="absolute flex gap-1"
+        style={{ bottom: '8%', left: '50%', transform: 'translateX(-50%)' }}
+      >
+        {[0, 1, 2, 3, 4, 5].map((i) => (
+          <div 
+            key={i}
+            style={{
+              width: '6px',
+              height: '6px',
+              borderRadius: '50%',
+              backgroundColor: i === Math.floor(scrollOffset / 2) ? mainColor : '#444'
+            }}
+          />
+        ))}
+      </div>
     </div>
   );
 }
