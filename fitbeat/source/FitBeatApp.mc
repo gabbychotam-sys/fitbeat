@@ -173,6 +173,7 @@ var TR_HRHIGH2 = ["Slow down", "האט", "Reduce", "Ralentis", "Langsamer", "减
 // New full-screen messages
 var TR_WELL_DONE = ["Well done", "כל הכבוד", "¡Bien hecho!", "Bravo", "Gut gemacht", "干得好"];
 var TR_HALF_WAY = ["Halfway there", "עברת חצי מהדרך", "A mitad de camino", "À mi-chemin", "Halb geschafft", "到一半了"];
+var TR_KEEP_GOING = ["Keep going!", "המשך!", "¡Sigue!", "Continue!", "Weiter!", "继续!"];
 var TR_GOAL_DONE_LINE1 = ["Great job", "יפה מאוד", "Excelente", "Super", "Sehr gut", "太棒了"];
 var TR_GOAL_DONE_LINE2 = ["Goal completed", "סיימת את היעד", "Objetivo completado", "Objectif atteint", "Ziel erreicht", "完成目标"];
 var TR_REST_NOW = ["Take a rest", "תנוח קצת", "Descansa", "Repose-toi", "Mach eine Pause", "休息一下"];
