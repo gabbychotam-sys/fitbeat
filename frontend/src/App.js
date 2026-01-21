@@ -361,8 +361,7 @@ function LanguageMenu({ state, onSelect, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COLOR MENU - each color name displayed in its own color!
-// Swipe/drag scrolling (no arrows), centered layout
+// COLOR MENU - Custom View (NO scrollbar!) BIGGER & CENTERED
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
@@ -376,8 +375,8 @@ function ColorMenu({ state, onSelect, onClose }) {
   
   // Start with current color visible
   useEffect(() => {
-    if (state.color > 4) {
-      setScrollOffset(Math.min(state.color - 2, 5)); // Center current color
+    if (state.color > 2) {
+      setScrollOffset(Math.min(state.color - 2, 5));
     } else {
       setScrollOffset(0);
     }
@@ -418,7 +417,7 @@ function ColorMenu({ state, onSelect, onClose }) {
     const diff = dragStartY - e.clientY;
     const newAccum = dragAccum + diff;
     
-    if (Math.abs(newAccum) > 40) { // Threshold for scroll
+    if (Math.abs(newAccum) > 40) {
       if (newAccum > 0 && scrollOffset + visibleItems < 10) {
         setScrollOffset(prev => Math.min(prev + 1, 5));
       } else if (newAccum < 0 && scrollOffset > 0) {
@@ -437,28 +436,6 @@ function ColorMenu({ state, onSelect, onClose }) {
     setDragAccum(0);
   };
   
-  // Touch handling for swipe
-  const [touchStart, setTouchStart] = useState(null);
-  
-  const handleTouchStart = (e) => {
-    setTouchStart(e.touches[0].clientY);
-  };
-  
-  const handleTouchMove = (e) => {
-    if (!touchStart) return;
-    const touchEnd = e.touches[0].clientY;
-    const diff = touchStart - touchEnd;
-    
-    if (Math.abs(diff) > 30) { // Threshold for swipe
-      if (diff > 0 && scrollOffset + visibleItems < 10) {
-        setScrollOffset(prev => Math.min(prev + 1, 5));
-      } else if (diff < 0 && scrollOffset > 0) {
-        setScrollOffset(prev => Math.max(prev - 1, 0));
-      }
-      setTouchStart(touchEnd);
-    }
-  };
-  
   // Get visible colors based on scroll offset
   const visibleColors = COLOR_NAMES.slice(scrollOffset, scrollOffset + visibleItems);
   
@@ -470,53 +447,49 @@ function ColorMenu({ state, onSelect, onClose }) {
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
       onMouseLeave={handleMouseUp}
-      onTouchStart={handleTouchStart}
-      onTouchMove={handleTouchMove}
       ref={containerRef}
     >
-      {/* Title - centered */}
-      <div style={{ marginTop: '8%', borderBottom: `2px solid ${mainColor}`, paddingBottom: '4px' }}>
-        <span style={{ fontSize: '22px', color: mainColor }}>
+      {/* Title - centered at top */}
+      <div style={{ marginTop: '8%' }}>
+        <span style={{ fontSize: '24px', color: mainColor, fontWeight: 'bold' }}>
           {TR_COLOR_TITLE[lang]}
         </span>
       </div>
       
-      {/* Color list - centered, swipe to scroll */}
+      {/* Color list - BIGGER items, NO scrollbar */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
-        style={{ top: '18%', width: '220px' }}
+        style={{ top: '18%', width: '240px' }}
       >
         {visibleColors.map((names, i) => {
           const actualIndex = i + scrollOffset;
           return (
             <div 
               key={actualIndex}
-              className="flex items-center justify-center gap-[12px] cursor-pointer w-full"
+              className="flex items-center justify-center gap-[14px] cursor-pointer w-full"
               style={{ 
-                padding: '4px 0',
-                fontSize: '22px',
+                padding: '6px 0',
+                fontSize: '26px',
                 backgroundColor: state.color === actualIndex ? 'rgba(255,255,255,0.15)' : 'transparent',
-                borderRadius: '8px',
+                borderRadius: '10px',
               }}
               onClick={() => onSelect(actualIndex)}
               data-testid={`color-option-${actualIndex}`}
             >
               <div style={{ 
-                width: '14px', 
-                height: '14px', 
+                width: '20px', 
+                height: '20px', 
                 borderRadius: '50%', 
                 backgroundColor: COLOR_HEX[actualIndex] 
               }} />
-              {/* Color name in its own color - centered */}
-              <span style={{ color: COLOR_HEX[actualIndex], minWidth: '80px', textAlign: 'center' }}>
+              {/* Color name in its own color - BIGGER */}
+              <span style={{ color: COLOR_HEX[actualIndex], minWidth: '90px', textAlign: 'center', fontWeight: '500' }}>
                 {names[lang] || names[0]}
               </span>
             </div>
           );
         })}
       </div>
-      
-      {/* No scroll indicator dots - clean design with finger scrolling */}
     </div>
   );
 }
