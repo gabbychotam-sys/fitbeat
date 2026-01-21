@@ -168,10 +168,10 @@ function WatchDisplay({ state, onZoneClick }) {
         </span>
       </div>
       
-      {/* DISTANCE + TIME BARS - centered at 46% (moved up a bit) */}
+      {/* DISTANCE + TIME BARS - centered at 52% (moved down to be closer together) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: '46%', width: '220px' }}
+        style={{ top: '52%', width: '220px' }}
         onClick={() => onZoneClick('distance')}
         data-testid="distance-zone"
       >
@@ -187,9 +187,9 @@ function WatchDisplay({ state, onZoneClick }) {
         </div>
         <StaircaseBar frac={distFrac} />
         
-        {/* Time row */}
+        {/* Time row - closer to distance (mt-1 instead of mt-2) */}
         <div 
-          className="flex items-center justify-between mt-2 mb-1 cursor-pointer"
+          className="flex items-center justify-between mt-1 mb-1 cursor-pointer"
           onClick={(e) => { e.stopPropagation(); onZoneClick('timeGoal'); }}
           data-testid="time-goal-zone"
         >
