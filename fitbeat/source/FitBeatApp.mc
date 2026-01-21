@@ -920,13 +920,13 @@ class ColorMenuView extends WatchUi.View {
 class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
     function initialize() { BehaviorDelegate.initialize(); }
     
-    // Handle swipe for scrolling
+    // Handle swipe for scrolling - BIGGER scroll amount!
     function onSwipe(swipeEvent) {
         var view = WatchUi.getCurrentView()[0];
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
         
         var direction = swipeEvent.getDirection();
-        var scrollAmount = 60;  // Pixels to scroll per swipe
+        var scrollAmount = 100;  // Scroll one full item per swipe!
         
         // SWIPE_UP means finger moves up = scroll DOWN (see more below)
         if (direction == WatchUi.SWIPE_UP) {
@@ -960,17 +960,17 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
         return false;
     }
     
-    // Handle physical buttons
+    // Handle physical buttons - scroll full item
     function onKey(keyEvent) {
         var view = WatchUi.getCurrentView()[0];
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
         
         var key = keyEvent.getKey();
         if (key == WatchUi.KEY_DOWN) {
-            view.scroll(48);
+            view.scroll(50);  // One item
             return true;
         } else if (key == WatchUi.KEY_UP) {
-            view.scroll(-48);
+            view.scroll(-50);  // One item
             return true;
         }
         return false;
