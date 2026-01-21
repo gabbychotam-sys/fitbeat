@@ -611,7 +611,7 @@ class SettingsView extends WatchUi.View {
         var valueStr3 = colorName + " >";
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(padSide, y, itemFont, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(padSide, y, itemFont, TR_COLOR[lang], Graphics.TEXT_JUSTIFY_LEFT);
 
         // Color dot
         var textW2 = dc.getTextWidthInPixels(valueStr3, valueFont);
@@ -693,7 +693,7 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
 
         // Color
         if (colorZone != null && tapY >= colorZone[0] && tapY <= colorZone[1]) {
-            WatchUi.pushView(new ColorMenu(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
+            WatchUi.pushView(new ColorMenuView(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
             return true;
         }
 
@@ -926,10 +926,13 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
     }
 }
 
+// Translation for Max HR title
+var TR_MAX_HR_TITLE = ["Max HR", "דופק מקס", "FC Máx", "FC Max", "Max HF", "最大心率"];
+
 class MaxHRMenu extends WatchUi.Menu2 {
     function initialize() {
-        Menu2.initialize({:title => "Max HR"});
-        addItem(new WatchUi.MenuItem(TR_AUTO[0], null, 0, null));
+        Menu2.initialize({:title => TR_MAX_HR_TITLE[getLang()]});
+        addItem(new WatchUi.MenuItem(TR_AUTO[getLang()], null, 0, null));
         var pcts = [50, 55, 60, 65, 70, 75, 80, 85, 90];
         for (var i = 0; i < pcts.size(); i++) {
             addItem(new WatchUi.MenuItem(pcts[i].toString() + "%", null, i + 1, null));
