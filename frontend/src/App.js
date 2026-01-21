@@ -94,34 +94,51 @@ function WatchDisplay({ state, onZoneClick }) {
     return () => clearInterval(interval);
   }, []);
 
-  // Staircase bar component (RTL - right to left, big to small)
+  // Staircase bar component (RTL - RIGHT to LEFT: tallest on RIGHT, shortest on LEFT)
+  // Progress fills from RIGHT to LEFT
   const StaircaseBar = ({ frac }) => {
-    const filled = Math.ceil(frac * 5);
-    const heights = [100, 80, 60, 40, 20]; // RTL: tallest on right
+    const segCount = 5;
+    const filled = Math.ceil(frac * segCount);
+    // Heights: index 0 = leftmost (shortest), index 4 = rightmost (tallest)
+    const heights = [20, 40, 60, 80, 100];
+    
     return (
-      <div className="flex gap-[3px] h-[8px] items-end justify-end" style={{ width: '220px' }}>
-        {heights.map((h, i) => (
-          <div
-            key={i}
-            className="flex-1 rounded-sm transition-colors"
-            style={{
-              height: `${h}%`,
-              backgroundColor: i < filled ? mainColor : '#333',
-            }}
-          />
-        ))}
+      <div className="flex gap-[4px] h-[12px] items-end" style={{ width: '220px', direction: 'ltr' }}>
+        {heights.map((h, i) => {
+          // Fill from RIGHT to LEFT: segment 4 fills first, then 3, 2, 1, 0
+          const segmentIndex = segCount - 1 - i; // reverse index for fill check
+          const isFilled = segmentIndex < filled;
+          
+          return (
+            <div
+              key={i}
+              className="flex-1 rounded-sm transition-colors"
+              style={{
+                height: `${h}%`,
+                backgroundColor: isFilled ? mainColor : '#444',
+              }}
+            />
+          );
+        })}
       </div>
     );
   };
 
-  // Runner icon 🏃
+  // Runner icon 🏃 - SVG that uses mainColor
   const RunnerIcon = () => (
-    <span style={{ color: mainColor, fontSize: '24px' }}>🏃</span>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill={mainColor}>
+      <circle cx="14" cy="4" r="2.5"/>
+      <path d="M16.5 7.5l-3 3-2-2-4 4 1.5 1.5 2.5-2.5 2 2 4.5-4.5z"/>
+      <path d="M8 14l-2 8h2.5l1.5-6 2 2v4h2.5v-6l-3-3-1-4"/>
+    </svg>
   );
 
-  // Clock icon ⏱️
+  // Clock icon ⏱️ - SVG that uses mainColor
   const ClockIcon = () => (
-    <span style={{ color: mainColor, fontSize: '24px' }}>⏱️</span>
+    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={mainColor} strokeWidth="2">
+      <circle cx="12" cy="12" r="9"/>
+      <path d="M12 6v6l4 2"/>
+    </svg>
   );
 
   return (
