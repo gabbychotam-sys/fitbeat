@@ -803,25 +803,121 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
     }
 }
 
-class ColorMenu extends WatchUi.Menu2 {
+// ╔════════════════════════════════════════════════════════════════╗
+// ║  COLOR MENU - Custom View with colored text!                   ║
+// ║  Title translated to selected language                         ║
+// ╚════════════════════════════════════════════════════════════════╝
+
+// Translations for "Color" title
+var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
+
+class ColorMenuView extends WatchUi.View {
+    var mScrollOffset = 0;
+    var mSelectedIndex = 0;
+    
     function initialize() {
-        Menu2.initialize({:title => "Color"});
-        for (var i = 0; i < 10; i++) {
-            addItem(new WatchUi.MenuItem(COLOR_NAMES[i][0], null, i, null));
+        View.initialize();
+        mSelectedIndex = getColorIndex();
+    }
+    
+    function onUpdate(dc) {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var lang = getLang();
+        var currentColor = getMainColor();
+        
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.clear();
+        
+        // Title - translated!
+        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, h / 12, Graphics.FONT_SMALL, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
+        
+        // Draw color list with each color in its own color!
+        var itemH = h / 7;
+        var startY = h / 5;
+        var visibleItems = 5;
+        
+        for (var i = 0; i < 10 && i < visibleItems + mScrollOffset; i++) {
+            var idx = i + mScrollOffset;
+            if (idx >= 10) { break; }
+            
+            var y = startY + (i * itemH);
+            if (y > h - itemH) { break; }
+            
+            // Highlight selected item
+            if (idx == mSelectedIndex) {
+                dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+                dc.fillRectangle(w / 6, y - 2, w * 2 / 3, itemH - 4);
+            }
+            
+            // Draw color dot
+            dc.setColor(COLOR_HEX[idx], COLOR_HEX[idx]);
+            dc.fillCircle(w / 5, y + itemH / 3, h / 30);
+            
+            // Draw color name in its own color!
+            dc.setColor(COLOR_HEX[idx], Graphics.COLOR_TRANSPARENT);
+            dc.drawText(w / 3, y, Graphics.FONT_SMALL, COLOR_NAMES[idx][lang], Graphics.TEXT_JUSTIFY_LEFT);
+        }
+    }
+    
+    function getSelectedIndex() { return mSelectedIndex; }
+    
+    function scrollUp() {
+        if (mSelectedIndex > 0) {
+            mSelectedIndex--;
+            if (mSelectedIndex < mScrollOffset) {
+                mScrollOffset = mSelectedIndex;
+            }
+            WatchUi.requestUpdate();
+        }
+    }
+    
+    function scrollDown() {
+        if (mSelectedIndex < 9) {
+            mSelectedIndex++;
+            if (mSelectedIndex > mScrollOffset + 4) {
+                mScrollOffset = mSelectedIndex - 4;
+            }
+            WatchUi.requestUpdate();
         }
     }
 }
 
-class ColorMenuDelegate extends WatchUi.Menu2InputDelegate {
-    function initialize() { Menu2InputDelegate.initialize(); }
+class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
+    function initialize() { BehaviorDelegate.initialize(); }
     
-    function onSelect(item) {
-        Application.Storage.setValue("color", item.getId());
+    function onSelect() {
+        var view = WatchUi.getCurrentView()[0];
+        if (view != null && view instanceof ColorMenuView) {
+            var idx = view.getSelectedIndex();
+            Application.Storage.setValue("color", idx);
+        }
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         WatchUi.requestUpdate();
+        return true;
     }
     
-    function onBack() { WatchUi.popView(WatchUi.SLIDE_RIGHT); }
+    function onNextPage() {
+        var view = WatchUi.getCurrentView()[0];
+        if (view != null && view instanceof ColorMenuView) {
+            view.scrollDown();
+        }
+        return true;
+    }
+    
+    function onPreviousPage() {
+        var view = WatchUi.getCurrentView()[0];
+        if (view != null && view instanceof ColorMenuView) {
+            view.scrollUp();
+        }
+        return true;
+    }
+    
+    function onBack() { 
+        WatchUi.popView(WatchUi.SLIDE_RIGHT); 
+        return true;
+    }
 }
 
 class MaxHRMenu extends WatchUi.Menu2 {
