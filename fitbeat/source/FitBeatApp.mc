@@ -818,234 +818,103 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
 }
 
 // ╔════════════════════════════════════════════════════════════════╗
-// ║  COLOR MENU - Custom View with FAST SMOOTH scrolling           ║
-// ║  Uses Timer at 25ms for faster animation + larger fonts        ║
+// ║  COLOR MENU - Using CustomMenu for NATIVE smooth scrolling!    ║
+// ║  CustomMenu inherits Menu2 scrolling + allows custom drawing   ║
 // ╚════════════════════════════════════════════════════════════════╝
 
 // Translations for "Color" title
 var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 
-// Global reference to ColorMenuView for delegate access
-var gColorMenuView = null;
-
-class ColorMenuView extends WatchUi.View {
-    var mScrollOffset = 0;    // Current pixel offset
-    var mTargetOffset = 0;    // Target offset for animation
-    var mItemHeight = 56;     // Height per item (larger for bigger fonts)
-    var mTitleHeight = 48;    // Fixed title area
-    var mVisibleHeight = 232; // 280 - 48 = visible area for items
-    var mTotalHeight = 560;   // 10 items * 56px
-    var mMaxOffset = 328;     // mTotalHeight - mVisibleHeight
-    var mAnimTimer = null;    // Animation timer
-    var mAnimSpeed = 14;      // Pixels per frame (faster animation)
+// Custom color menu item - draws color circle + colored text
+class ColorMenuItem extends WatchUi.CustomMenuItem {
+    var mColorIndex;
+    var mColorHex;
+    var mColorName;
     
-    function initialize() {
-        View.initialize();
-        gColorMenuView = self;
-        
-        // Start with current color visible
-        var currentIdx = getColorIndex();
-        if (currentIdx > 1) {
-            mScrollOffset = (currentIdx - 1) * mItemHeight;
-            if (mScrollOffset > mMaxOffset) {
-                mScrollOffset = mMaxOffset;
-            }
-        }
-        mTargetOffset = mScrollOffset;
-        
-        // Create animation timer
-        mAnimTimer = new Timer.Timer();
+    function initialize(colorIndex) {
+        CustomMenuItem.initialize(colorIndex, {});
+        mColorIndex = colorIndex;
+        mColorHex = COLOR_HEX[colorIndex];
+        mColorName = COLOR_NAMES[colorIndex][getLang()];
     }
     
-    function onUpdate(dc) {
+    // Draw the menu item - called by CustomMenu
+    function draw(dc) {
+        var w = dc.getWidth();
+        var h = dc.getHeight();
+        var centerY = h / 2;
+        var currentIdx = getColorIndex();
+        
+        // Background - highlight if selected
+        if (mColorIndex == currentIdx) {
+            dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+            dc.fillRectangle(0, 0, w, h);
+        }
+        
+        // Color circle on left
+        var circleX = w / 5;
+        var circleR = 14;
+        dc.setColor(mColorHex, mColorHex);
+        dc.fillCircle(circleX, centerY, circleR);
+        
+        // Color name in its own color - LARGE font
+        dc.setColor(mColorHex, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 3 + 10, centerY, Graphics.FONT_LARGE, mColorName, 
+                    Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+    }
+}
+
+// Title drawable for CustomMenu
+class ColorMenuTitle extends WatchUi.Drawable {
+    function initialize() {
+        Drawable.initialize({});
+    }
+    
+    function draw(dc) {
         var w = dc.getWidth();
         var h = dc.getHeight();
         var lang = getLang();
-        var currentColor = getMainColor();
-        var currentIdx = getColorIndex();
+        var color = getMainColor();
         
-        // Clamp scroll offset
-        if (mScrollOffset > mMaxOffset) { mScrollOffset = mMaxOffset; }
-        if (mScrollOffset < 0) { mScrollOffset = 0; }
-        
-        // Clear background
+        // Black background
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.clear();
+        dc.fillRectangle(0, 0, w, h);
         
-        // ═══ DRAW ITEMS (below title area) ═══
-        var startY = mTitleHeight - mScrollOffset;
-        
-        for (var i = 0; i < 10; i++) {
-            var y = startY + (i * mItemHeight);
-            var centerY = y + mItemHeight / 2;
-            
-            // Skip items above visible area
-            if (y + mItemHeight < mTitleHeight) { continue; }
-            // Stop at bottom of screen
-            if (y > h) { break; }
-            
-            // Only draw if center is in visible area
-            if (centerY > mTitleHeight && centerY < h) {
-                // Highlight current selected color
-                if (i == currentIdx) {
-                    dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-                    dc.fillRoundedRectangle(w / 10, y + 4, w * 4 / 5, mItemHeight - 8, 8);
-                }
-                
-                // Draw color circle - BIGGER
-                var circleX = w / 4;
-                var circleR = 14;
-                dc.setColor(COLOR_HEX[i], COLOR_HEX[i]);
-                dc.fillCircle(circleX, centerY, circleR);
-                
-                // Draw color name - LARGER FONT (FONT_LARGE instead of FONT_MEDIUM)
-                dc.setColor(COLOR_HEX[i], Graphics.COLOR_TRANSPARENT);
-                dc.drawText(w / 2, centerY, Graphics.FONT_LARGE, COLOR_NAMES[i][lang], 
-                            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
-            }
-        }
-        
-        // ═══ DRAW FIXED TITLE (on top) ═══
-        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
-        dc.fillRectangle(0, 0, w, mTitleHeight);
-        
-        // Title text - LARGER
-        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, mTitleHeight / 2, Graphics.FONT_LARGE, TR_COLOR_TITLE[lang], 
+        // Title text in selected color
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, h / 2, Graphics.FONT_LARGE, TR_COLOR_TITLE[lang], 
                     Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        
-        // Divider line under title
-        dc.setColor(currentColor, currentColor);
-        dc.drawLine(w / 6, mTitleHeight - 2, w * 5 / 6, mTitleHeight - 2);
     }
-    
-    // Animation timer callback - fast smooth scrolling
-    function onAnimTimer() {
-        var diff = mTargetOffset - mScrollOffset;
+}
+
+// The CustomMenu for colors - native smooth scrolling!
+class ColorMenu extends WatchUi.CustomMenu {
+    function initialize() {
+        var titleDrawable = new ColorMenuTitle();
+        CustomMenu.initialize(60, Graphics.COLOR_BLACK, {:title => titleDrawable, :titleItemHeight => 50});
         
-        if (diff > 0) {
-            // Scrolling down
-            if (diff > mAnimSpeed) {
-                mScrollOffset = mScrollOffset + mAnimSpeed;
-            } else {
-                mScrollOffset = mTargetOffset;
-            }
-        } else if (diff < 0) {
-            // Scrolling up
-            if (diff < -mAnimSpeed) {
-                mScrollOffset = mScrollOffset - mAnimSpeed;
-            } else {
-                mScrollOffset = mTargetOffset;
-            }
-        }
-        
-        // Clamp
-        if (mScrollOffset < 0) { mScrollOffset = 0; }
-        if (mScrollOffset > mMaxOffset) { mScrollOffset = mMaxOffset; }
-        
-        WatchUi.requestUpdate();
-        
-        // Stop timer when reached target
-        if (mScrollOffset == mTargetOffset) {
-            mAnimTimer.stop();
-        }
-    }
-    
-    // Start smooth scroll animation to target
-    function animateScroll(targetOffset) {
-        mTargetOffset = targetOffset;
-        if (mTargetOffset < 0) { mTargetOffset = 0; }
-        if (mTargetOffset > mMaxOffset) { mTargetOffset = mMaxOffset; }
-        
-        // Start animation timer at 25ms (40Hz - faster than before!)
-        mAnimTimer.start(method(:onAnimTimer), 25, true);
-    }
-    
-    // Scroll down one item with animation
-    function scrollDown() {
-        var newTarget = mTargetOffset + mItemHeight;
-        if (newTarget > mMaxOffset) { newTarget = mMaxOffset; }
-        animateScroll(newTarget);
-    }
-    
-    // Scroll up one item with animation
-    function scrollUp() {
-        var newTarget = mTargetOffset - mItemHeight;
-        if (newTarget < 0) { newTarget = 0; }
-        animateScroll(newTarget);
-    }
-    
-    // Get item index at Y position (for tap selection)
-    function getItemAt(tapY) {
-        if (tapY < mTitleHeight) { return -1; }
-        
-        var relativeY = tapY - mTitleHeight + mScrollOffset;
-        var idx = (relativeY / mItemHeight).toNumber();
-        
-        if (idx >= 0 && idx < 10) {
-            return idx;
-        }
-        return -1;
-    }
-    
-    // Clean up timer on exit
-    function stopTimer() {
-        if (mAnimTimer != null) {
-            mAnimTimer.stop();
+        // Add all 10 color items
+        for (var i = 0; i < 10; i++) {
+            addItem(new ColorMenuItem(i));
         }
     }
 }
 
-// Delegate using onNextPage/onPreviousPage for scrolling
-// This is the recommended approach from Garmin forums for touch+button input
-class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
-    function initialize() { BehaviorDelegate.initialize(); }
-    
-    // onNextPage handles: UP button press, swipe UP on touchscreen
-    // This scrolls DOWN (shows items below)
-    function onNextPage() {
-        if (gColorMenuView != null) {
-            gColorMenuView.scrollDown();
-        }
-        return true;
+// Delegate for ColorMenu
+class ColorMenuDelegate extends WatchUi.Menu2InputDelegate {
+    function initialize() { 
+        Menu2InputDelegate.initialize(); 
     }
     
-    // onPreviousPage handles: DOWN button press, swipe DOWN on touchscreen
-    // This scrolls UP (shows items above)
-    function onPreviousPage() {
-        if (gColorMenuView != null) {
-            gColorMenuView.scrollUp();
-        }
-        return true;
-    }
-    
-    // Handle tap to select color
-    function onTap(clickEvent) {
-        if (gColorMenuView == null) { return false; }
-        
-        var coords = clickEvent.getCoordinates();
-        if (coords == null) { return false; }
-        
-        var tapY = coords[1];
-        var selectedIdx = gColorMenuView.getItemAt(tapY);
-        
-        if (selectedIdx >= 0 && selectedIdx < 10) {
-            Application.Storage.setValue("color", selectedIdx);
-            gColorMenuView.stopTimer();
-            gColorMenuView = null;
-            WatchUi.popView(WatchUi.SLIDE_RIGHT);
-            return true;
-        }
-        return false;
+    function onSelect(item) {
+        var colorIdx = item.getId();
+        Application.Storage.setValue("color", colorIdx);
+        WatchUi.popView(WatchUi.SLIDE_RIGHT);
+        WatchUi.requestUpdate();
     }
     
     function onBack() {
-        if (gColorMenuView != null) {
-            gColorMenuView.stopTimer();
-        }
-        gColorMenuView = null;
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
-        return true;
     }
 }
 
