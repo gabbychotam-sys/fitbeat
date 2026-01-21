@@ -438,11 +438,12 @@ class FitBeatView extends WatchUi.View {
         var hr = _getHeartRate();
         var lang = getLang();
         var name = _getUserName();
-        var prefix = name != "" ? (name + ", ") : "";
+        var nameLine = name != "" ? (name + ",") : "";
         
         if (hr != null && mHrTarget > 0 && !mHrAlertShown) {
             if (hr > mHrTarget) {
-                _showFullScreenAlert(prefix + TR_REST_NOW[lang], TR_HR_TOO_HIGH[lang]);
+                // 3 lines: Name, Rest message, HR exceeded message
+                _showFullScreenAlert(nameLine, TR_REST_NOW[lang], TR_HR_TOO_HIGH[lang]);
                 mHrAlertShown = true;
             }
         }
@@ -451,7 +452,8 @@ class FitBeatView extends WatchUi.View {
         if (hr != null && mHrTarget > 0 && mHrAlertShown) {
             var threshold = mHrTarget - (mHrTarget * 5 / 100);
             if (hr <= threshold) {
-                _showFullScreenAlert(prefix + TR_GO_AHEAD[lang], TR_HR_OK[lang]);
+                // 3 lines: Name, Continue message, HR OK message
+                _showFullScreenAlert(nameLine, TR_GO_AHEAD[lang], TR_HR_OK[lang]);
                 mHrAlertShown = false;
             }
         }
@@ -464,23 +466,22 @@ class FitBeatView extends WatchUi.View {
         var goalCm = _getGoalInCm();
         var lang = getLang();
         var name = _getUserName();
+        var nameLine = name != "" ? (name + ",") : "";
         
-        // 50% alert (🎈)
+        // 50% alert (🎈) - 3 lines: Name, Keep going, Halfway message
         if (!mDistHalfwayShown && goalCm > 0) {
             var halfway = goalCm / 2;
             if (distCm >= halfway && distCm < goalCm) {
-                var l1 = (name != "" ? (TR_WELL_DONE[lang] + " " + name + "!") : (TR_WELL_DONE[lang] + "!"));
-                _showFullScreenAlert(l1, TR_HALF_WAY[lang]);
+                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang]);
                 mDistHalfwayShown = true;
                 _saveState();
             }
         }
         
-        // Goal alert (👏) - continues tracking after goal!
+        // Goal alert (👏) - 3 lines: Name, Great job, Goal completed
         if (!mDistGoalShown && goalCm > 0) {
             if (distCm >= goalCm) {
-                var l1g = (name != "" ? (TR_GOAL_DONE_LINE1[lang] + " " + name + "!") : (TR_GOAL_DONE_LINE1[lang] + "!"));
-                _showFullScreenAlert(l1g, TR_GOAL_DONE_LINE2[lang]);
+                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang]);
                 mDistGoalShown = true;
                 _saveState();
                 // Distance continues tracking! No reset!
@@ -495,23 +496,22 @@ class FitBeatView extends WatchUi.View {
 
         var lang = getLang();
         var name = _getUserName();
+        var nameLine = name != "" ? (name + ",") : "";
 
-        // 50% alert (🎈)
+        // 50% alert (🎈) - 3 lines: Name, Keep going, Halfway message
         if (!mTimeHalfwayShown) {
             var halfway = goalSec / 2;
             if (mElapsedWalkSec >= halfway && mElapsedWalkSec < goalSec) {
-                var l1 = (name != "" ? (TR_WELL_DONE[lang] + " " + name + "!") : (TR_WELL_DONE[lang] + "!"));
-                _showFullScreenAlert(l1, TR_HALF_WAY[lang]);
+                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang]);
                 mTimeHalfwayShown = true;
                 _saveState();
             }
         }
 
-        // Goal alert (👏) - RESETS time after goal!
+        // Goal alert (👏) - 3 lines: Name, Great job, Goal completed - RESETS time after goal!
         if (!mTimeGoalShown) {
             if (mElapsedWalkSec >= goalSec) {
-                var l1g = (name != "" ? (TR_GOAL_DONE_LINE1[lang] + " " + name + "!") : (TR_GOAL_DONE_LINE1[lang] + "!"));
-                _showFullScreenAlert(l1g, TR_GOAL_DONE_LINE2[lang]);
+                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang]);
                 mTimeGoalShown = true;
                 
                 // Time goal RESETS after completion!
