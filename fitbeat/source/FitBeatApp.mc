@@ -826,16 +826,18 @@ var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 
 class ColorMenuView extends WatchUi.View {
     var mScrollOffset = 0;  // Pixel offset for scrolling
-    var mItemHeight = 48;   // Height per item
-    var mMaxOffset = 0;     // Max scroll value
+    var mItemHeight = 50;   // Height per item (bigger)
+    var mMaxOffset = 245;   // Pre-calculated: (10 * 50) - (280 - 45) = 500 - 235 = 265
     
     function initialize() {
         View.initialize();
-        // Start with current color visible
+        // Start with current color centered if possible
         var currentIdx = getColorIndex();
-        mScrollOffset = currentIdx * mItemHeight;
-        if (mScrollOffset > mMaxOffset) {
-            mScrollOffset = mMaxOffset;
+        if (currentIdx > 2) {
+            mScrollOffset = (currentIdx - 2) * mItemHeight;
+            if (mScrollOffset > mMaxOffset) {
+                mScrollOffset = mMaxOffset;
+            }
         }
     }
     
@@ -846,10 +848,7 @@ class ColorMenuView extends WatchUi.View {
         var currentColor = getMainColor();
         var currentIdx = getColorIndex();
         
-        // Compute max scroll (10 items * itemHeight - screen height + title space)
         var titleHeight = 45;
-        mMaxOffset = (10 * mItemHeight) - (h - titleHeight);
-        if (mMaxOffset < 0) { mMaxOffset = 0; }
         
         // Clamp scroll offset
         if (mScrollOffset > mMaxOffset) { mScrollOffset = mMaxOffset; }
@@ -870,8 +869,8 @@ class ColorMenuView extends WatchUi.View {
             var y = startY + (i * mItemHeight);
             
             // Only draw visible items
-            if (y + mItemHeight < titleHeight) { continue; }  // Above visible area
-            if (y > h) { break; }  // Below visible area
+            if (y + mItemHeight < titleHeight) { continue; }
+            if (y > h) { break; }
             
             var centerY = y + mItemHeight / 2;
             
