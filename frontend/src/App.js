@@ -982,7 +982,7 @@ function FitBeatSimulator() {
     setView('main');
   };
   
-  // Simulate app exit - Time RESETS, Distance PERSISTS!
+  // Simulate app exit - Time RESETS, Distance PERSISTS, HR monitoring STOPS!
   const simulateExit = () => {
     setState(s => {
       const newState = {
@@ -991,6 +991,8 @@ function FitBeatSimulator() {
         elapsedWalkSec: 0,
         timeHalfwayShown: false,
         timeGoalShown: false,
+        // HR monitoring stops on exit!
+        hrMode: 0,
         // Distance persists!
       };
       saveState(newState);
