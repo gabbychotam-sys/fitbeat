@@ -825,11 +825,17 @@ var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 
 class ColorMenuView extends WatchUi.View {
     var mScrollOffset = 0;
-    var mSelectedIndex = 0;
+    var mItemHeight = 40;  // Height per item in pixels
+    var mStartY = 56;      // Start Y position (h/5 for 280px screen)
+    var mVisibleItems = 5;
     
     function initialize() {
         View.initialize();
-        mSelectedIndex = getColorIndex();
+        // Start with current color visible
+        var currentIdx = getColorIndex();
+        if (currentIdx > 4) {
+            mScrollOffset = currentIdx - 4;
+        }
     }
     
     function onUpdate(dc) {
@@ -837,6 +843,7 @@ class ColorMenuView extends WatchUi.View {
         var h = dc.getHeight();
         var lang = getLang();
         var currentColor = getMainColor();
+        var currentIdx = getColorIndex();
         
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
@@ -845,55 +852,74 @@ class ColorMenuView extends WatchUi.View {
         dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
         dc.drawText(w / 2, h / 12, Graphics.FONT_SMALL, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
         
-        // Draw color list with each color in its own color!
-        var itemH = h / 7;
-        var startY = h / 5;
-        var visibleItems = 5;
+        // Calculate item dimensions
+        mItemHeight = h / 7;
+        mStartY = h / 5;
         
-        for (var i = 0; i < 10 && i < visibleItems + mScrollOffset; i++) {
+        // Draw visible color items
+        for (var i = 0; i < mVisibleItems; i++) {
             var idx = i + mScrollOffset;
             if (idx >= 10) { break; }
             
-            var y = startY + (i * itemH);
-            if (y > h - itemH) { break; }
+            var y = mStartY + (i * mItemHeight);
             
-            // Highlight selected item
-            if (idx == mSelectedIndex) {
+            // Highlight current selected color
+            if (idx == currentIdx) {
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-                dc.fillRectangle(w / 6, y - 2, w * 2 / 3, itemH - 4);
+                dc.fillRectangle(w / 6, y - 2, w * 2 / 3, mItemHeight - 4);
             }
             
             // Draw color dot
             dc.setColor(COLOR_HEX[idx], COLOR_HEX[idx]);
-            dc.fillCircle(w / 5, y + itemH / 3, h / 30);
+            dc.fillCircle(w / 5, y + mItemHeight / 3, h / 30);
             
             // Draw color name in its own color!
             dc.setColor(COLOR_HEX[idx], Graphics.COLOR_TRANSPARENT);
             dc.drawText(w / 3, y, Graphics.FONT_SMALL, COLOR_NAMES[idx][lang], Graphics.TEXT_JUSTIFY_LEFT);
         }
+        
+        // Draw scroll indicators if needed
+        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
+        if (mScrollOffset > 0) {
+            // Up arrow indicator
+            dc.drawText(w / 2, mStartY - 20, Graphics.FONT_XTINY, "^", Graphics.TEXT_JUSTIFY_CENTER);
+        }
+        if (mScrollOffset + mVisibleItems < 10) {
+            // Down arrow indicator
+            dc.drawText(w / 2, h - 30, Graphics.FONT_XTINY, "v", Graphics.TEXT_JUSTIFY_CENTER);
+        }
     }
     
-    function getSelectedIndex() { return mSelectedIndex; }
     function getScrollOffset() { return mScrollOffset; }
+    function getItemHeight() { return mItemHeight; }
+    function getStartY() { return mStartY; }
     
     function scrollUp() {
-        if (mSelectedIndex > 0) {
-            mSelectedIndex--;
-            if (mSelectedIndex < mScrollOffset) {
-                mScrollOffset = mSelectedIndex;
-            }
+        if (mScrollOffset > 0) {
+            mScrollOffset--;
             WatchUi.requestUpdate();
         }
     }
     
     function scrollDown() {
-        if (mSelectedIndex < 9) {
-            mSelectedIndex++;
-            if (mSelectedIndex > mScrollOffset + 4) {
-                mScrollOffset = mSelectedIndex - 4;
-            }
+        if (mScrollOffset + mVisibleItems < 10) {
+            mScrollOffset++;
             WatchUi.requestUpdate();
         }
+    }
+    
+    function selectColorAt(tapY) {
+        // Calculate which item was tapped
+        if (tapY < mStartY) { return -1; }
+        
+        var relativeY = tapY - mStartY;
+        var itemIndex = (relativeY / mItemHeight).toNumber();
+        var actualIndex = itemIndex + mScrollOffset;
+        
+        if (actualIndex >= 0 && actualIndex < 10) {
+            return actualIndex;
+        }
+        return -1;
     }
 }
 
