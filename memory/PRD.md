@@ -70,11 +70,12 @@ Replaced `onSwipe` + `onKey` with `onNextPage` / `onPreviousPage` - this is the 
 
 ## Key Code Locations
 
-### Color Menu (lines ~820-980 in FitBeatApp.mc):
-- `ColorMenuView` - draws colors with pixel-based scrolling
-- `ColorMenuDelegate` - handles onSwipe, onTap, onKey
-- `mItemHeight = 55`, `mMaxOffset = 315`
-- `scrollAmount = 100` per swipe
+### Color Menu (lines ~820-990 in FitBeatApp.mc):
+- `gColorMenuView` - Global reference for delegate access
+- `ColorMenuView` - draws colors with item-by-item scrolling
+- `ColorMenuDelegate` - handles **onNextPage, onPreviousPage**, onTap
+- `mItemHeight = 50`, `mMaxOffset = 265`
+- `scrollDown()` / `scrollUp()` - scroll one item at a time
 
 ### Translations:
 - `COLOR_NAMES` - 10 colors × 6 languages
