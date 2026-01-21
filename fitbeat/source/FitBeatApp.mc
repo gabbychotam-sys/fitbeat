@@ -818,7 +818,7 @@ class NamePickerDelegate extends WatchUi.TextPickerDelegate {
 
 // ╔════════════════════════════════════════════════════════════════╗
 // ║  COLOR MENU - Custom View with scrolling (NO scrollbar!)       ║
-// ║  Based on Garmin forum solution for touch-enabled scrolling    ║
+// ║  Fixed title, smooth scrolling, spaced items                   ║
 // ╚════════════════════════════════════════════════════════════════╝
 
 // Translations for "Color" title
@@ -826,8 +826,9 @@ var TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
 
 class ColorMenuView extends WatchUi.View {
     var mScrollOffset = 0;  // Pixel offset for scrolling
-    var mItemHeight = 50;   // Height per item (bigger)
-    var mMaxOffset = 245;   // Pre-calculated: (10 * 50) - (280 - 45) = 500 - 235 = 265
+    var mItemHeight = 55;   // Height per item (more spacing!)
+    var mMaxOffset = 315;   // (10 * 55) - (280 - 45) = 550 - 235 = 315
+    var mTitleHeight = 50;  // Fixed title area
     
     function initialize() {
         View.initialize();
@@ -848,8 +849,6 @@ class ColorMenuView extends WatchUi.View {
         var currentColor = getMainColor();
         var currentIdx = getColorIndex();
         
-        var titleHeight = 45;
-        
         // Clamp scroll offset
         if (mScrollOffset > mMaxOffset) { mScrollOffset = mMaxOffset; }
         if (mScrollOffset < 0) { mScrollOffset = 0; }
@@ -858,42 +857,59 @@ class ColorMenuView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // Title - fixed at top
-        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, 15, Graphics.FONT_MEDIUM, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_CENTER);
-        
-        // Draw items with scroll offset
-        var startY = titleHeight - mScrollOffset;
+        // ═══ DRAW ITEMS FIRST (behind title) ═══
+        var startY = mTitleHeight - mScrollOffset;
         
         for (var i = 0; i < 10; i++) {
             var y = startY + (i * mItemHeight);
             
-            // Only draw visible items
-            if (y + mItemHeight < titleHeight) { continue; }
+            // Only draw if in visible area (below title)
+            if (y + mItemHeight < mTitleHeight) { continue; }
             if (y > h) { break; }
+            
+            // Clip items that would overlap title
+            var drawY = y;
+            if (drawY < mTitleHeight) { drawY = mTitleHeight; }
             
             var centerY = y + mItemHeight / 2;
             
             // Highlight current selected color
-            if (i == currentIdx) {
+            if (i == currentIdx && centerY > mTitleHeight) {
                 dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-                dc.fillRoundedRectangle(w / 10, y + 2, w * 4 / 5, mItemHeight - 4, 8);
+                dc.fillRoundedRectangle(w / 10, y + 4, w * 4 / 5, mItemHeight - 8, 10);
             }
             
-            // Draw color circle - BIGGER
-            var circleX = w / 4;
-            var circleR = mItemHeight / 3;
-            dc.setColor(COLOR_HEX[i], COLOR_HEX[i]);
-            dc.fillCircle(circleX, centerY, circleR);
-            
-            // Draw color name in its own color
-            dc.setColor(COLOR_HEX[i], Graphics.COLOR_TRANSPARENT);
-            dc.drawText(w / 2 + 10, centerY, Graphics.FONT_MEDIUM, COLOR_NAMES[i][lang], 
-                        Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            // Only draw if center is below title
+            if (centerY > mTitleHeight) {
+                // Draw color circle
+                var circleX = w / 4;
+                var circleR = mItemHeight / 4;
+                dc.setColor(COLOR_HEX[i], COLOR_HEX[i]);
+                dc.fillCircle(circleX, centerY, circleR);
+                
+                // Draw color name in its own color
+                dc.setColor(COLOR_HEX[i], Graphics.COLOR_TRANSPARENT);
+                dc.drawText(w / 2 + 5, centerY, Graphics.FONT_MEDIUM, COLOR_NAMES[i][lang], 
+                            Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
+            }
         }
+        
+        // ═══ DRAW FIXED TITLE (on top) ═══
+        // Title background
+        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+        dc.fillRectangle(0, 0, w, mTitleHeight);
+        
+        // Title text
+        dc.setColor(currentColor, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, mTitleHeight / 2, Graphics.FONT_MEDIUM, TR_COLOR_TITLE[lang], 
+                    Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        
+        // Divider line under title
+        dc.setColor(currentColor, currentColor);
+        dc.drawLine(w / 6, mTitleHeight - 2, w * 5 / 6, mTitleHeight - 2);
     }
     
-    // Scroll by pixels
+    // Scroll by pixels - smoother
     function scroll(pixels) {
         mScrollOffset = mScrollOffset + pixels;
         if (mScrollOffset < 0) { mScrollOffset = 0; }
@@ -903,10 +919,9 @@ class ColorMenuView extends WatchUi.View {
     
     // Get item index at Y position
     function getItemAt(tapY) {
-        var titleHeight = 45;
-        if (tapY < titleHeight) { return -1; }
+        if (tapY < mTitleHeight) { return -1; }
         
-        var relativeY = tapY - titleHeight + mScrollOffset;
+        var relativeY = tapY - mTitleHeight + mScrollOffset;
         var idx = (relativeY / mItemHeight).toNumber();
         
         if (idx >= 0 && idx < 10) {
