@@ -361,25 +361,24 @@ function LanguageMenu({ state, onSelect, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COLOR MENU - Fixed title, item-by-item scrolling (matches Garmin)
-// Uses onNextPage/onPreviousPage logic: scroll one item per action
+// COLOR MENU - Fixed title, FAST smooth scrolling, LARGER fonts
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
   const containerRef = useRef(null);
   
-  // Match native Garmin code values
-  const itemHeight = 50;    // mItemHeight in Monkey C
-  const titleHeight = 45;   // mTitleHeight in Monkey C
+  // Match native Garmin code values - LARGER
+  const itemHeight = 56;    // Bigger items
+  const titleHeight = 48;   // Bigger title
   const screenHeight = 280;
-  const visibleHeight = 235; // 280 - 45
-  const totalHeight = 500;   // 10 * 50
-  const maxOffset = 265;     // totalHeight - visibleHeight
+  const visibleHeight = 232; // 280 - 48
+  const totalHeight = 560;   // 10 * 56
+  const maxOffset = 328;     // totalHeight - visibleHeight
   
   const [scrollOffset, setScrollOffset] = useState(() => {
-    if (state.color > 2) {
-      let offset = (state.color - 2) * itemHeight;
+    if (state.color > 1) {
+      let offset = (state.color - 1) * itemHeight;
       return Math.min(offset, maxOffset);
     }
     return 0;
@@ -387,7 +386,7 @@ function ColorMenu({ state, onSelect, onClose }) {
   
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
   
-  // Scroll one item at a time (matches onNextPage/onPreviousPage)
+  // Scroll one item at a time with smooth animation
   const scrollDown = () => {
     setScrollOffset(prev => Math.min(prev + itemHeight, maxOffset));
   };
@@ -456,7 +455,7 @@ function ColorMenu({ state, onSelect, onClose }) {
           overflow: 'hidden' 
         }}
       >
-        <div style={{ transform: `translateY(-${scrollOffset}px)`, transition: 'transform 0.15s ease-out' }}>
+        <div style={{ transform: `translateY(-${scrollOffset}px)`, transition: 'transform 0.12s ease-out' }}>
           {COLOR_NAMES.map((names, i) => {
             const y = i * itemHeight;
             const centerY = y + itemHeight / 2;
@@ -479,13 +478,13 @@ function ColorMenu({ state, onSelect, onClose }) {
                 data-testid={`color-option-${i}`}
               >
                 <div style={{ 
-                  width: '24px', 
-                  height: '24px', 
+                  width: '28px', 
+                  height: '28px', 
                   borderRadius: '50%', 
                   backgroundColor: COLOR_HEX[i],
                   flexShrink: 0
                 }} />
-                <span style={{ color: COLOR_HEX[i], fontSize: '20px', fontWeight: '500' }}>
+                <span style={{ color: COLOR_HEX[i], fontSize: '24px', fontWeight: '600' }}>
                   {names[lang] || names[0]}
                 </span>
               </div>
@@ -505,7 +504,7 @@ function ColorMenu({ state, onSelect, onClose }) {
           borderBottom: `2px solid ${mainColor}`
         }}
       >
-        <span style={{ fontSize: '22px', color: mainColor, fontWeight: 'bold' }}>
+        <span style={{ fontSize: '26px', color: mainColor, fontWeight: 'bold' }}>
           {TR_COLOR_TITLE[lang]}
         </span>
       </div>
