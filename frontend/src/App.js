@@ -361,83 +361,84 @@ function LanguageMenu({ state, onSelect, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COLOR MENU - Custom View (NO scrollbar!) BIGGER & CENTERED
+// COLOR MENU - Custom View with scrolling (NO scrollbar!)
+// Based on Garmin forum solution - matches ZIP code exactly
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
-  const [scrollOffset, setScrollOffset] = useState(0);
-  const visibleItems = 5;
   const containerRef = useRef(null);
+  
+  // Pixel-based scrolling (like Garmin code)
+  const [scrollOffset, setScrollOffset] = useState(0);
+  const itemHeight = 48;
+  const titleHeight = 45;
+  const screenHeight = 280;
+  const maxOffset = Math.max(0, (10 * itemHeight) - (screenHeight - titleHeight));
   
   // Translations for "Color" title
   const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
   
   // Start with current color visible
   useEffect(() => {
-    if (state.color > 2) {
-      setScrollOffset(Math.min(state.color - 2, 5));
-    } else {
-      setScrollOffset(0);
-    }
-  }, [state.color]);
+    let offset = state.color * itemHeight;
+    if (offset > maxOffset) offset = maxOffset;
+    setScrollOffset(offset);
+  }, [state.color, maxOffset]);
   
-  // Mouse drag state
+  // Scroll function (pixels)
+  const scroll = (pixels) => {
+    setScrollOffset(prev => {
+      let newOffset = prev + pixels;
+      if (newOffset < 0) newOffset = 0;
+      if (newOffset > maxOffset) newOffset = maxOffset;
+      return newOffset;
+    });
+  };
+  
+  // Mouse drag for swipe simulation
   const [isDragging, setIsDragging] = useState(false);
   const [dragStartY, setDragStartY] = useState(0);
-  const [dragAccum, setDragAccum] = useState(0);
   
-  // Handle mouse wheel
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const handleWheel = (e) => {
-      e.preventDefault();
-      if (e.deltaY > 0 && scrollOffset + visibleItems < 10) {
-        setScrollOffset(prev => Math.min(prev + 1, 5));
-      } else if (e.deltaY < 0 && scrollOffset > 0) {
-        setScrollOffset(prev => Math.max(prev - 1, 0));
-      }
-    };
-    
-    container.addEventListener('wheel', handleWheel, { passive: false });
-    return () => container.removeEventListener('wheel', handleWheel);
-  }, [scrollOffset, visibleItems]);
-  
-  // Mouse drag handlers
   const handleMouseDown = (e) => {
     setIsDragging(true);
     setDragStartY(e.clientY);
-    setDragAccum(0);
   };
   
   const handleMouseMove = (e) => {
     if (!isDragging) return;
     const diff = dragStartY - e.clientY;
-    const newAccum = dragAccum + diff;
-    
-    if (Math.abs(newAccum) > 40) {
-      if (newAccum > 0 && scrollOffset + visibleItems < 10) {
-        setScrollOffset(prev => Math.min(prev + 1, 5));
-      } else if (newAccum < 0 && scrollOffset > 0) {
-        setScrollOffset(prev => Math.max(prev - 1, 0));
-      }
-      setDragAccum(0);
-      setDragStartY(e.clientY);
-    } else {
-      setDragAccum(newAccum);
+    if (Math.abs(diff) > 10) {
+      scroll(diff);
       setDragStartY(e.clientY);
     }
   };
   
   const handleMouseUp = () => {
     setIsDragging(false);
-    setDragAccum(0);
   };
   
-  // Get visible colors based on scroll offset
-  const visibleColors = COLOR_NAMES.slice(scrollOffset, scrollOffset + visibleItems);
+  // Mouse wheel
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    
+    const handleWheel = (e) => {
+      e.preventDefault();
+      scroll(e.deltaY > 0 ? 60 : -60);
+    };
+    
+    container.addEventListener('wheel', handleWheel, { passive: false });
+    return () => container.removeEventListener('wheel', handleWheel);
+  }, []);
+  
+  // Get item at Y position
+  const getItemAt = (tapY) => {
+    if (tapY < titleHeight) return -1;
+    const relativeY = tapY - titleHeight + scrollOffset;
+    const idx = Math.floor(relativeY / itemHeight);
+    return (idx >= 0 && idx < 10) ? idx : -1;
+  };
   
   return (
     <div 
@@ -449,46 +450,48 @@ function ColorMenu({ state, onSelect, onClose }) {
       onMouseLeave={handleMouseUp}
       ref={containerRef}
     >
-      {/* Title - centered at top */}
-      <div style={{ marginTop: '8%' }}>
+      {/* Title - fixed at top */}
+      <div style={{ position: 'absolute', top: '15px', left: '50%', transform: 'translateX(-50%)', zIndex: 10 }}>
         <span style={{ fontSize: '24px', color: mainColor, fontWeight: 'bold' }}>
           {TR_COLOR_TITLE[lang]}
         </span>
       </div>
       
-      {/* Color list - BIGGER items, NO scrollbar */}
+      {/* Color list with pixel-based scroll */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
-        style={{ top: '18%', width: '240px' }}
+        className="absolute w-full"
+        style={{ top: `${titleHeight}px`, height: `${screenHeight - titleHeight}px`, overflow: 'hidden' }}
       >
-        {visibleColors.map((names, i) => {
-          const actualIndex = i + scrollOffset;
-          return (
-            <div 
-              key={actualIndex}
-              className="flex items-center justify-center gap-[14px] cursor-pointer w-full"
-              style={{ 
-                padding: '6px 0',
-                fontSize: '26px',
-                backgroundColor: state.color === actualIndex ? 'rgba(255,255,255,0.15)' : 'transparent',
-                borderRadius: '10px',
-              }}
-              onClick={() => onSelect(actualIndex)}
-              data-testid={`color-option-${actualIndex}`}
-            >
-              <div style={{ 
-                width: '20px', 
-                height: '20px', 
-                borderRadius: '50%', 
-                backgroundColor: COLOR_HEX[actualIndex] 
-              }} />
-              {/* Color name in its own color - BIGGER */}
-              <span style={{ color: COLOR_HEX[actualIndex], minWidth: '90px', textAlign: 'center', fontWeight: '500' }}>
-                {names[lang] || names[0]}
-              </span>
-            </div>
-          );
-        })}
+        <div style={{ transform: `translateY(-${scrollOffset}px)` }}>
+          {COLOR_NAMES.map((names, i) => {
+            const y = i * itemHeight;
+            return (
+              <div 
+                key={i}
+                className="flex items-center justify-center gap-[14px] cursor-pointer"
+                style={{ 
+                  height: `${itemHeight}px`,
+                  backgroundColor: state.color === i ? 'rgba(255,255,255,0.15)' : 'transparent',
+                  borderRadius: '8px',
+                  margin: '0 10%',
+                  width: '80%'
+                }}
+                onClick={() => onSelect(i)}
+                data-testid={`color-option-${i}`}
+              >
+                <div style={{ 
+                  width: `${itemHeight / 3}px`, 
+                  height: `${itemHeight / 3}px`, 
+                  borderRadius: '50%', 
+                  backgroundColor: COLOR_HEX[i] 
+                }} />
+                <span style={{ color: COLOR_HEX[i], fontSize: '22px', fontWeight: '500', minWidth: '80px' }}>
+                  {names[lang] || names[0]}
+                </span>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
