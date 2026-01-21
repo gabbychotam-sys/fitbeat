@@ -717,7 +717,8 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
 }
 
 // ╔════════════════════════════════════════════════════════════╗
-// ║  ALERT VIEW - FULL SCREEN, 2 LINES (NOT OVERLAY!)         ║
+// ║  ALERT VIEW - FULL SCREEN, 3 LINES, AUTO-DISMISS (3 sec)   ║
+// ║  Uses its own Timer for safe auto-dismiss!                 ║
 // ╚════════════════════════════════════════════════════════════╝
 
 class AlertView extends WatchUi.View {
@@ -725,6 +726,8 @@ class AlertView extends WatchUi.View {
     var mLine2;
     var mLine3;
     var mColor;
+    var mDismissTimer;
+    var mDismissed = false;
 
     function initialize(line1, line2, line3) {
         WatchUi.View.initialize();
@@ -732,6 +735,39 @@ class AlertView extends WatchUi.View {
         mLine2 = line2;
         mLine3 = line3 != null ? line3 : "";
         mColor = getMainColor();
+        mDismissTimer = new Timer.Timer();
+        mDismissed = false;
+    }
+    
+    function onShow() {
+        // Start 3-second auto-dismiss timer when alert is shown
+        mDismissTimer.start(method(:onDismissTimer), 3000, false);
+    }
+    
+    function onHide() {
+        // Stop timer when view is hidden
+        if (mDismissTimer != null) {
+            mDismissTimer.stop();
+        }
+    }
+    
+    function onDismissTimer() {
+        // Auto-dismiss after 3 seconds
+        if (!mDismissed) {
+            mDismissed = true;
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
+    }
+    
+    function dismiss() {
+        // Manual dismiss
+        if (!mDismissed) {
+            mDismissed = true;
+            if (mDismissTimer != null) {
+                mDismissTimer.stop();
+            }
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+        }
     }
 
     function onUpdate(dc) {
@@ -761,15 +797,24 @@ class AlertView extends WatchUi.View {
 }
 
 class AlertViewDelegate extends WatchUi.BehaviorDelegate {
-    function initialize() { BehaviorDelegate.initialize(); }
+    var mAlertView;
+    
+    function initialize(alertView) { 
+        BehaviorDelegate.initialize();
+        mAlertView = alertView;
+    }
     
     function onTap(evt) {
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        if (mAlertView != null) {
+            mAlertView.dismiss();
+        }
         return true;
     }
     
     function onBack() {
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        if (mAlertView != null) {
+            mAlertView.dismiss();
+        }
         return true;
     }
 }
