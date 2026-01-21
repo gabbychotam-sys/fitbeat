@@ -605,7 +605,7 @@ function NameEntryView({ state, onSave, onClose }) {
           onClick={() => onSave(name)}
           data-testid="name-save"
         >
-          ✓ Confirm
+          ✓ {TR_CONFIRM[lang]}
         </button>
       </div>
       
