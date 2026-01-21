@@ -36,7 +36,8 @@ const LANG_NAMES = ["English", "עברית", "Español", "Français", "Deutsch",
 const LANG_NAMES_MENU = ["English", "עברית", "Español", "Français", "Deutsch", "中文"];
 const LANG_UNITS = ["mi", "km", "km", "km", "km", "km"];
 
-const TR_MINUTES = ["min", "דקות", "min", "min", "min", "分"];
+const TR_MINUTES = ["min", "דקות", "min", "min", "min", "分钟"];
+const TR_KM = ["km", 'ק"מ', "km", "km", "km", "公里"];
 const TR_STEPS = ["steps", "צעדים", "pasos", "pas", "Schritte", "步"];
 
 // Alert messages - 3 lines format
