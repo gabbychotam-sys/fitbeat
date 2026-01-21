@@ -695,7 +695,7 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
 
         // Color
         if (colorZone != null && tapY >= colorZone[0] && tapY <= colorZone[1]) {
-            showColorMenu();
+            WatchUi.pushView(new ColorMenuView(), new ColorMenuDelegate(), WatchUi.SLIDE_LEFT);
             return true;
         }
 
