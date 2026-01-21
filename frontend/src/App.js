@@ -484,7 +484,7 @@ function ColorMenu({ state, onSelect, onClose }) {
       {/* Color list - centered, swipe to scroll */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 flex flex-col items-center"
-        style={{ top: '20%', width: '220px' }}
+        style={{ top: '18%', width: '220px' }}
       >
         {visibleColors.map((names, i) => {
           const actualIndex = i + scrollOffset;
@@ -493,8 +493,8 @@ function ColorMenu({ state, onSelect, onClose }) {
               key={actualIndex}
               className="flex items-center justify-center gap-[12px] cursor-pointer w-full"
               style={{ 
-                padding: '6px 0',
-                fontSize: '24px',
+                padding: '4px 0',
+                fontSize: '22px',
                 backgroundColor: state.color === actualIndex ? 'rgba(255,255,255,0.15)' : 'transparent',
                 borderRadius: '8px',
               }}
@@ -502,8 +502,8 @@ function ColorMenu({ state, onSelect, onClose }) {
               data-testid={`color-option-${actualIndex}`}
             >
               <div style={{ 
-                width: '16px', 
-                height: '16px', 
+                width: '14px', 
+                height: '14px', 
                 borderRadius: '50%', 
                 backgroundColor: COLOR_HEX[actualIndex] 
               }} />
