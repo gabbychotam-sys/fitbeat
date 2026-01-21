@@ -937,7 +937,7 @@ class ColorMenuView extends WatchUi.View {
 class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
     function initialize() { BehaviorDelegate.initialize(); }
     
-    // Handle tap on color items
+    // Handle tap on color items - select color directly
     function onTap(evt) {
         var view = WatchUi.getCurrentView()[0];
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
@@ -958,22 +958,10 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         
-        // Check if tap is in scroll area (top or bottom)
-        var h = 280;
-        if (tapY < h / 5) {
-            // Tap in top area - scroll up
-            view.scrollUp();
-            return true;
-        } else if (tapY > h - 40) {
-            // Tap in bottom area - scroll down  
-            view.scrollDown();
-            return true;
-        }
-        
         return false;
     }
     
-    // Handle swipe for scrolling
+    // Handle swipe for scrolling (finger scroll - no arrows!)
     function onSwipe(swipeEvent) {
         var view = WatchUi.getCurrentView()[0];
         if (view == null || !(view instanceof ColorMenuView)) { return false; }
@@ -996,6 +984,7 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
         return true;
     }
     
+    // Physical button scrolling
     function onNextPage() {
         var view = WatchUi.getCurrentView()[0];
         if (view != null && view instanceof ColorMenuView) {
