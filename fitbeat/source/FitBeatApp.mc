@@ -584,14 +584,14 @@ class SettingsView extends WatchUi.View {
         dc.drawLine(padSide, y, w - padSide, y);
         y += h / 40;
 
-        // Row 2: Name
+        // Row 2: Name - TRANSLATED!
         var row2Top = y;
         var userName = Application.Storage.getValue("userName");
         if (userName == null || userName.equals("")) { userName = "-"; }
         var valueStr2 = userName + " >";
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(padSide, y, itemFont, "Name", Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(padSide, y, itemFont, TR_NAME_LABEL[lang], Graphics.TEXT_JUSTIFY_LEFT);
 
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_TRANSPARENT);
         dc.drawText(w - padSide, y, valueFont, valueStr2, Graphics.TEXT_JUSTIFY_RIGHT);
@@ -604,14 +604,14 @@ class SettingsView extends WatchUi.View {
         dc.drawLine(padSide, y, w - padSide, y);
         y += h / 40;
 
-        // Row 3: Color
+        // Row 3: Color - TRANSLATED!
         var row3Top = y;
         var dotR = h / 45;
-        var colorName = COLOR_NAMES[colorIdx][0];
+        var colorName = COLOR_NAMES[colorIdx][lang];  // Color name in selected language!
         var valueStr3 = colorName + " >";
 
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(padSide, y, itemFont, "Color", Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(padSide, y, itemFont, TR_COLOR_TITLE[lang], Graphics.TEXT_JUSTIFY_LEFT);
 
         // Color dot
         var textW2 = dc.getTextWidthInPixels(valueStr3, valueFont);
