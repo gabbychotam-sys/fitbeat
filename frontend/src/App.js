@@ -995,7 +995,13 @@ function FitBeatSimulator() {
       case 'nameEntry':
         return <NameEntryView state={state} onSave={(name) => { updateState('userName', name); setView('settings'); }} onClose={() => setView('settings')} />;
       case 'alert':
-        return <AlertView line1={alert?.line1} line2={alert?.line2} onDismiss={() => { setAlert(null); setView('main'); }} />;
+        return <AlertView 
+          line1={alert?.line1} 
+          line2={alert?.line2} 
+          alertType={alert?.alertType}
+          color={alert?.color}
+          onDismiss={() => { setAlert(null); setView('main'); }} 
+        />;
       default:
         return <WatchDisplay state={state} onZoneClick={handleZoneClick} />;
     }
