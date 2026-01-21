@@ -631,7 +631,7 @@ class SettingsView extends WatchUi.View {
 
         y += h / 10;
 
-        // Save button
+        // Save button - TRANSLATED!
         var btnW = w * 4 / 10;
         var btnH = h / 8;
         var btnX = (w - btnW) / 2;
@@ -643,7 +643,7 @@ class SettingsView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
         var saveTextH = dc.getFontHeight(valueFont);
         var saveTextY = btnY + (btnH - saveTextH) / 2;
-        dc.drawText(w / 2, saveTextY, valueFont, "Save", Graphics.TEXT_JUSTIFY_CENTER);
+        dc.drawText(w / 2, saveTextY, valueFont, TR_SAVE_BTN[lang], Graphics.TEXT_JUSTIFY_CENTER);
 
         mSaveZone = [btnY, btnY + btnH, btnX, btnX + btnW];
     }
