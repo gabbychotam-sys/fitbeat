@@ -200,7 +200,7 @@ function WatchDisplay({ state, onZoneClick }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SETTINGS VIEW - per spec
+// SETTINGS VIEW - per spec - FIXED LAYOUT
 // ═══════════════════════════════════════════════════════════════
 function SettingsView({ state, onUpdate, onClose }) {
   const mainColor = COLOR_HEX[state.color];
@@ -211,53 +211,51 @@ function SettingsView({ state, onUpdate, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* Title - top: 8%, FONT_SMALL: 34px */}
-      <div style={{ marginTop: '8%' }}>
-        <span style={{ fontSize: '34px', fontWeight: 'bold', color: mainColor }}>Settings</span>
+      {/* Title - top: 5% */}
+      <div style={{ marginTop: '5%' }}>
+        <span style={{ fontSize: '26px', fontWeight: 'bold', color: mainColor }}>Settings</span>
       </div>
       
-      {/* Settings list - centered at 48% */}
+      {/* Settings list - top: 18%, smaller fonts to fit */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: '48%', width: '220px' }}
+        className="absolute left-1/2 -translate-x-1/2"
+        style={{ top: '18%', width: '200px' }}
       >
         {/* Language Row */}
         <div 
-          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showLangMenu', true)}
           data-testid="settings-language"
         >
-          {/* FONT_TINY: 30px for labels */}
-          <span style={{ fontSize: '30px', color: '#fff' }}>Language</span>
-          {/* FONT_XTINY: 22px for values */}
-          <span style={{ fontSize: '22px', color: '#888' }}>{LANG_NAMES_MENU[lang]} &gt;</span>
+          <span style={{ fontSize: '20px', color: '#fff' }}>Language</span>
+          <span style={{ fontSize: '16px', color: '#888' }}>{LANG_NAMES_MENU[lang]} &gt;</span>
         </div>
         
         {/* Name Row */}
         <div 
-          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showNameEntry', true)}
           data-testid="settings-name"
         >
-          <span style={{ fontSize: '30px', color: '#fff' }}>Name</span>
-          <span style={{ fontSize: '22px', color: '#888' }}>{state.userName || '-'} &gt;</span>
+          <span style={{ fontSize: '20px', color: '#fff' }}>Name</span>
+          <span style={{ fontSize: '16px', color: '#888' }}>{state.userName || '-'} &gt;</span>
         </div>
         
         {/* Color Row */}
         <div 
-          className="flex justify-between items-center py-2 border-b border-gray-700 cursor-pointer hover:bg-gray-900"
+          className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showColorMenu', true)}
           data-testid="settings-color"
         >
-          <span style={{ fontSize: '30px', color: '#fff' }}>Color</span>
+          <span style={{ fontSize: '20px', color: '#fff' }}>Color</span>
           <div className="flex items-center gap-2">
-            <div style={{ width: '14px', height: '14px', borderRadius: '50%', backgroundColor: mainColor }} />
-            <span style={{ fontSize: '22px', color: '#888' }}>{COLOR_NAMES[state.color][0]} &gt;</span>
+            <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: mainColor }} />
+            <span style={{ fontSize: '16px', color: '#888' }}>{COLOR_NAMES[state.color][0]} &gt;</span>
           </div>
         </div>
       </div>
       
-      {/* Save button - bottom: 5% */}
+      {/* Save button - bottom: 12% to not overlap */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
