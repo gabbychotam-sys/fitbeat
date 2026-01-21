@@ -68,8 +68,10 @@ function WatchDisplay({ state, onZoneClick }) {
   const distKm = lang === 0 ? distanceCm / 160934 : distanceCm / 100000;
   const distStr = distKm.toFixed(2);
   
-  // Calculate time display
+  // Calculate time display - minutes:seconds format
   const elapsedMin = Math.floor(elapsedWalkSec / 60);
+  const elapsedSec = elapsedWalkSec % 60;
+  const timeDisplayStr = `${elapsedMin}:${String(elapsedSec).padStart(2, '0')}`;
   
   // Progress calculations
   const goalCm = lang === 0 ? goalDist * 160934 : goalDist * 100000;
