@@ -935,33 +935,51 @@ class ColorMenuDelegate extends WatchUi.BehaviorDelegate {
         if (coords == null) { return false; }
         
         var tapY = coords[1];
-        var h = 280;  // Screen height
-        var itemH = h / 7;
-        var startY = h / 5;
         
-        // Check if tap is in color list area
-        if (tapY >= startY) {
-            var itemIndex = ((tapY - startY) / itemH).toNumber();
-            var actualIndex = itemIndex + view.getScrollOffset();
-            
-            if (actualIndex >= 0 && actualIndex < 10) {
-                // Select this color and close
-                Application.Storage.setValue("color", actualIndex);
-                WatchUi.popView(WatchUi.SLIDE_RIGHT);
-                WatchUi.requestUpdate();
-                return true;
-            }
+        // Use the view's selectColorAt method
+        var selectedIdx = view.selectColorAt(tapY);
+        
+        if (selectedIdx >= 0 && selectedIdx < 10) {
+            // Select this color and close
+            Application.Storage.setValue("color", selectedIdx);
+            WatchUi.popView(WatchUi.SLIDE_RIGHT);
+            WatchUi.requestUpdate();
+            return true;
+        }
+        
+        // Check if tap is in scroll area (top or bottom)
+        var h = 280;
+        if (tapY < h / 5) {
+            // Tap in top area - scroll up
+            view.scrollUp();
+            return true;
+        } else if (tapY > h - 40) {
+            // Tap in bottom area - scroll down  
+            view.scrollDown();
+            return true;
         }
         
         return false;
     }
     
-    function onSelect() {
+    // Handle swipe for scrolling
+    function onSwipe(swipeEvent) {
         var view = WatchUi.getCurrentView()[0];
-        if (view != null && view instanceof ColorMenuView) {
-            var idx = view.getSelectedIndex();
-            Application.Storage.setValue("color", idx);
+        if (view == null || !(view instanceof ColorMenuView)) { return false; }
+        
+        var direction = swipeEvent.getDirection();
+        if (direction == WatchUi.SWIPE_UP) {
+            view.scrollDown();
+            return true;
+        } else if (direction == WatchUi.SWIPE_DOWN) {
+            view.scrollUp();
+            return true;
         }
+        return false;
+    }
+    
+    function onSelect() {
+        // Select button pressed - just close the menu
         WatchUi.popView(WatchUi.SLIDE_RIGHT);
         WatchUi.requestUpdate();
         return true;
