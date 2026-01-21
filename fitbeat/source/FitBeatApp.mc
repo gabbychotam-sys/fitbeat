@@ -865,16 +865,16 @@ class ColorMenuItem extends WatchUi.CustomMenuItem {
             dc.clear();
         }
         
-        // Draw BIGGER color circle - more centered
-        var circleX = w / 3;
+        // Draw BIGGER color circle
+        var circleX = w / 4 + 5;
         var circleY = h / 2;
-        var circleR = h / 3;  // BIGGER circle
+        var circleR = h * 2 / 5;  // Even BIGGER circle!
         dc.setColor(mColorHex, mColorHex);
         dc.fillCircle(circleX, circleY, circleR);
         
         // Draw color name in its own color - BIGGER font!
         dc.setColor(mColorHex, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2 + w / 8, h / 2, Graphics.FONT_MEDIUM, mColorName, 
+        dc.drawText(w / 2 + w / 10, h / 2, Graphics.FONT_MEDIUM, mColorName, 
                     Graphics.TEXT_JUSTIFY_LEFT | Graphics.TEXT_JUSTIFY_VCENTER);
     }
 }
