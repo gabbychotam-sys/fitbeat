@@ -808,12 +808,14 @@ function FitBeatSimulator() {
           
           let newState = { ...s, elapsedWalkSec: newSec };
           
-          // Check 50% alert
+          // Check 50% alert - 🎈 balloons!
           if (!s.timeHalfwayShown && newSec >= halfway && newSec < goalSec) {
             newState.timeHalfwayShown = true;
             setAlert({ 
               line1: TR_WELL_DONE[s.lang] + (s.userName ? ` ${s.userName}!` : '!'),
-              line2: TR_HALF_WAY[s.lang]
+              line2: TR_HALF_WAY[s.lang],
+              alertType: 'halfway',
+              color: COLOR_HEX[s.color]
             });
             setView('alert');
           }
