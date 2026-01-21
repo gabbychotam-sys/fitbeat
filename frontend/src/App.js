@@ -353,25 +353,28 @@ function LanguageMenu({ state, onSelect, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COLOR MENU - per spec
+// COLOR MENU - each color name displayed in its own color!
 // ═══════════════════════════════════════════════════════════════
 function ColorMenu({ state, onSelect, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
+  
+  // Translations for "Color" title
+  const TR_COLOR_TITLE = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
   
   return (
     <div 
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* Title - top: 5%, with underline */}
+      {/* Title - translated to selected language */}
       <div style={{ marginTop: '5%', borderBottom: `2px solid ${mainColor}`, paddingBottom: '4px' }}>
         <span style={{ fontSize: '22px', color: mainColor }}>
-          {lang === 1 ? 'צבע' : 'Color'}
+          {TR_COLOR_TITLE[lang]}
         </span>
       </div>
       
-      {/* Color list - top: 22% */}
+      {/* Color list - each color name in its own color! */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 overflow-y-auto"
         style={{ top: '22%', width: '200px', maxHeight: '200px' }}
@@ -383,7 +386,6 @@ function ColorMenu({ state, onSelect, onClose }) {
             style={{ 
               padding: '5px 0',
               fontSize: '24px',
-              color: '#fff',
               backgroundColor: state.color === i ? 'rgba(255,255,255,0.1)' : 'transparent',
               borderRadius: '5px',
               paddingLeft: '10px'
@@ -397,7 +399,8 @@ function ColorMenu({ state, onSelect, onClose }) {
               borderRadius: '50%', 
               backgroundColor: COLOR_HEX[i] 
             }} />
-            <span>{names[lang] || names[0]}</span>
+            {/* Color name in its own color! */}
+            <span style={{ color: COLOR_HEX[i] }}>{names[lang] || names[0]}</span>
           </div>
         ))}
       </div>
