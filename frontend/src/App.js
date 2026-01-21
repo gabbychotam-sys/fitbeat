@@ -168,10 +168,10 @@ function WatchDisplay({ state, onZoneClick }) {
         </span>
       </div>
       
-      {/* DISTANCE + TIME BARS - centered at 50% */}
+      {/* DISTANCE + TIME BARS - centered at 46% (moved up a bit) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 -translate-y-1/2"
-        style={{ top: '50%', width: '220px' }}
+        style={{ top: '46%', width: '220px' }}
         onClick={() => onZoneClick('distance')}
         data-testid="distance-zone"
       >
@@ -202,10 +202,10 @@ function WatchDisplay({ state, onZoneClick }) {
         <StaircaseBar frac={timeFrac} />
       </div>
       
-      {/* HEART RATE - bottom: 5%, FONT_NUMBER_MILD: 48px */}
+      {/* HEART RATE - bottom: 2% (moved down), number also colored! */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2 cursor-pointer hover:opacity-80"
-        style={{ bottom: '5%' }}
+        style={{ bottom: '2%' }}
         onClick={() => onZoneClick('hr')}
         data-testid="hr-zone"
       >
@@ -213,7 +213,8 @@ function WatchDisplay({ state, onZoneClick }) {
         <svg width="32" height="32" viewBox="0 0 24 24" fill={mainColor}>
           <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
         </svg>
-        <span style={{ fontSize: '48px', fontWeight: 'bold', color: '#fff' }}>{heartRate}</span>
+        {/* Heart rate NUMBER also uses mainColor! */}
+        <span style={{ fontSize: '48px', fontWeight: 'bold', color: mainColor }}>{heartRate}</span>
       </div>
     </div>
   );
