@@ -225,7 +225,7 @@ class GoalPickerView extends WatchUi.View {
         var h = dc.getHeight();
         var lang = getLang();
         var color = getMainColor();
-        var unit = LANG_UNITS[lang];
+        var unit = TR_KM[lang];  // Use translated unit!
         
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
