@@ -402,7 +402,7 @@ class TimeGoalPickerView extends WatchUi.View {
         
         var numStr = mGoalMin.toString();
         var numW = dc.getTextWidthInPixels(numStr, numFont);
-        var unitStr = "min";
+        var unitStr = TR_MINUTES[lang];  // Use translated unit!
         
         // LEFT SIDE: Number + Unit
         var leftX = w / 6;
