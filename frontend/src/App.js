@@ -231,28 +231,34 @@ function WatchDisplay({ state, onZoneClick }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// SETTINGS VIEW - per spec - FIXED LAYOUT
+// SETTINGS VIEW - fully translated to selected language
 // ═══════════════════════════════════════════════════════════════
 function SettingsView({ state, onUpdate, onClose }) {
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
+  
+  // Translations for Settings
+  const TR_SETTINGS = ["Settings", "הגדרות", "Ajustes", "Paramètres", "Einstellungen", "设置"];
+  const TR_NAME = ["Name", "שם", "Nombre", "Nom", "Name", "名称"];
+  const TR_COLOR = ["Color", "צבע", "Color", "Couleur", "Farbe", "颜色"];
+  const TR_SAVE = ["Save", "שמור", "Guardar", "Sauvegarder", "Speichern", "保存"];
   
   return (
     <div 
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* Title - top: 5% */}
+      {/* Title - translated */}
       <div style={{ marginTop: '5%' }}>
-        <span style={{ fontSize: '26px', fontWeight: 'bold', color: mainColor }}>Settings</span>
+        <span style={{ fontSize: '26px', fontWeight: 'bold', color: mainColor }}>{TR_SETTINGS[lang]}</span>
       </div>
       
-      {/* Settings list - top: 18%, smaller fonts to fit */}
+      {/* Settings list */}
       <div 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ top: '18%', width: '200px' }}
       >
-        {/* Language Row */}
+        {/* Language Row - always "Language" for accessibility */}
         <div 
           className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showLangMenu', true)}
@@ -262,31 +268,32 @@ function SettingsView({ state, onUpdate, onClose }) {
           <span style={{ fontSize: '16px', color: '#888' }}>{LANG_NAMES_MENU[lang]} &gt;</span>
         </div>
         
-        {/* Name Row */}
+        {/* Name Row - translated */}
         <div 
           className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showNameEntry', true)}
           data-testid="settings-name"
         >
-          <span style={{ fontSize: '20px', color: '#fff' }}>Name</span>
+          <span style={{ fontSize: '20px', color: '#fff' }}>{TR_NAME[lang]}</span>
           <span style={{ fontSize: '16px', color: '#888' }}>{state.userName || '-'} &gt;</span>
         </div>
         
-        {/* Color Row */}
+        {/* Color Row - translated */}
         <div 
           className="flex justify-between items-center py-1 border-b border-gray-700 cursor-pointer hover:bg-gray-900 rounded"
           onClick={() => onUpdate('showColorMenu', true)}
           data-testid="settings-color"
         >
-          <span style={{ fontSize: '20px', color: '#fff' }}>Color</span>
+          <span style={{ fontSize: '20px', color: '#fff' }}>{TR_COLOR[lang]}</span>
           <div className="flex items-center gap-2">
             <div style={{ width: '12px', height: '12px', borderRadius: '50%', backgroundColor: mainColor }} />
-            <span style={{ fontSize: '16px', color: '#888' }}>{COLOR_NAMES[state.color][0]} &gt;</span>
+            {/* Color name in selected language */}
+            <span style={{ fontSize: '16px', color: '#888' }}>{COLOR_NAMES[state.color][lang]} &gt;</span>
           </div>
         </div>
       </div>
       
-      {/* Save button - bottom: 12% to not overlap */}
+      {/* Save button - translated */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
@@ -303,7 +310,7 @@ function SettingsView({ state, onUpdate, onClose }) {
         onClick={onClose}
         data-testid="settings-save"
       >
-        Save ✓
+        {TR_SAVE[lang]} ✓
       </button>
     </div>
   );
