@@ -252,11 +252,12 @@ class FitBeatView extends WatchUi.View {
         }
     }
     
-    // ═══ SHOW FULL SCREEN ALERT (NOT OVERLAY!) ═══
-    function _showFullScreenAlert(line1, line2) {
+    // ═══ SHOW FULL SCREEN ALERT (NOT OVERLAY!) - 3 LINES FORMAT ═══
+    function _showFullScreenAlert(line1, line2, line3) {
         var lang = getLang();
         var l1;
         var l2;
+        var l3;
         if (line1 instanceof Array) {
             l1 = line1[lang];
         } else {
@@ -267,15 +268,20 @@ class FitBeatView extends WatchUi.View {
         } else {
             l2 = line2;
         }
+        if (line3 != null && line3 instanceof Array) {
+            l3 = line3[lang];
+        } else {
+            l3 = line3;
+        }
         
         _vibrate();
         
-        // Push FULL SCREEN alert view
-        WatchUi.pushView(new AlertView(l1, l2), new AlertViewDelegate(), WatchUi.SLIDE_UP);
+        // Push FULL SCREEN alert view with 3 lines and selected color!
+        WatchUi.pushView(new AlertView(l1, l2, l3), new AlertViewDelegate(), WatchUi.SLIDE_UP);
         
-        // Auto-dismiss after 5 seconds
+        // Auto-dismiss after 3 seconds
         mAlertActive = true;
-        mAlertTimer = 5;
+        mAlertTimer = 3;
     }
 
     function _getUserName() {
