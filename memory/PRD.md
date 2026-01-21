@@ -43,26 +43,30 @@ Hebrew (עברית)
 8. **Settings Screen**: Language, Name, Color, Save - all translated
 9. **Web Simulator**: Full React implementation matching Garmin code
 
-### 🔴 Open Issue - Color Menu Scrolling:
+### 🟡 Color Menu Scrolling - Updated Implementation (Jan 21, 2025):
 **User Requirements:**
 - NO scrollbar on left side
 - Fixed title at top
 - Spacing between colors
 - Smooth finger scrolling
 
-**Current Implementation:**
+**NEW Implementation (based on Garmin forum research):**
 - `ColorMenuView extends WatchUi.View` (Custom View)
 - `ColorMenuDelegate extends WatchUi.BehaviorDelegate`
-- `onSwipe` for finger scrolling
+- **`onNextPage()` / `onPreviousPage()`** - The recommended method from Garmin forums!
+  - Handles both swipe gestures AND physical button presses automatically
+  - Works consistently across all touchscreen Garmin devices
 - `onTap` for selection
-- `onKey` for physical buttons
+- Global reference `gColorMenuView` for delegate access
 
-**Problem:** Scrolling doesn't work smoothly on the actual watch device
+**Key Change:**
+Replaced `onSwipe` + `onKey` with `onNextPage` / `onPreviousPage` - this is the Garmin-recommended approach for scrolling on touch devices.
 
-**Alternatives Tried:**
+**Previous Issues:**
 1. `CustomMenu` - scrolling works but has mandatory scrollbar (can't remove)
 2. `Custom View + InputDelegate` - scrolling didn't work
-3. `Custom View + BehaviorDelegate` - scrolling is jerky/stuck
+3. `Custom View + BehaviorDelegate + onSwipe` - scrolling was jerky/stuck
+4. **NEW: `onNextPage` / `onPreviousPage`** - Pending user testing
 
 ## Key Code Locations
 
