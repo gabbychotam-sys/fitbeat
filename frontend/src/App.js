@@ -677,18 +677,80 @@ function NameEntryView({ state, onSave, onClose }) {
 }
 
 // ═══════════════════════════════════════════════════════════════
-// ALERT VIEW
+// ALERT VIEW - Full screen with emojis! 🎈 👏
 // ═══════════════════════════════════════════════════════════════
-function AlertView({ line1, line2, onDismiss }) {
+function AlertView({ line1, line2, alertType, color, onDismiss }) {
+  // alertType: 'halfway' (🎈) or 'goal' (👏) or 'hr'
+  const mainColor = color || '#00FF00';
+  const emoji = alertType === 'halfway' ? '🎈' : alertType === 'goal' ? '👏' : '❤️';
+  
   return (
     <div 
-      className="relative bg-black flex flex-col items-center justify-center cursor-pointer"
-      style={{ width: '280px', height: '280px', borderRadius: '50%' }}
+      className="relative flex flex-col items-center justify-center cursor-pointer overflow-hidden"
+      style={{ 
+        width: '280px', 
+        height: '280px', 
+        borderRadius: '50%',
+        background: `radial-gradient(circle, ${mainColor}20 0%, #000 70%)`,
+        border: `3px solid ${mainColor}`,
+        boxShadow: `0 0 30px ${mainColor}60, inset 0 0 50px ${mainColor}20`
+      }}
       onClick={onDismiss}
       data-testid="alert-view"
     >
-      <span style={{ fontSize: '28px', fontWeight: 'bold', color: '#fff', marginBottom: '16px' }}>{line1}</span>
-      <span style={{ fontSize: '20px', color: '#ccc' }}>{line2}</span>
+      {/* Emoji at top */}
+      <span style={{ fontSize: '48px', marginBottom: '12px' }}>{emoji}</span>
+      
+      {/* Line 1 - Big text */}
+      <span style={{ 
+        fontSize: '24px', 
+        fontWeight: 'bold', 
+        color: '#fff', 
+        marginBottom: '8px',
+        textAlign: 'center',
+        padding: '0 20px'
+      }}>
+        {line1}
+      </span>
+      
+      {/* Line 2 - Smaller text */}
+      <span style={{ 
+        fontSize: '18px', 
+        color: mainColor,
+        textAlign: 'center',
+        padding: '0 20px'
+      }}>
+        {line2}
+      </span>
+      
+      {/* Decorative elements */}
+      {alertType === 'halfway' && (
+        <>
+          <span style={{ position: 'absolute', top: '15%', left: '20%', fontSize: '24px', opacity: 0.6 }}>🎈</span>
+          <span style={{ position: 'absolute', top: '20%', right: '20%', fontSize: '20px', opacity: 0.5 }}>🎈</span>
+          <span style={{ position: 'absolute', bottom: '25%', left: '15%', fontSize: '18px', opacity: 0.4 }}>🎈</span>
+          <span style={{ position: 'absolute', bottom: '20%', right: '18%', fontSize: '22px', opacity: 0.5 }}>🎈</span>
+        </>
+      )}
+      
+      {alertType === 'goal' && (
+        <>
+          <span style={{ position: 'absolute', top: '12%', left: '22%', fontSize: '24px', opacity: 0.6 }}>👏</span>
+          <span style={{ position: 'absolute', top: '18%', right: '22%', fontSize: '20px', opacity: 0.5 }}>🎉</span>
+          <span style={{ position: 'absolute', bottom: '22%', left: '18%', fontSize: '22px', opacity: 0.5 }}>⭐</span>
+          <span style={{ position: 'absolute', bottom: '15%', right: '20%', fontSize: '24px', opacity: 0.6 }}>👏</span>
+        </>
+      )}
+      
+      {/* Tap to dismiss hint */}
+      <span style={{ 
+        position: 'absolute',
+        bottom: '8%',
+        fontSize: '12px', 
+        color: '#666'
+      }}>
+        tap to dismiss
+      </span>
     </div>
   );
 }
