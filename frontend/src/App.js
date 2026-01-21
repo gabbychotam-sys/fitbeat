@@ -70,7 +70,7 @@ const KEYBOARDS = {
 function WatchDisplay({ state, onZoneClick }) {
   const { lang, color, distanceCm, elapsedWalkSec, goalDist, goalTimeMin } = state;
   const mainColor = COLOR_HEX[color];
-  const unit = LANG_UNITS[lang];
+  const unit = TR_KM[lang];  // Use translated unit!
   
   // Calculate distance display
   const distKm = lang === 0 ? distanceCm / 160934 : distanceCm / 100000;
