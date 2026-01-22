@@ -102,10 +102,10 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 - **Download ZIP**: https://fitness-goals-30.preview.emergentagent.com/api/download/fitbeat
 - **Simulator**: https://fitness-goals-30.preview.emergentagent.com
 
-## Next Steps for New Agent
-1. Research Garmin forums for smooth scrolling in Custom View
-2. Consider `WatchUi.Picker` or alternative approaches
-3. If user agrees, can revert to `CustomMenu` (with scrollbar but working scroll)
+## Backlog / Future Tasks
+1. Final user verification on physical device
+2. Add more customization options (e.g., progress bar style)
+3. Add step counter display option
 
 ## Technical Notes
 - Garmin `CustomMenu` has built-in scrollbar that CANNOT be removed
