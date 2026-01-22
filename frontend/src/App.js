@@ -1186,6 +1186,7 @@ function FitBeatSimulator() {
           line1={alert?.line1} 
           line2={alert?.line2} 
           line3={alert?.line3}
+          alertType={alert?.alertType}
           color={alert?.color}
           onDismiss={() => { setAlert(null); setView('main'); }} 
         />;
