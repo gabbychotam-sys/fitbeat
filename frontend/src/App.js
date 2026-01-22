@@ -833,6 +833,29 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
     return () => clearTimeout(timer);
   }, [onDismiss]);
   
+  // Generate particles for animations
+  const particles = [];
+  const particleCount = alertType === 'goal' ? 20 : 12;
+  
+  for (let i = 0; i < particleCount; i++) {
+    const left = Math.random() * 100;
+    const delay = Math.random() * 0.8;
+    const duration = 2 + Math.random() * 1;
+    const size = alertType === 'goal' ? (8 + Math.random() * 8) : (15 + Math.random() * 15);
+    
+    particles.push({
+      id: i,
+      left: `${left}%`,
+      delay: `${delay}s`,
+      duration: `${duration}s`,
+      size: `${size}px`,
+      color: alertType === 'goal' 
+        ? ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][i % 8]
+        : mainColor,
+      symbol: alertType === 'goal' ? '★' : '🎈'
+    });
+  }
+  
   return (
     <div 
       className="relative flex flex-col items-center justify-center cursor-pointer overflow-hidden"
@@ -845,13 +868,41 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
       onClick={onDismiss}
       data-testid="alert-view"
     >
+      {/* Animated particles - Balloons for 50%, Stars/Confetti for 100% */}
+      {(alertType === 'halfway' || alertType === 'goal') && particles.map(p => (
+        <span
+          key={p.id}
+          style={{
+            position: 'absolute',
+            left: p.left,
+            top: '-20px',
+            fontSize: p.size,
+            color: p.color,
+            animation: `fall ${p.duration} ease-in ${p.delay} forwards`,
+            opacity: 0.9,
+            textShadow: alertType === 'goal' ? '0 0 5px rgba(255,215,0,0.5)' : 'none'
+          }}
+        >
+          {p.symbol}
+        </span>
+      ))}
+      
+      {/* Keyframes for falling animation */}
+      <style>{`
+        @keyframes fall {
+          0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(300px) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
+      
       {/* Line 1 - Name (e.g., "גבי,") */}
       <span style={{ 
         fontSize: '28px', 
         fontWeight: 'bold', 
         color: mainColor, 
         marginBottom: '8px',
-        textAlign: 'center'
+        textAlign: 'center',
+        zIndex: 10
       }}>
         {line1}
       </span>
@@ -862,7 +913,8 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
         fontWeight: 'bold',
         color: mainColor,
         textAlign: 'center',
-        marginBottom: '8px'
+        marginBottom: '8px',
+        zIndex: 10
       }}>
         {line2}
       </span>
@@ -873,7 +925,8 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
           fontSize: '18px', 
           color: mainColor,
           textAlign: 'center',
-          padding: '0 20px'
+          padding: '0 20px',
+          zIndex: 10
         }}>
           {line3}
         </span>
