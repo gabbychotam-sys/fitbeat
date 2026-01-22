@@ -592,6 +592,16 @@ function GoalPicker({ state, type, onStart, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
+      {/* X Cancel button - top left */}
+      <div 
+        className="absolute cursor-pointer hover:opacity-80"
+        style={{ top: '25px', left: '25px', width: '30px', height: '30px', backgroundColor: '#333', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+        onClick={onClose}
+        data-testid="goal-cancel"
+      >
+        <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>✕</span>
+      </div>
+      
       {/* UP Arrow - top: 5% */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
