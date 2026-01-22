@@ -233,6 +233,15 @@ class FitBeatView extends WatchUi.View {
         mHrMonitoringActive = true;
         mHrAlertShown = false;
         _vibrate();
+        
+        // Show confirmation message with the calculated HR target
+        var lang = getLang();
+        var line1 = TR_HR_TARGET_SET[lang];
+        var line2 = TR_STAY_BELOW[lang];
+        var line3 = mHrTarget.toString() + " " + TR_BPM[lang];
+        
+        _showFullScreenAlert(line1, line2, line3, "hr");
+        
         WatchUi.requestUpdate();
     }
     
