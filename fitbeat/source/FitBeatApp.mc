@@ -706,6 +706,7 @@ class SettingsView extends WatchUi.View {
     function getNameZone() { return mNameZone; }
     function getColorZone() { return mColorZone; }
     function getSaveZone() { return mSaveZone; }
+    function getCancelZone() { return mCancelZone; }
 }
 
 class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
@@ -730,6 +731,13 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
         var nameZone = settings.getNameZone();
         var colorZone = settings.getColorZone();
         var saveZone = settings.getSaveZone();
+        var cancelZone = settings.getCancelZone();
+
+        // X CANCEL button - go back without saving
+        if (cancelZone != null && tapY >= cancelZone[0] && tapY <= cancelZone[1] && tapX >= cancelZone[2] && tapX <= cancelZone[3]) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
 
         // Language
         if (langZone != null && tapY >= langZone[0] && tapY <= langZone[1]) {
