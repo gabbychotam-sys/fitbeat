@@ -1101,6 +1101,10 @@ var TR_MAX_HR_TITLE = ["Max HR", "דופק מקס", "FC Máx", "FC Max", "Max HF
 class MaxHRMenu extends WatchUi.Menu2 {
     function initialize() {
         Menu2.initialize({:title => TR_MAX_HR_TITLE[getLang()]});
+        // Add Cancel option at the top for touchscreen users
+        var lang = getLang();
+        var cancelLabels = ["← Back", "← חזרה", "← Volver", "← Retour", "← Zurück", "← 返回"];
+        addItem(new WatchUi.MenuItem(cancelLabels[lang], null, -1, null));
         addItem(new WatchUi.MenuItem(TR_AUTO[getLang()], null, 0, null));
         var pcts = [50, 55, 60, 65, 70, 75, 80, 85, 90];
         for (var i = 0; i < pcts.size(); i++) {
@@ -1115,6 +1119,13 @@ class MaxHRMenuDelegate extends WatchUi.Menu2InputDelegate {
     
     function onSelect(item) {
         var hrMode = item.getId();
+        
+        // If Cancel/Back was selected, just go back
+        if (hrMode == -1) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return;
+        }
+        
         Application.Storage.setValue("hrMode", hrMode);
         if (mView != null) {
             mView.setHrMode(hrMode);
