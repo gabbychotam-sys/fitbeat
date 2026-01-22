@@ -299,9 +299,6 @@ function SettingsView({ state, onUpdate, onClose }) {
         </div>
       </div>
       
-      {/* Save button - translated */}
-      <button 
-        className="absolute left-1/2 -translate-x-1/2"
       {/* BOTTOM ROW: X on LEFT, Save on RIGHT (side by side) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6"
