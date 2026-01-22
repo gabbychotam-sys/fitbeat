@@ -30,7 +30,7 @@ Hebrew (עברית)
     └── monkey.jungle     # Build configuration
 ```
 
-## What's Been Implemented (January 21, 2025)
+## What's Been Implemented (January 22, 2025)
 
 ### ✅ Completed Features:
 1. **Main Watch Display**: Time (MM:SS), Distance, HR with colored icons
@@ -42,6 +42,15 @@ Hebrew (עברית)
 7. **Goal Pickers**: Distance and Time with translated units
 8. **Settings Screen**: Language, Name, Color, Save - all translated
 9. **Web Simulator**: Full React implementation matching Garmin code
+10. **Color Menu with CustomMenu**: Native smooth scrolling
+11. **Alert Animations**: Falling circles for 50%, stars for 100% - NO animations for HR confirmation
+12. **Universal Back Button**: X button on all sub-screens
+13. **HR Confirmation Alert**: Plain text only (no animations), shows target BPM
+
+### ✅ Latest UI Fixes (January 22, 2025):
+- **Goal Pickers**: X button positioned directly ABOVE the START button
+- **Settings Screen**: X button on LEFT, Save button on RIGHT (side by side)
+- **HR Confirmation Alert**: Fixed bug - no longer shows animations (plain text only)
 
 ### 🟡 Color Menu Scrolling - Updated Implementation (Jan 21, 2025):
 **User Requirements:**
