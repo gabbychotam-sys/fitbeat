@@ -875,27 +875,31 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
     return () => clearTimeout(timer);
   }, [onDismiss]);
   
-  // Generate particles for animations
+  // Generate particles for animations - ONLY for halfway/goal, NOT HR!
+  const showAnimation = alertType === 'halfway' || alertType === 'goal';
   const particles = [];
-  const particleCount = alertType === 'goal' ? 20 : 12;
   
-  for (let i = 0; i < particleCount; i++) {
-    const left = Math.random() * 100;
-    const delay = Math.random() * 0.8;
-    const duration = 2 + Math.random() * 1;
-    const size = alertType === 'goal' ? (8 + Math.random() * 8) : (15 + Math.random() * 15);
+  if (showAnimation) {
+    const particleCount = alertType === 'goal' ? 20 : 12;
     
-    particles.push({
-      id: i,
-      left: `${left}%`,
-      delay: `${delay}s`,
-      duration: `${duration}s`,
-      size: `${size}px`,
-      color: alertType === 'goal' 
-        ? ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][i % 8]
-        : mainColor,
-      symbol: alertType === 'goal' ? '★' : '🎈'
-    });
+    for (let i = 0; i < particleCount; i++) {
+      const left = Math.random() * 100;
+      const delay = Math.random() * 0.8;
+      const duration = 2 + Math.random() * 1;
+      const size = alertType === 'goal' ? (8 + Math.random() * 8) : (15 + Math.random() * 15);
+      
+      particles.push({
+        id: i,
+        left: `${left}%`,
+        delay: `${delay}s`,
+        duration: `${duration}s`,
+        size: `${size}px`,
+        color: alertType === 'goal' 
+          ? ['#FFD700', '#FF6B6B', '#4ECDC4', '#45B7D1', '#96CEB4', '#FFEAA7', '#DDA0DD', '#98D8C8'][i % 8]
+          : mainColor,
+        symbol: alertType === 'goal' ? '★' : '🎈'
+      });
+    }
   }
   
   return (
@@ -910,8 +914,8 @@ function AlertView({ line1, line2, line3, alertType, color, onDismiss }) {
       onClick={onDismiss}
       data-testid="alert-view"
     >
-      {/* Animated particles - Balloons for 50%, Stars/Confetti for 100% */}
-      {(alertType === 'halfway' || alertType === 'goal') && particles.map(p => (
+      {/* Animated particles - ONLY for halfway/goal alerts */}
+      {showAnimation && particles.map(p => (
         <span
           key={p.id}
           style={{
