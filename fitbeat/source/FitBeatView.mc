@@ -459,8 +459,8 @@ class FitBeatView extends WatchUi.View {
         
         if (hr != null && mHrTarget > 0 && !mHrAlertShown) {
             if (hr > mHrTarget) {
-                // 3 lines: Name, Rest message, HR exceeded message
-                _showFullScreenAlert(nameLine, TR_REST_NOW[lang], TR_HR_TOO_HIGH[lang]);
+                // 3 lines: Name, Rest message, HR exceeded message (no animation)
+                _showFullScreenAlert(nameLine, TR_REST_NOW[lang], TR_HR_TOO_HIGH[lang], "hr");
                 mHrAlertShown = true;
             }
         }
@@ -469,8 +469,8 @@ class FitBeatView extends WatchUi.View {
         if (hr != null && mHrTarget > 0 && mHrAlertShown) {
             var threshold = mHrTarget - (mHrTarget * 5 / 100);
             if (hr <= threshold) {
-                // 3 lines: Name, Continue message, HR OK message
-                _showFullScreenAlert(nameLine, TR_GO_AHEAD[lang], TR_HR_OK[lang]);
+                // 3 lines: Name, Continue message, HR OK message (no animation)
+                _showFullScreenAlert(nameLine, TR_GO_AHEAD[lang], TR_HR_OK[lang], "hr");
                 mHrAlertShown = false;
             }
         }
@@ -485,20 +485,20 @@ class FitBeatView extends WatchUi.View {
         var name = _getUserName();
         var nameLine = name != "" ? (name + ",") : "";
         
-        // 50% alert (🎈) - 3 lines: Name, Keep going, Halfway message
+        // 50% alert (🎈 balloons) - 3 lines: Name, Keep going, Halfway message
         if (!mDistHalfwayShown && goalCm > 0) {
             var halfway = goalCm / 2;
             if (distCm >= halfway && distCm < goalCm) {
-                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang]);
+                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang], "halfway");
                 mDistHalfwayShown = true;
                 _saveState();
             }
         }
         
-        // Goal alert (👏) - 3 lines: Name, Great job, Goal completed
+        // Goal alert (★ stars) - 3 lines: Name, Great job, Goal completed
         if (!mDistGoalShown && goalCm > 0) {
             if (distCm >= goalCm) {
-                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang]);
+                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang], "goal");
                 mDistGoalShown = true;
                 _saveState();
                 // Distance continues tracking! No reset!
@@ -515,20 +515,20 @@ class FitBeatView extends WatchUi.View {
         var name = _getUserName();
         var nameLine = name != "" ? (name + ",") : "";
 
-        // 50% alert (🎈) - 3 lines: Name, Keep going, Halfway message
+        // 50% alert (🎈 balloons) - 3 lines: Name, Keep going, Halfway message
         if (!mTimeHalfwayShown) {
             var halfway = goalSec / 2;
             if (mElapsedWalkSec >= halfway && mElapsedWalkSec < goalSec) {
-                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang]);
+                _showFullScreenAlert(nameLine, TR_KEEP_GOING[lang], TR_HALF_WAY[lang], "halfway");
                 mTimeHalfwayShown = true;
                 _saveState();
             }
         }
 
-        // Goal alert (👏) - 3 lines: Name, Great job, Goal completed - RESETS time after goal!
+        // Goal alert (★ stars) - 3 lines: Name, Great job, Goal completed - RESETS time after goal!
         if (!mTimeGoalShown) {
             if (mElapsedWalkSec >= goalSec) {
-                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang]);
+                _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang], "goal");
                 mTimeGoalShown = true;
                 
                 // Time goal RESETS after completion!
