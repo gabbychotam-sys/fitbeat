@@ -54,6 +54,11 @@ const TR_START = ["START", "התחל", "INICIAR", "DÉMARRER", "STARTEN", "开�
 const TR_MAX_HR = ["Max Heart Rate", "דופק מקסימלי", "FC Máxima", "FC Max", "Max HF", "最大心率"];
 const TR_AUTO = ["Auto", "אוטו", "Auto", "Auto", "Auto", "自动"];
 
+// HR Target confirmation messages
+const TR_HR_TARGET_SET = ["HR target set", "יעד דופק נקבע", "Objetivo FC fijado", "Objectif FC défini", "HF-Ziel gesetzt", "心率目标设定"];
+const TR_STAY_BELOW = ["Stay below", "לא לעבור", "Mantente bajo", "Reste en dessous de", "Bleib unter", "保持低于"];
+const TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
+
 // QWERTY REVERSED keyboards for each language (as per Garmin spec!)
 const KEYBOARDS = {
   0: [["P","O","I","U","Y","T","R","E","W","Q"],["L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]], // English
