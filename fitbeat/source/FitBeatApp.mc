@@ -812,21 +812,28 @@ class AlertView extends WatchUi.View {
         mAlertType = alertType != null ? alertType : "halfway";
         
         // Initialize particles with random positions
-        mParticles = new [mParticleCount];
-        for (var i = 0; i < mParticleCount; i++) {
-            mParticles[i] = {
-                "x" => (i * 35) % 280,  // Spread across width
-                "y" => -20 - (i * 15),   // Start above screen
-                "speed" => 8 + (i % 4) * 3
-            };
+        // Initialize particles ONLY for halfway/goal alerts (not HR!)
+        if (mAlertType.equals("halfway") || mAlertType.equals("goal")) {
+            mParticles = new [mParticleCount];
+            for (var i = 0; i < mParticleCount; i++) {
+                mParticles[i] = {
+                    "x" => (i * 35) % 280,  // Spread across width
+                    "y" => -20 - (i * 15),   // Start above screen
+                    "speed" => 8 + (i % 4) * 3
+                };
+            }
+        } else {
+            mParticles = null;  // No animation for HR alerts
         }
     }
     
     function onShow() {
         // Start 3-second auto-dismiss timer when alert is shown
         mDismissTimer.start(method(:onDismissTimer), 3000, false);
-        // Start animation timer (100ms = 10 FPS for smooth animation)
-        mAnimTimer.start(method(:onAnimFrame), 100, true);
+        // Start animation timer ONLY if we have particles
+        if (mParticles != null) {
+            mAnimTimer.start(method(:onAnimFrame), 100, true);
+        }
     }
     
     function onHide() {
