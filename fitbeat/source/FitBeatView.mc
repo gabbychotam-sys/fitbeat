@@ -252,7 +252,7 @@ class FitBeatView extends WatchUi.View {
     }
     
     // ═══ SHOW FULL SCREEN ALERT (NOT OVERLAY!) - 3 LINES FORMAT ═══
-    function _showFullScreenAlert(line1, line2, line3) {
+    function _showFullScreenAlert(line1, line2, line3, alertType) {
         var lang = getLang();
         var l1;
         var l2;
@@ -275,8 +275,9 @@ class FitBeatView extends WatchUi.View {
         
         _vibrate();
         
-        // Create AlertView with auto-dismiss timer (3 seconds)
-        var alertView = new AlertView(l1, l2, l3);
+        // Create AlertView with auto-dismiss timer (3 seconds) and animation type
+        var aType = alertType != null ? alertType : "halfway";
+        var alertView = new AlertView(l1, l2, l3, aType);
         var alertDelegate = new AlertViewDelegate(alertView);
         
         // Push FULL SCREEN alert view with 3 lines and selected color!
