@@ -254,16 +254,6 @@ function SettingsView({ state, onUpdate, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* X Cancel button - top left - MORE VISIBLE */}
-      <div 
-        className="absolute cursor-pointer hover:opacity-80"
-        style={{ top: '45px', left: '45px', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
-        onClick={onClose}
-        data-testid="settings-cancel"
-      >
-        <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
-      </div>
-      
       {/* Title - translated */}
       <div style={{ marginTop: '5%' }}>
         <span style={{ fontSize: '26px', fontWeight: 'bold', color: mainColor }}>{TR_SETTINGS[lang]}</span>
