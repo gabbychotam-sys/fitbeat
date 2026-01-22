@@ -302,31 +302,38 @@ function SettingsView({ state, onUpdate, onClose }) {
       {/* Save button - translated */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
-        style={{ 
-          bottom: '12%',
-          fontSize: '18px',
-          fontWeight: 'bold',
-          backgroundColor: mainColor,
-          color: '#000',
-          padding: '6px 24px',
-          borderRadius: '20px',
-          border: 'none',
-          cursor: 'pointer'
-        }}
-        onClick={onClose}
-        data-testid="settings-save"
-      >
-        {TR_SAVE[lang]} ✓
-      </button>
-      
-      {/* X Cancel button - ABOVE Save button */}
+      {/* BOTTOM ROW: X on LEFT, Save on RIGHT (side by side) */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ bottom: '26%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
-        onClick={onClose}
-        data-testid="settings-cancel"
+        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6"
+        style={{ bottom: '12%' }}
       >
-        <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
+        {/* X Cancel button - LEFT */}
+        <div 
+          className="cursor-pointer hover:opacity-80"
+          style={{ width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+          onClick={onClose}
+          data-testid="settings-cancel"
+        >
+          <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
+        </div>
+        
+        {/* Save button - RIGHT */}
+        <button 
+          style={{ 
+            fontSize: '18px',
+            fontWeight: 'bold',
+            backgroundColor: mainColor,
+            color: '#000',
+            padding: '6px 24px',
+            borderRadius: '20px',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          onClick={onClose}
+          data-testid="settings-save"
+        >
+          {TR_SAVE[lang]} ✓
+        </button>
       </div>
     </div>
   );
