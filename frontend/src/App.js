@@ -602,16 +602,6 @@ function GoalPicker({ state, type, onStart, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* X Cancel button - top left - MORE VISIBLE */}
-      <div 
-        className="absolute cursor-pointer hover:opacity-80"
-        style={{ top: '45px', left: '45px', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
-        onClick={onClose}
-        data-testid="goal-cancel"
-      >
-        <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
-      </div>
-      
       {/* UP Arrow - top: 5% */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
@@ -638,11 +628,21 @@ function GoalPicker({ state, type, onStart, onClose }) {
         <span style={{ fontSize: '30px', color: mainColor }}>{unit}</span>
       </div>
       
-      {/* START button - top: 65% */}
+      {/* X Cancel button - ABOVE START (centered) */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
+        style={{ top: '56%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        onClick={onClose}
+        data-testid="goal-cancel"
+      >
+        <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
+      </div>
+      
+      {/* START button - top: 68% */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          top: '65%',
+          top: '68%',
           fontSize: '18px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
