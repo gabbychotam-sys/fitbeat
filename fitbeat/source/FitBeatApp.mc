@@ -393,6 +393,7 @@ class TimeGoalPickerView extends WatchUi.View {
     var mUpZone = null;
     var mDownZone = null;
     var mStartZone = null;
+    var mCancelZone = null;  // X button for cancel/back
     var mMainView;
 
     function initialize(mainView) {
@@ -415,6 +416,15 @@ class TimeGoalPickerView extends WatchUi.View {
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
+
+        // ═══ X CANCEL BUTTON (top-left corner) ═══
+        var xSize = 25;
+        var xMargin = 35;
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+        dc.fillCircle(xMargin, xMargin, xSize / 2 + 5);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xMargin, xMargin - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mCancelZone = [xMargin - xSize, xMargin + xSize, xMargin - xSize, xMargin + xSize];
 
         // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
