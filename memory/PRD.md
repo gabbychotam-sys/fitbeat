@@ -90,8 +90,8 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 ```
 
 ## URLs
-- **Download ZIP**: https://garmin-fitness.preview.emergentagent.com/api/download/fitbeat
-- **Simulator**: https://garmin-fitness.preview.emergentagent.com
+- **Download ZIP**: https://fitness-goals-30.preview.emergentagent.com/api/download/fitbeat
+- **Simulator**: https://fitness-goals-30.preview.emergentagent.com
 
 ## Next Steps for New Agent
 1. Research Garmin forums for smooth scrolling in Custom View
