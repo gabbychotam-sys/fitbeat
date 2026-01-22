@@ -342,6 +342,13 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
         var upZone = picker.getUpZone();
         var downZone = picker.getDownZone();
         var startZone = picker.getStartZone();
+        var cancelZone = picker.getCancelZone();
+        
+        // X CANCEL button - go back without saving
+        if (cancelZone != null && tapY >= cancelZone[0] && tapY <= cancelZone[1] && tapX >= cancelZone[2] && tapX <= cancelZone[3]) {
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
         
         // UP arrow
         if (upZone != null && tapY >= upZone[0] && tapY <= upZone[1] && tapX >= upZone[2] && tapX <= upZone[3]) {
