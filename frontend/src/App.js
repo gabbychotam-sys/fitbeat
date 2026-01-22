@@ -299,9 +299,9 @@ function SettingsView({ state, onUpdate, onClose }) {
         </div>
       </div>
       
-      {/* BOTTOM ROW: X on LEFT, Save on RIGHT (side by side) */}
+      {/* BOTTOM ROW: X on LEFT, Save on RIGHT (centered together) */}
       <div 
-        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-6"
+        className="absolute left-1/2 -translate-x-1/2 flex items-center gap-3"
         style={{ bottom: '12%' }}
       >
         {/* X Cancel button - LEFT */}
@@ -317,11 +317,11 @@ function SettingsView({ state, onUpdate, onClose }) {
         {/* Save button - RIGHT */}
         <button 
           style={{ 
-            fontSize: '18px',
+            fontSize: '16px',
             fontWeight: 'bold',
             backgroundColor: mainColor,
             color: '#000',
-            padding: '6px 24px',
+            padding: '6px 18px',
             borderRadius: '20px',
             border: 'none',
             cursor: 'pointer'
