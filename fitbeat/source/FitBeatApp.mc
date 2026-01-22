@@ -309,6 +309,7 @@ class GoalPickerView extends WatchUi.View {
     function getUpZone() { return mUpZone; }
     function getDownZone() { return mDownZone; }
     function getStartZone() { return mStartZone; }
+    function getCancelZone() { return mCancelZone; }
     function getGoal() { return mGoal; }
     
     function incrementGoal() {
