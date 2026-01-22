@@ -680,15 +680,20 @@ class SettingsView extends WatchUi.View {
 
         y += h / 10;
 
-        // ═══ BOTTOM ROW: X on LEFT, SAVE on RIGHT (side by side) ═══
+        // ═══ BOTTOM ROW: X on LEFT, SAVE on RIGHT (centered together) ═══
         var btnFont = Graphics.FONT_TINY;
         var btnH = h / 10;
-        var btnW = w / 3;
+        var btnW = w / 4;  // Smaller button width
         var rowY = y;
+        var gap = w / 20;  // Gap between buttons
         
-        // X CANCEL BUTTON - LEFT SIDE
+        // Total width of both buttons + gap
         var xSize = 28;
-        var xBtnX = w / 4;
+        var totalW = xSize + gap + btnW;
+        var startX = (w - totalW) / 2;  // Center the pair
+        
+        // X CANCEL BUTTON - LEFT SIDE (centered pair)
+        var xBtnX = startX + xSize / 2;
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
         dc.fillCircle(xBtnX, rowY + btnH / 2, xSize / 2 + 6);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
@@ -697,12 +702,12 @@ class SettingsView extends WatchUi.View {
         dc.drawText(xBtnX, rowY + btnH / 2 - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         mCancelZone = [rowY, rowY + btnH, xBtnX - xSize, xBtnX + xSize];
         
-        // SAVE BUTTON - RIGHT SIDE
-        var saveBtnX = w * 3 / 4 - btnW / 2;
+        // SAVE BUTTON - RIGHT SIDE (centered pair)
+        var saveBtnX = startX + xSize + gap;
         dc.setColor(color, color);
         dc.fillRoundedRectangle(saveBtnX, rowY, btnW, btnH, h / 40);
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w * 3 / 4, rowY + btnH / 2 - 4, btnFont, TR_SAVE_BTN[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        dc.drawText(saveBtnX + btnW / 2, rowY + btnH / 2 - 4, btnFont, TR_SAVE_BTN[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         mSaveZone = [rowY, rowY + btnH, saveBtnX, saveBtnX + btnW];
     }
 
