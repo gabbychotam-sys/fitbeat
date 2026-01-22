@@ -1179,7 +1179,28 @@ function FitBeatSimulator() {
       case 'colorMenu':
         return <ColorMenu state={state} onSelect={(i) => { updateState('color', i); setView('settings'); }} onClose={() => setView('settings')} />;
       case 'hrMenu':
-        return <MaxHRMenu state={state} onSelect={(i) => { updateState('hrMode', i); setView('main'); }} onClose={() => setView('main')} />;
+        return <MaxHRMenu state={state} onSelect={(hrMode) => {
+          updateState('hrMode', hrMode);
+          // Calculate and show HR target confirmation
+          const maxHR = 220 - 40; // Assuming age 40 for demo
+          let hrTarget;
+          if (hrMode === 0) {
+            // Auto mode - use current HR + 15
+            hrTarget = (state.heartRate || 70) + 15;
+          } else {
+            // Percentage mode
+            const pct = 50 + (hrMode - 1) * 5;
+            hrTarget = Math.round((maxHR * pct) / 100);
+          }
+          setAlert({
+            line1: TR_HR_TARGET_SET[state.lang],
+            line2: TR_STAY_BELOW[state.lang],
+            line3: `${hrTarget} ${TR_BPM[state.lang]}`,
+            color: COLOR_HEX[state.color],
+            alertType: 'hr'
+          });
+          setView('alert');
+        }} onClose={() => setView('main')} />;
       case 'distPicker':
         return <GoalPicker state={state} type="distance" onStart={startDistanceGoal} onClose={() => setView('main')} />;
       case 'timePicker':
