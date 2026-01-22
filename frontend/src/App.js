@@ -1127,7 +1127,7 @@ function FitBeatSimulator() {
       
       let newState = { ...s, distanceCm: newDist };
       
-      // Check 50% alert - 3 lines format
+      // Check 50% alert - 3 lines format with balloons 🎈
       if (s.distGoalActive && !s.distHalfwayShown && newDist >= halfway && newDist < goalCm) {
         newState.distHalfwayShown = true;
         const name = s.userName || '';
@@ -1135,12 +1135,13 @@ function FitBeatSimulator() {
           line1: name ? `${name},` : '',
           line2: TR_KEEP_GOING[s.lang],
           line3: TR_HALF_WAY[s.lang],
-          color: COLOR_HEX[s.color]
+          color: COLOR_HEX[s.color],
+          alertType: 'halfway'
         });
         setView('alert');
       }
       
-      // Check goal completion - 3 lines format, DISTANCE CONTINUES!
+      // Check goal completion - 3 lines format with stars ★, DISTANCE CONTINUES!
       if (s.distGoalActive && !s.distGoalShown && newDist >= goalCm) {
         newState.distGoalShown = true;
         const name = s.userName || '';
@@ -1148,7 +1149,8 @@ function FitBeatSimulator() {
           line1: name ? `${name},` : '',
           line2: TR_GREAT_JOB[s.lang],
           line3: TR_GOAL_COMPLETED[s.lang],
-          color: COLOR_HEX[s.color]
+          color: COLOR_HEX[s.color],
+          alertType: 'goal'
         });
         setView('alert');
       }
