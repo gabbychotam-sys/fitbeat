@@ -1,0 +1,47 @@
+# FitBeat - Build Instructions
+# =============================
+
+## Prerequisites
+- Garmin Connect IQ SDK installed
+- Developer key (developer_key.der)
+
+## Build Command for Store (IQ file)
+
+Open Command Prompt (CMD) and run:
+
+```
+cd "C:\Users\gabbyc\Desktop\fitbeat\fitbeat"
+
+java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-5122605dc\bin\monkeybrains.jar" -o FitBeat.iq -f monkey.jungle -y developer_key.der -e -r
+```
+
+### Parameters explained:
+- `-o FitBeat.iq` = Output file name (IQ format for store)
+- `-f monkey.jungle` = Project configuration file
+- `-y developer_key.der` = Your developer key
+- `-e` = Export for store
+- `-r` = Release build (optimized)
+
+## Build Command for Direct Install (PRG file)
+
+```
+cd "C:\Users\gabbyc\Desktop\fitbeat\fitbeat"
+
+java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-5122605dc\bin\monkeybrains.jar" -o FitBeat.prg -f monkey.jungle -y developer_key.der -d fenix8solar51mm
+```
+
+## After Building
+
+### For Store Upload:
+1. The FitBeat.iq file will be created in the fitbeat folder
+2. Upload this file to apps.garmin.com/developer/dashboard
+
+### For Direct Install:
+1. The FitBeat.prg file will be created
+2. Connect your watch via USB
+3. Copy FitBeat.prg to: GARMIN/APPS/ folder on the watch
+4. Safely disconnect and find FitBeat in your activities/apps
+
+---
+
+FitBeat - Train Smart, Not Hard! 🏃💚
