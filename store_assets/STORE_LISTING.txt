@@ -1,0 +1,154 @@
+# FitBeat - Store Listing Information
+# =====================================
+
+## App Name
+FitBeat
+
+## Short Description (max 30 characters)
+Smart Heart Rate Monitor
+
+## Category
+Health & Fitness
+
+## App Type
+Watch App
+
+## Price
+Free
+
+## Supported Devices
+- Garmin Fenix 8 Solar 51mm
+
+## Languages Supported
+- English
+- Hebrew (עברית)
+- Spanish (Español)
+- French (Français)
+- German (Deutsch)
+- Chinese (中文)
+
+---
+
+# FULL DESCRIPTION (ENGLISH)
+=====================================
+
+FitBeat is a personalized fitness app that helps you exercise safely and effectively. The app monitors your heart rate in real-time and alerts you when you're pushing too hard - perfect for beginners, those recovering from injuries, or anyone who wants to train at the right pace.
+
+## Key Features
+
+💓 SMART HEART RATE MONITORING
+• Auto Mode - The app learns your heart rate and sets a target automatically
+• Manual Mode - Choose a percentage of your max heart rate (50%-90%)
+• Real-Time Alerts - Get notified when your heart rate exceeds the target
+
+🎯 INDEPENDENT GOALS
+• Distance Goal - Set how many km to walk (1-20 km)
+• Time Goal - Set how many minutes to exercise (10-120 minutes)
+• Track both goals simultaneously!
+
+🎉 ACHIEVEMENT CELEBRATIONS
+• 50% of Goal - Balloon animation + encouragement
+• 100% of Goal - Stars animation + congratulations!
+• Personalized messages with your name
+
+🌍 6 LANGUAGES
+English, Hebrew, Spanish, French, German, Chinese
+
+🎨 10 COLORS
+Customize the entire app with your favorite color: Green, Cyan, Blue, Purple, Red, Orange, Yellow, Pink, Lime, White
+
+## Who Is It For?
+• Beginners who want to start exercising safely
+• Recovering from injuries or surgeries
+• People with heart conditions who need to maintain a steady heart rate
+• Parents/Grandparents who want to stay fit without overexertion
+• Anyone who wants to train smart, not hard!
+
+---
+
+# FULL DESCRIPTION (HEBREW)
+=====================================
+
+FitBeat היא אפליקציית כושר מותאמת אישית שעוזרת לך להתאמן בצורה בטוחה ויעילה. האפליקציה עוקבת אחרי הדופק שלך בזמן אמת ומתריעה כשאתה מתאמץ יותר מדי - מושלמת למתחילים, למתאוששים מפציעות, או לכל מי שרוצה להתאמן בקצב הנכון.
+
+## תכונות עיקריות
+
+💓 ניטור דופק חכם
+• מצב אוטומטי - האפליקציה לומדת את הדופק שלך ומגדירה יעד אוטומטית
+• מצב ידני - בחר אחוז מהדופק המקסימלי שלך (50%-90%)
+• התראה בזמן אמת - כשהדופק עולה מעל היעד, תקבל התראה להאט
+
+🎯 יעדים עצמאיים
+• יעד מרחק - הגדר כמה ק"מ לעבור (1-20 ק"מ)
+• יעד זמן - הגדר כמה דקות להתאמן (10-120 דקות)
+• עקוב אחרי שני היעדים במקביל!
+
+🎉 חגיגת הישגים
+• 50% מהיעד - אנימציית בלונים + הודעת עידוד
+• 100% מהיעד - אנימציית כוכבים + ברכות!
+
+🌍 6 שפות: אנגלית, עברית, ספרדית, צרפתית, גרמנית, סינית
+
+🎨 10 צבעים לבחירה
+
+## למי זה מתאים?
+• מתחילים שרוצים להתחיל להתאמן בצורה בטוחה
+• מתאוששים מפציעות או ניתוחים
+• אנשים עם מגבלות לב
+• הורים/סבים שרוצים לשמור על כושר
+• כל מי שרוצה להתאמן חכם, לא חזק!
+
+---
+
+# KEYWORDS (for store search)
+=====================================
+fitness, heart rate, HR monitor, walking, exercise, health, training, workout, pace, goals, distance, time, alerts, safe exercise, beginners, recovery
+
+---
+
+# FILES INCLUDED IN THIS PACKAGE
+=====================================
+
+📁 icons/
+   - launcher_icon_60x60.png   → App icon (upload to Garmin)
+   - launcher_icon_400x400.png → Store listing icon
+
+📁 screenshots/
+   - (Take from simulator or your watch)
+
+📄 STORE_LISTING.txt          → This file
+
+📄 BUILD_INSTRUCTIONS.txt     → How to build the IQ file
+
+---
+
+# SUBMISSION CHECKLIST
+=====================================
+
+[ ] 1. Create developer account at developer.garmin.com
+[ ] 2. Build FitBeat.iq file (see BUILD_INSTRUCTIONS.txt)
+[ ] 3. Go to apps.garmin.com/developer/dashboard
+[ ] 4. Click "Upload an App" or "New App"
+[ ] 5. Upload FitBeat.iq file
+[ ] 6. Upload launcher_icon (use 60x60 or 400x400)
+[ ] 7. Upload at least 1 screenshot
+[ ] 8. Fill in App Name: FitBeat
+[ ] 9. Fill in Description (copy from above)
+[ ] 10. Select Category: Health & Fitness
+[ ] 11. Select Device: fenix8solar51mm
+[ ] 12. Select Languages (all 6)
+[ ] 13. Accept developer agreement
+[ ] 14. Click "Submit for Review"
+[ ] 15. Wait 1-5 business days for approval
+
+---
+
+# CONTACT
+=====================================
+
+Developer: [YOUR NAME]
+Email: [YOUR EMAIL]
+
+---
+
+FitBeat - Train Smart, Not Hard! 🏃💚
