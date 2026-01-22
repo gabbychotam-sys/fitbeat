@@ -540,10 +540,10 @@ function MaxHRMenu({ state, onSelect, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* X Cancel button - top left - MORE VISIBLE */}
+      {/* X Cancel button - LEFT SIDE MIDDLE */}
       <div 
         className="absolute cursor-pointer hover:opacity-80"
-        style={{ top: '45px', left: '45px', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        style={{ top: '50%', left: '15px', transform: 'translateY(-50%)', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
         onClick={onClose}
         data-testid="hr-cancel"
       >
