@@ -680,34 +680,30 @@ class SettingsView extends WatchUi.View {
 
         y += h / 10;
 
-        // ═══ X CANCEL BUTTON - ABOVE SAVE BUTTON ═══
+        // ═══ BOTTOM ROW: X on LEFT, SAVE on RIGHT (side by side) ═══
+        var btnFont = Graphics.FONT_TINY;
+        var btnH = h / 10;
+        var btnW = w / 3;
+        var rowY = y;
+        
+        // X CANCEL BUTTON - LEFT SIDE
         var xSize = 28;
-        var xBtnY = y;
+        var xBtnX = w / 4;
         dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-        dc.fillCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.fillCircle(xBtnX, rowY + btnH / 2, xSize / 2 + 6);
         dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
-        dc.drawCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.drawCircle(xBtnX, rowY + btnH / 2, xSize / 2 + 6);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, xBtnY - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mCancelZone = [xBtnY - xSize, xBtnY + xSize, w / 2 - xSize, w / 2 + xSize];
-
-        y += h / 12;
-
-        // Save button - TRANSLATED!
-        var btnW = w * 4 / 10;
-        var btnH = h / 8;
-        var btnX = (w - btnW) / 2;
-        var btnY = y;
-
+        dc.drawText(xBtnX, rowY + btnH / 2 - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mCancelZone = [rowY, rowY + btnH, xBtnX - xSize, xBtnX + xSize];
+        
+        // SAVE BUTTON - RIGHT SIDE
+        var saveBtnX = w * 3 / 4 - btnW / 2;
         dc.setColor(color, color);
-        dc.fillRoundedRectangle(btnX, btnY, btnW, btnH, h / 40);
-
+        dc.fillRoundedRectangle(saveBtnX, rowY, btnW, btnH, h / 40);
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_TRANSPARENT);
-        var saveTextH = dc.getFontHeight(valueFont);
-        var saveTextY = btnY + (btnH - saveTextH) / 2;
-        dc.drawText(w / 2, saveTextY, valueFont, TR_SAVE_BTN[lang], Graphics.TEXT_JUSTIFY_CENTER);
-
-        mSaveZone = [btnY, btnY + btnH, btnX, btnX + btnW];
+        dc.drawText(w * 3 / 4, rowY + btnH / 2 - 4, btnFont, TR_SAVE_BTN[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mSaveZone = [rowY, rowY + btnH, saveBtnX, saveBtnX + btnW];
     }
 
     function getLangZone() { return mLangZone; }
