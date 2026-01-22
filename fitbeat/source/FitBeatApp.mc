@@ -1127,12 +1127,14 @@ class MaxHRMenuDelegate extends WatchUi.Menu2InputDelegate {
         }
         
         Application.Storage.setValue("hrMode", hrMode);
+        
+        // FIRST close the menu, THEN show the alert!
+        WatchUi.popView(WatchUi.SLIDE_DOWN);
+        
         if (mView != null) {
             mView.setHrMode(hrMode);
-            mView.confirmHrMode();
+            mView.confirmHrMode();  // This will show the alert AFTER menu is closed
         }
-        WatchUi.popView(WatchUi.SLIDE_DOWN);
-        WatchUi.requestUpdate();
     }
     
     function onBack() { WatchUi.popView(WatchUi.SLIDE_DOWN); }
