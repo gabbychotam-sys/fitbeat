@@ -120,6 +120,22 @@ async def download_fitbeat():
         headers={"Content-Disposition": "attachment; filename=fitbeat.zip"}
     )
 
+# Store Assets Download
+@api_router.get("/download/store-assets")
+async def download_store_assets():
+    """Download store assets (icons, descriptions) as ZIP"""
+    store_assets_zip = Path("/app/store_assets.zip")
+    
+    if not store_assets_zip.exists():
+        return JSONResponse(status_code=404, content={"error": "Store assets not found"})
+    
+    return FileResponse(
+        str(store_assets_zip),
+        media_type='application/zip',
+        filename='FitBeat_Store_Assets.zip',
+        headers={"Content-Disposition": "attachment; filename=FitBeat_Store_Assets.zip"}
+    )
+
 # FitBeat State Management
 @api_router.get("/fitbeat/state")
 async def get_fitbeat_state():
