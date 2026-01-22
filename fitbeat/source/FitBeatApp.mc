@@ -184,6 +184,11 @@ var TR_GO_AHEAD = ["You can continue", "אפשר להמשיך באימון", "Pu
 var TR_HR_OK = ["Back in range", "הדופק ירד, אפשר להמשיך", "De vuelta al rango", "De retour dans la zone", "Wieder im Bereich", "回到范围"];
 var TR_AUTO = ["Auto", "אוטו", "Auto", "Auto", "Auto", "自动"];
 
+// HR Target confirmation messages
+var TR_HR_TARGET_SET = ["HR target set", "יעד דופק נקבע", "Objetivo FC fijado", "Objectif FC défini", "HF-Ziel gesetzt", "心率目标设定"];
+var TR_STAY_BELOW = ["Stay below", "לא לעבור", "Mantente bajo", "Reste en dessous de", "Bleib unter", "保持低于"];
+var TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
+
 function getLang() {
     var l = Application.Storage.getValue("lang");
     if (l == null || l < 0 || l > 5) { return 0; }
