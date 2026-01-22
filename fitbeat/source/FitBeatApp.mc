@@ -718,6 +718,7 @@ class SettingsViewDelegate extends WatchUi.BehaviorDelegate {
 
 // ╔════════════════════════════════════════════════════════════╗
 // ║  ALERT VIEW - FULL SCREEN, 3 LINES, AUTO-DISMISS (3 sec)   ║
+// ║  With falling stars/confetti animation!                     ║
 // ║  Uses its own Timer for safe auto-dismiss!                 ║
 // ╚════════════════════════════════════════════════════════════╝
 
@@ -727,34 +728,72 @@ class AlertView extends WatchUi.View {
     var mLine3;
     var mColor;
     var mDismissTimer;
+    var mAnimTimer;
     var mDismissed = false;
+    var mAlertType;  // "halfway" = balloons, "goal" = stars
+    
+    // Particle animation data
+    var mParticles = null;
+    var mParticleCount = 8;
+    var mAnimFrame = 0;
 
-    function initialize(line1, line2, line3) {
+    function initialize(line1, line2, line3, alertType) {
         WatchUi.View.initialize();
         mLine1 = line1;
         mLine2 = line2;
         mLine3 = line3 != null ? line3 : "";
         mColor = getMainColor();
         mDismissTimer = new Timer.Timer();
+        mAnimTimer = new Timer.Timer();
         mDismissed = false;
+        mAlertType = alertType != null ? alertType : "halfway";
+        
+        // Initialize particles with random positions
+        mParticles = new [mParticleCount];
+        for (var i = 0; i < mParticleCount; i++) {
+            mParticles[i] = {
+                "x" => (i * 35) % 280,  // Spread across width
+                "y" => -20 - (i * 15),   // Start above screen
+                "speed" => 8 + (i % 4) * 3
+            };
+        }
     }
     
     function onShow() {
         // Start 3-second auto-dismiss timer when alert is shown
         mDismissTimer.start(method(:onDismissTimer), 3000, false);
+        // Start animation timer (100ms = 10 FPS for smooth animation)
+        mAnimTimer.start(method(:onAnimFrame), 100, true);
     }
     
     function onHide() {
-        // Stop timer when view is hidden
-        if (mDismissTimer != null) {
-            mDismissTimer.stop();
+        // Stop timers when view is hidden
+        if (mDismissTimer != null) { mDismissTimer.stop(); }
+        if (mAnimTimer != null) { mAnimTimer.stop(); }
+    }
+    
+    function onAnimFrame() {
+        mAnimFrame += 1;
+        // Move particles down
+        if (mParticles != null) {
+            for (var i = 0; i < mParticleCount; i++) {
+                var p = mParticles[i];
+                p["y"] = p["y"] + p["speed"];
+                // Reset particle when it goes off screen
+                if (p["y"] > 300) {
+                    p["y"] = -20;
+                    p["x"] = (p["x"] + 70) % 280;
+                }
+            }
         }
+        WatchUi.requestUpdate();
     }
     
     function onDismissTimer() {
         // Auto-dismiss after 3 seconds
         if (!mDismissed) {
             mDismissed = true;
+            if (mAnimTimer != null) { mAnimTimer.stop(); }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         }
     }
@@ -763,9 +802,8 @@ class AlertView extends WatchUi.View {
         // Manual dismiss
         if (!mDismissed) {
             mDismissed = true;
-            if (mDismissTimer != null) {
-                mDismissTimer.stop();
-            }
+            if (mDismissTimer != null) { mDismissTimer.stop(); }
+            if (mAnimTimer != null) { mAnimTimer.stop(); }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
         }
     }
@@ -776,6 +814,41 @@ class AlertView extends WatchUi.View {
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
+        
+        // Draw falling particles (stars for goal, circles for halfway)
+        if (mParticles != null) {
+            var colors = [Graphics.COLOR_YELLOW, Graphics.COLOR_RED, Graphics.COLOR_GREEN, 
+                         Graphics.COLOR_BLUE, Graphics.COLOR_ORANGE, Graphics.COLOR_PINK,
+                         Graphics.COLOR_WHITE, mColor];
+            
+            for (var i = 0; i < mParticleCount; i++) {
+                var p = mParticles[i];
+                var px = p["x"];
+                var py = p["y"];
+                
+                // Only draw if in visible area
+                if (py > 0 && py < h) {
+                    var pColor = colors[i % 8];
+                    dc.setColor(pColor, pColor);
+                    
+                    if (mAlertType.equals("goal")) {
+                        // Draw star shape for goal completion
+                        var size = 6 + (i % 3) * 2;
+                        // Simple star as filled circle with smaller inner circle
+                        dc.fillCircle(px, py, size);
+                        dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
+                        dc.fillCircle(px, py, size / 3);
+                    } else {
+                        // Draw circle for halfway (balloon-like)
+                        var size = 8 + (i % 3) * 3;
+                        dc.fillCircle(px, py, size);
+                        // Balloon string
+                        dc.setColor(pColor, pColor);
+                        dc.drawLine(px, py + size, px, py + size + 10);
+                    }
+                }
+            }
+        }
 
         var fBig = (gHeLargeFont != null) ? gHeLargeFont : Graphics.FONT_LARGE;
         var fSmall = (gHeSmallFont != null) ? gHeSmallFont : Graphics.FONT_SMALL;
