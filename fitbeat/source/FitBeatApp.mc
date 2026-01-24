@@ -222,6 +222,7 @@ class GoalPickerView extends WatchUi.View {
     var mDownZone = null;
     var mStartZone = null;
     var mCancelZone = null;  // X button for cancel/back
+    var mResetZone = null;   // RESET button
     
     function initialize(mainView) {
         View.initialize();
@@ -239,6 +240,18 @@ class GoalPickerView extends WatchUi.View {
         
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
+        
+        // ═══ RESET BUTTON AT TOP ═══
+        var resetBtnW = w / 3;
+        var resetBtnH = h / 14;
+        var resetBtnX = (w - resetBtnW) / 2;
+        var resetBtnY = h / 12;
+        
+        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
+        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, resetBtnY + resetBtnH / 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
         
         // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
