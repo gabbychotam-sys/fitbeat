@@ -646,25 +646,34 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         </button>
       )}
       
-      {/* Number + Unit - top: 24% (original position) */}
+      {/* Number + Unit + X button in a row */}
       <div 
-        className="absolute left-[42%] -translate-x-1/2 flex items-baseline gap-2"
-        style={{ top: '24%', flexDirection: 'row-reverse' }}
+        className="absolute flex items-center"
+        style={{ top: '30%', left: '50%', transform: 'translateX(-50%)' }}
       >
-        {/* Number - 80px */}
+        {/* Unit on left */}
+        <span style={{ fontSize: '30px', color: mainColor, marginRight: '8px' }}>{unit}</span>
+        {/* Number */}
         <span style={{ fontSize: '80px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
-        {/* Unit - FONT_TINY: 30px */}
-        <span style={{ fontSize: '30px', color: mainColor }}>{unit}</span>
-      </div>
-      
-      {/* X Cancel button - ABOVE START (centered) */}
-      <div 
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ top: '56%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
-        onClick={onClose}
-        data-testid="goal-cancel"
-      >
-        <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
+        {/* X Cancel button - to the right of number */}
+        <div 
+          className="cursor-pointer hover:opacity-80"
+          style={{ 
+            width: '30px', 
+            height: '30px', 
+            backgroundColor: '#444', 
+            borderRadius: '50%', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
+            border: '2px solid #666',
+            marginLeft: '12px'
+          }}
+          onClick={onClose}
+          data-testid="goal-cancel"
+        >
+          <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>✕</span>
+        </div>
       </div>
       
       {/* START button - top: 68% (original position) */}
