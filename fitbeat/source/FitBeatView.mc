@@ -568,12 +568,14 @@ class FitBeatView extends WatchUi.View {
     
     // ═══ SMART TIMER LOGIC ═══
     function _startSmartTimerIfNeeded() {
-        // Only start smart timer if time goal is 0 and distance goal is active
+        // Start smart timer if time goal is 0 and distance goal is active
         if (!mTimeGoalActive && mDistGoalActive) {
             mSmartTimerActive = true;
             mLastMovementTime = Time.now().value();
             mLastDistanceForMovement = mDistanceCm;
             mStopDurationSec = 0;
+            // Reset elapsed time to start fresh
+            mElapsedWalkSec = 0;
         }
     }
     
@@ -581,16 +583,17 @@ class FitBeatView extends WatchUi.View {
         var currentDist = mDistanceCm;
         var now = Time.now().value();
         
-        // Check if user moved (distance increased by at least 10 meters = 1000cm)
+        // Check if user moved (distance increased by at least 5 meters = 500cm)
         var movement = currentDist - mLastDistanceForMovement;
         if (movement < 0) { movement = 0; }
         
-        if (movement > 1000) {  // Moved more than 10 meters
-            // User is moving!
+        if (movement > 500) {  // Moved more than 5 meters
+            // User is moving! Count time
             mElapsedWalkSec += 1;
             mLastMovementTime = now;
             mLastDistanceForMovement = currentDist;
             mStopDurationSec = 0;
+            Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
         } else {
             // User stopped or barely moving
             mStopDurationSec += 1;
@@ -600,10 +603,9 @@ class FitBeatView extends WatchUi.View {
                 mElapsedWalkSec = 0;
                 mStopDurationSec = 0;
                 mLastDistanceForMovement = currentDist;
+                Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
             }
         }
-        
-        Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
     }
     
     function _checkHrAlert() {
