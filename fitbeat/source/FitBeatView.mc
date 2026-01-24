@@ -849,7 +849,7 @@ class FitBeatView extends WatchUi.View {
             timeFrac = _clamp01((mElapsedWalkSec * 1.0) / goalSec);
         } else if (mDistGoalActive) {
             // If no time goal but distance goal is active, use distance progress for both bars
-            var goalCm = _getGoalInCm();
+            // goalCm is already defined above at line 819
             timeFrac = goalCm > 0 ? _clamp01((mDistanceCm * 1.0) / goalCm) : 0.0;
         } else {
             timeFrac = 0.0;
