@@ -234,10 +234,8 @@ class FitBeatView extends WatchUi.View {
         mDistHalfwayShown = false;
         mDistGoalShown = false;
         
-        // Also reset timer if no time goal
-        if (!mTimeGoalActive) {
-            mElapsedWalkSec = 0;
-        }
+        // ALWAYS reset timer (smart timer) when resetting distance
+        mElapsedWalkSec = 0;
         
         _saveState();
         WatchUi.requestUpdate();
