@@ -208,6 +208,35 @@ class FitBeatView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
     
+    // ═══ START DISTANCE GOAL WITH SMART TIMER ═══
+    function startDistanceGoalWithTimer() {
+        startDistanceGoal();
+        
+        // If no time goal is set, start smart timer to count exercise time
+        if (!mTimeGoalActive) {
+            mElapsedWalkSec = 0;  // Reset to 0 when starting
+            _saveState();
+        }
+    }
+    
+    // ═══ RESET DISTANCE GOAL - Reset to 0 and deactivate ═══
+    function resetDistanceGoal() {
+        mDistGoalActive = false;
+        mDistanceCm = 0;
+        mStartSteps = 0;
+        mStartDistCm = 0;
+        mDistHalfwayShown = false;
+        mDistGoalShown = false;
+        
+        // Also reset timer if no time goal is active
+        if (!mTimeGoalActive) {
+            mElapsedWalkSec = 0;
+        }
+        
+        _saveState();
+        WatchUi.requestUpdate();
+    }
+    
     // ═══ START TIME GOAL - Does NOT reset distance! ═══
     function startTimeGoal() {
         mTimeGoalActive = true;
