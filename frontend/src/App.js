@@ -1117,16 +1117,51 @@ function FitBeatSimulator() {
     });
   };
   
-  // Start distance goal - DOES NOT reset time!
+  // Start distance goal - DOES NOT reset time! Keeps current distance if already walking
   const startDistanceGoal = (goal) => {
     setState(s => {
+      const goalCm = s.lang === 0 ? goal * 160934 : goal * 100000;
+      const halfway = goalCm / 2;
+      
+      // If already walking, keep current distance but update alerts
+      let distHalfwayShown = false;
+      let distGoalShown = false;
+      
+      // If continuing, check if we've already passed milestones
+      if (s.distGoalActive && s.distanceCm > 0) {
+        if (s.distanceCm >= halfway) { distHalfwayShown = true; }
+        if (s.distanceCm >= goalCm) { distGoalShown = true; }
+      }
+      
       const newState = {
         ...s,
         goalDist: goal,
         distGoalActive: true,
+        // Keep distance if already active, otherwise reset to 0
+        distanceCm: s.distGoalActive ? s.distanceCm : 0,
+        distHalfwayShown,
+        distGoalShown,
+        // Start smart timer if time goal is 0
+        smartTimerActive: s.goalTimeMin <= 0 || !s.timeGoalActive,
+      };
+      saveState(newState);
+      return newState;
+    });
+    setView('main');
+  };
+  
+  // Reset distance goal - Reset to 0 and deactivate
+  const resetDistanceGoal = () => {
+    setState(s => {
+      const newState = {
+        ...s,
+        distGoalActive: false,
         distanceCm: 0,
         distHalfwayShown: false,
         distGoalShown: false,
+        // Reset smart timer too
+        elapsedWalkSec: s.timeGoalActive ? s.elapsedWalkSec : 0,
+        smartTimerActive: false,
       };
       saveState(newState);
       return newState;
@@ -1144,6 +1179,7 @@ function FitBeatSimulator() {
         elapsedWalkSec: 0,
         timeHalfwayShown: false,
         timeGoalShown: false,
+        smartTimerActive: false,  // Disable smart timer when time goal is set
       };
       saveState(newState);
       return newState;
