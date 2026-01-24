@@ -297,12 +297,12 @@ class GoalPickerView extends WatchUi.View {
         ]);
         mDownZone = [downY, downY + arrowSize, arrowX - arrowSize, arrowX + arrowSize];
 
-        // BOTTOM: START button
+        // BOTTOM: START button - MOVED LOWER
         var btnFont = Graphics.FONT_SMALL;
         var btnH = dc.getFontHeight(btnFont);
         var btnW = w * 4 / 10;
         var btnX = (w - btnW) / 2;
-        var btnY = h - btnH - h / 6;
+        var btnY = h - btnH - h / 10;  // Lower position (was h/6, now h/10)
         
         dc.setColor(color, color);
         dc.fillRoundedRectangle(btnX, btnY, btnW, btnH + h / 20, h / 40);
@@ -328,6 +328,7 @@ class GoalPickerView extends WatchUi.View {
     function getDownZone() { return mDownZone; }
     function getStartZone() { return mStartZone; }
     function getCancelZone() { return mCancelZone; }
+    function getResetZone() { return mResetZone; }
     function getGoal() { return mGoal; }
     
     function incrementGoal() {
