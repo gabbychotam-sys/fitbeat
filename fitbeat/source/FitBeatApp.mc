@@ -362,6 +362,16 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
         var downZone = picker.getDownZone();
         var startZone = picker.getStartZone();
         var cancelZone = picker.getCancelZone();
+        var resetZone = picker.getResetZone();
+        
+        // RESET button - reset distance and cancel goal
+        if (resetZone != null && tapY >= resetZone[0] && tapY <= resetZone[1] && tapX >= resetZone[2] && tapX <= resetZone[3]) {
+            if (mMainView != null) {
+                mMainView.resetDistanceGoal();  // Reset distance to 0 and deactivate goal
+            }
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
         
         // X CANCEL button - go back without saving
         if (cancelZone != null && tapY >= cancelZone[0] && tapY <= cancelZone[1] && tapX >= cancelZone[2] && tapX <= cancelZone[3]) {
@@ -381,13 +391,13 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         
-        // START button - starts DISTANCE goal ONLY, doesn't reset time!
+        // START button - starts DISTANCE goal, keeps current distance if already walking
         if (startZone != null && tapY >= startZone[0] && tapY <= startZone[1] && tapX >= startZone[2] && tapX <= startZone[3]) {
             var goal = picker.getGoal();
             Application.Storage.setValue("goalDist", goal);
             if (mMainView != null) {
                 mMainView.setGoal(goal);
-                mMainView.startDistanceGoal();  // Only starts distance!
+                mMainView.continueOrStartDistanceGoal();  // Continue from current distance!
             }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
             return true;
