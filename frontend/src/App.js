@@ -1037,6 +1037,34 @@ function FitBeatSimulator() {
   const [alert, setAlert] = useState(null);
   const timerRef = useRef(null);
   
+  // ═══ SEND WORKOUT TO SERVER - Called when goal is completed ═══
+  const sendWorkoutToServer = useCallback(async (workoutState) => {
+    try {
+      // Generate user ID if not exists
+      let userId = localStorage.getItem('fitbeat_userId');
+      if (!userId) {
+        userId = Math.floor(Math.random() * 100000000).toString().padStart(8, '0');
+        localStorage.setItem('fitbeat_userId', userId);
+      }
+      
+      const workoutData = {
+        user_id: userId,
+        user_name: workoutState.userName || '',
+        distance_cm: workoutState.distanceCm,
+        duration_sec: workoutState.elapsedWalkSec,
+        avg_hr: 140, // Simulated
+        max_hr: workoutState.maxHr,
+        steps: Math.floor(workoutState.distanceCm / 70), // Approximate steps
+        cadence: 165 // Simulated
+      };
+      
+      await axios.post(`${API}/workout`, workoutData);
+      console.log('Workout sent to server:', workoutData);
+    } catch (e) {
+      console.error('Failed to send workout:', e);
+    }
+  }, []);
+  
   // Load state from backend
   useEffect(() => {
     axios.get(`${API}/fitbeat/state`).then(res => {
