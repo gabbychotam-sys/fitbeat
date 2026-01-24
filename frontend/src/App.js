@@ -1170,9 +1170,8 @@ function FitBeatSimulator() {
         distanceCm: 0,
         distHalfwayShown: false,
         distGoalShown: false,
-        // Reset smart timer too
+        // Reset timer only if no time goal active
         elapsedWalkSec: s.timeGoalActive ? s.elapsedWalkSec : 0,
-        smartTimerActive: false,
       };
       saveState(newState);
       return newState;
