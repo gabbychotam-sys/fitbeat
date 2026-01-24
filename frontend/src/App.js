@@ -1130,32 +1130,22 @@ function FitBeatSimulator() {
     });
   };
   
-  // Start distance goal - DOES NOT reset time! Keeps current distance if already walking
+  // Start distance goal - EXACTLY like native code
   const startDistanceGoal = (goal) => {
     setState(s => {
-      const goalCm = s.lang === 0 ? goal * 160934 : goal * 100000;
-      const halfway = goalCm / 2;
-      
-      // If already walking, keep current distance but update alerts
-      let distHalfwayShown = false;
-      let distGoalShown = false;
-      
-      // If continuing, check if we've already passed milestones
-      if (s.distGoalActive && s.distanceCm > 0) {
-        if (s.distanceCm >= halfway) { distHalfwayShown = true; }
-        if (s.distanceCm >= goalCm) { distGoalShown = true; }
-      }
-      
+      // In native code: mDistanceCm = 0, mDistHalfwayShown = false, mDistGoalShown = false
+      // Smart timer starts if no time goal is active
       const newState = {
         ...s,
         goalDist: goal,
         distGoalActive: true,
-        // Keep distance if already active, otherwise reset to 0
-        distanceCm: s.distGoalActive ? s.distanceCm : 0,
-        distHalfwayShown,
-        distGoalShown,
+        distanceCm: 0,  // Always reset to 0 when starting new goal (like native)
+        startSteps: 0,  // Would be set from ActivityMonitor in native
+        startDistCm: 0, // Would be set from ActivityMonitor in native
+        distHalfwayShown: false,
+        distGoalShown: false,
         // ═══ SMART TIMER: Start timer if no time goal ═══
-        elapsedWalkSec: (!s.timeGoalActive && !s.distGoalActive) ? 0 : s.elapsedWalkSec,
+        elapsedWalkSec: !s.timeGoalActive ? 0 : s.elapsedWalkSec,
       };
       saveState(newState);
       return newState;
