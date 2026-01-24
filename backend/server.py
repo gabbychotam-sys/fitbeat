@@ -305,6 +305,143 @@ async def get_user_stats(user_id: str):
         "avg_hr": round(stats["avg_hr"]) if stats.get("avg_hr") else None
     }
 
+@api_router.get("/user/{user_id}/monthly")
+async def get_monthly_stats(user_id: str, year: int = None, month: int = None):
+    """Get monthly stats for a user"""
+    from datetime import datetime
+    
+    # Default to current month
+    now = datetime.now(timezone.utc)
+    if year is None:
+        year = now.year
+    if month is None:
+        month = now.month
+    
+    # Calculate date range for the month
+    start_date = datetime(year, month, 1, tzinfo=timezone.utc)
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1, tzinfo=timezone.utc)
+    else:
+        end_date = datetime(year, month + 1, 1, tzinfo=timezone.utc)
+    
+    # Get previous month for comparison
+    if month == 1:
+        prev_year, prev_month = year - 1, 12
+    else:
+        prev_year, prev_month = year, month - 1
+    
+    prev_start = datetime(prev_year, prev_month, 1, tzinfo=timezone.utc)
+    prev_end = start_date
+    
+    # Aggregate current month
+    pipeline = [
+        {"$match": {
+            "user_id": user_id,
+            "timestamp": {
+                "$gte": start_date.isoformat(),
+                "$lt": end_date.isoformat()
+            }
+        }},
+        {"$group": {
+            "_id": "$user_id",
+            "total_workouts": {"$sum": 1},
+            "total_distance_cm": {"$sum": "$distance_cm"},
+            "total_duration_sec": {"$sum": "$duration_sec"},
+            "avg_hr": {"$avg": "$avg_hr"},
+            "max_hr": {"$max": "$max_hr"},
+            "total_elevation_gain": {"$sum": "$elevation_gain"},
+            "total_elevation_loss": {"$sum": "$elevation_loss"},
+            "total_steps": {"$sum": "$steps"},
+            "user_name": {"$last": "$user_name"}
+        }}
+    ]
+    
+    # Aggregate previous month for comparison
+    prev_pipeline = [
+        {"$match": {
+            "user_id": user_id,
+            "timestamp": {
+                "$gte": prev_start.isoformat(),
+                "$lt": prev_end.isoformat()
+            }
+        }},
+        {"$group": {
+            "_id": "$user_id",
+            "total_workouts": {"$sum": 1},
+            "total_distance_cm": {"$sum": "$distance_cm"},
+            "total_duration_sec": {"$sum": "$duration_sec"}
+        }}
+    ]
+    
+    result = await db.workouts.aggregate(pipeline).to_list(1)
+    prev_result = await db.workouts.aggregate(prev_pipeline).to_list(1)
+    
+    # Get list of workouts for this month
+    workouts = await db.workouts.find(
+        {
+            "user_id": user_id,
+            "timestamp": {
+                "$gte": start_date.isoformat(),
+                "$lt": end_date.isoformat()
+            }
+        },
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(100)
+    
+    month_names_he = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
+                      "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
+    
+    if not result:
+        return {
+            "user_id": user_id,
+            "year": year,
+            "month": month,
+            "month_name": month_names_he[month],
+            "total_workouts": 0,
+            "total_distance_km": 0,
+            "total_duration_min": 0,
+            "avg_hr": None,
+            "max_hr": None,
+            "total_elevation_gain": 0,
+            "total_elevation_loss": 0,
+            "total_steps": 0,
+            "workouts": [],
+            "comparison": None
+        }
+    
+    stats = result[0]
+    
+    # Calculate comparison with previous month
+    comparison = None
+    if prev_result:
+        prev_stats = prev_result[0]
+        prev_dist = prev_stats["total_distance_cm"] / 100000
+        curr_dist = stats["total_distance_cm"] / 100000
+        if prev_dist > 0:
+            dist_change = round(((curr_dist - prev_dist) / prev_dist) * 100, 1)
+            comparison = {
+                "distance_change_percent": dist_change,
+                "workouts_change": stats["total_workouts"] - prev_stats["total_workouts"]
+            }
+    
+    return {
+        "user_id": user_id,
+        "user_name": stats.get("user_name", ""),
+        "year": year,
+        "month": month,
+        "month_name": month_names_he[month],
+        "total_workouts": stats["total_workouts"],
+        "total_distance_km": round(stats["total_distance_cm"] / 100000, 2),
+        "total_duration_min": round(stats["total_duration_sec"] / 60, 1),
+        "avg_hr": round(stats["avg_hr"]) if stats.get("avg_hr") else None,
+        "max_hr": stats.get("max_hr"),
+        "total_elevation_gain": round(stats.get("total_elevation_gain") or 0, 1),
+        "total_elevation_loss": round(stats.get("total_elevation_loss") or 0, 1),
+        "total_steps": stats.get("total_steps") or 0,
+        "workouts": workouts,
+        "comparison": comparison
+    }
+
 class UserRegister(BaseModel):
     device_id: str
     user_name: str = ""
