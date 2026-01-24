@@ -479,6 +479,9 @@ class FitBeatView extends WatchUi.View {
     }
 
     function _onTick() as Void {
+        // ═══ CHECK FOR MIDNIGHT RESET ═══
+        _checkMidnightReset();
+        
         // Check if alert was dismissed (AlertView manages its own timer now)
         if (mAlertActive) {
             // Check if current view is still AlertView
@@ -503,6 +506,15 @@ class FitBeatView extends WatchUi.View {
             _checkTimeAlerts();
         }
         
+        // ═══ SMART TIMER: Count time when distance goal active but NO time goal ═══
+        if (mDistGoalActive && !mTimeGoalActive && !mAlertActive) {
+            mElapsedWalkSec += 1;  // Count seconds!
+            Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
+            
+            // Check for movement - reset timer if stopped for 5 minutes
+            _checkMovementAndReset();
+        }
+        
         // Check distance alerts if distance goal is active
         if (mDistGoalActive && !mAlertActive) {
             _checkDistanceAlerts();
@@ -514,6 +526,59 @@ class FitBeatView extends WatchUi.View {
         }
         
         WatchUi.requestUpdate();
+    }
+    
+    // ═══ CHECK FOR MIDNIGHT AND RESET DISTANCE ═══
+    function _checkMidnightReset() {
+        try {
+            var ct = System.getClockTime();
+            var lastResetDay = Application.Storage.getValue("lastResetDay");
+            var today = ct.day;
+            
+            // If it's a new day, reset distance
+            if (lastResetDay != null && lastResetDay != today) {
+                mDistGoalActive = false;
+                mDistanceCm = 0;
+                mStartSteps = 0;
+                mStartDistCm = 0;
+                mDistHalfwayShown = false;
+                mDistGoalShown = false;
+                Application.Storage.setValue("lastResetDay", today);
+                _saveState();
+            } else if (lastResetDay == null) {
+                // First run - just save today
+                Application.Storage.setValue("lastResetDay", today);
+            }
+        } catch(e) {}
+    }
+    
+    // ═══ CHECK MOVEMENT AND RESET TIMER IF STOPPED FOR 5 MINUTES ═══
+    function _checkMovementAndReset() {
+        try {
+            var info = ActivityMonitor.getInfo();
+            if (info != null && info.steps != null) {
+                var currentSteps = info.steps;
+                
+                // Check if there's movement (new steps)
+                if (currentSteps > mLastStepsForMovement) {
+                    // Movement detected - update last movement time
+                    mLastMovementTime = System.getTimer();
+                    mLastStepsForMovement = currentSteps;
+                } else {
+                    // No movement - check if 5 minutes (300000 ms) have passed
+                    var currentTime = System.getTimer();
+                    var timeSinceMovement = currentTime - mLastMovementTime;
+                    
+                    // 5 minutes = 300 seconds = 300000 milliseconds
+                    if (timeSinceMovement >= 300000) {
+                        // Reset only the timer, NOT the distance!
+                        mElapsedWalkSec = 0;
+                        mLastMovementTime = currentTime;
+                        Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
+                    }
+                }
+            }
+        } catch(e) {}
     }
     
     function _checkHrAlert() {
