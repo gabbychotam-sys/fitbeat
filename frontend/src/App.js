@@ -631,10 +631,21 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         </button>
       )}
       
-      {/* UP Arrow - top: 15% (adjusted for reset button) */}
+      {/* Number + Unit on LEFT side (original layout) */}
+      <div 
+        className="absolute flex items-baseline gap-2"
+        style={{ top: '28%', left: '15%' }}
+      >
+        {/* Number */}
+        <span style={{ fontSize: '70px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
+        {/* Unit */}
+        <span style={{ fontSize: '28px', color: mainColor }}>{unit}</span>
+      </div>
+      
+      {/* UP Arrow - on the right side */}
       <div 
         className="absolute cursor-pointer"
-        style={{ top: '15%', right: '18%' }}
+        style={{ top: '22%', right: '18%' }}
         onClick={() => setGoal(g => Math.min(max, g + step))}
         data-testid="goal-up"
       >
@@ -644,17 +655,6 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
           borderRight: '20px solid transparent', 
           borderBottom: `25px solid ${mainColor}` 
         }} />
-      </div>
-      
-      {/* Number + Unit on LEFT side (original layout) */}
-      <div 
-        className="absolute flex items-baseline gap-2"
-        style={{ top: '32%', left: '15%' }}
-      >
-        {/* Number */}
-        <span style={{ fontSize: '70px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
-        {/* Unit */}
-        <span style={{ fontSize: '28px', color: mainColor }}>{unit}</span>
       </div>
       
       {/* DOWN Arrow - on the right side */}
