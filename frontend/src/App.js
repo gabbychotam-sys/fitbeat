@@ -598,36 +598,48 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
   const [goal, setGoal] = useState(type === 'distance' ? state.goalDist : state.goalTimeMin);
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
-  // Use translated units!
   const unit = type === 'distance' ? TR_KM[lang] : TR_MINUTES[lang];
   const min = type === 'distance' ? 1 : 10;
   const max = type === 'distance' ? 20 : 120;
   const step = type === 'distance' ? 1 : 10;
-  
-  // Exact layout from FitBeatApp.mc:
-  // centerY = h/2 - h/10 = 40%
-  // leftX = w/6 = 16.7%
-  // arrowX = w * 3/4 = 75%
-  // btnY = h - btnH - h/6 ≈ 72%
-  // xBtnY = btnY - h/10 ≈ 62%
   
   return (
     <div 
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* Number + Unit on LEFT side - exactly at 16.7% from left, centered at 40% height */}
+      {/* RESET Button - at very top (only for distance) */}
+      {type === 'distance' && onReset && (
+        <button 
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ 
+            top: '6%',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            backgroundColor: '#8B0000',
+            color: '#fff',
+            padding: '3px 14px',
+            borderRadius: '10px',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          onClick={onReset}
+          data-testid="goal-reset"
+        >
+          {TR_RESET[lang]}
+        </button>
+      )}
+      
+      {/* Number + Unit on LEFT side */}
       <div 
         className="absolute flex items-baseline gap-2"
         style={{ top: '28%', left: '16%' }}
       >
-        {/* Number - large font */}
         <span style={{ fontSize: '70px', fontWeight: 'bold', color: '#fff', lineHeight: 1 }}>{goal}</span>
-        {/* Unit - smaller, next to number */}
         <span style={{ fontSize: '24px', color: mainColor }}>{unit}</span>
       </div>
       
-      {/* UP Arrow - at 75% from left, above center */}
+      {/* UP Arrow - at 75% from left */}
       <div 
         className="absolute cursor-pointer"
         style={{ top: '25%', left: '75%', transform: 'translateX(-50%)' }}
@@ -642,7 +654,7 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         }} />
       </div>
       
-      {/* DOWN Arrow - at 75% from left, below center */}
+      {/* DOWN Arrow - at 75% from left */}
       <div 
         className="absolute cursor-pointer"
         style={{ top: '48%', left: '75%', transform: 'translateX(-50%)' }}
@@ -657,7 +669,7 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         }} />
       </div>
       
-      {/* X Cancel button - ABOVE START, at ~62% */}
+      {/* X Cancel button - ABOVE START */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
         style={{ top: '60%', width: '32px', height: '32px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
@@ -667,7 +679,7 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>X</span>
       </div>
       
-      {/* START button - at ~72% from top */}
+      {/* START button */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
