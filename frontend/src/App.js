@@ -594,7 +594,7 @@ function MaxHRMenu({ state, onSelect, onClose }) {
 // ═══════════════════════════════════════════════════════════════
 // GOAL PICKER - per spec (arrows at top/bottom)
 // ═══════════════════════════════════════════════════════════════
-function GoalPicker({ state, type, onStart, onClose }) {
+function GoalPicker({ state, type, onStart, onClose, onReset }) {
   const [goal, setGoal] = useState(type === 'distance' ? state.goalDist : state.goalTimeMin);
   const mainColor = COLOR_HEX[state.color];
   const lang = state.lang;
@@ -609,10 +609,32 @@ function GoalPicker({ state, type, onStart, onClose }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* UP Arrow - top: 5% */}
+      {/* RESET Button - at very top (only for distance) */}
+      {type === 'distance' && onReset && (
+        <button 
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ 
+            top: '8%',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            backgroundColor: '#8B0000',
+            color: '#fff',
+            padding: '4px 16px',
+            borderRadius: '10px',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          onClick={onReset}
+          data-testid="goal-reset"
+        >
+          {TR_RESET[lang]}
+        </button>
+      )}
+      
+      {/* UP Arrow - top adjusted for reset button */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ top: '5%' }}
+        style={{ top: type === 'distance' ? '18%' : '5%' }}
         onClick={() => setGoal(g => Math.min(max, g + step))}
         data-testid="goal-up"
       >
@@ -624,10 +646,10 @@ function GoalPicker({ state, type, onStart, onClose }) {
         }} />
       </div>
       
-      {/* Number + Unit - top: 24%, Unit on LEFT of number! */}
+      {/* Number + Unit - top adjusted */}
       <div 
         className="absolute left-[42%] -translate-x-1/2 flex items-baseline gap-2"
-        style={{ top: '24%', flexDirection: 'row-reverse' }}
+        style={{ top: type === 'distance' ? '32%' : '24%', flexDirection: 'row-reverse' }}
       >
         {/* Number - 80px */}
         <span style={{ fontSize: '80px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
