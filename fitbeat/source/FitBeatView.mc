@@ -204,8 +204,99 @@ class FitBeatView extends WatchUi.View {
         mDistHalfwayShown = false;
         mDistGoalShown = false;
         _calculateHrTarget();
+        _checkMidnightReset();  // Check if we need to reset (new day)
         _saveState();
         WatchUi.requestUpdate();
+    }
+    
+    // ═══ CONTINUE OR START DISTANCE GOAL - Keeps current distance! ═══
+    function continueOrStartDistanceGoal() {
+        // If already active, just update the goal (keep current distance)
+        if (mDistGoalActive) {
+            // Recalculate alerts based on new goal
+            var newGoalCm = _getGoalInCm();
+            var newHalfway = newGoalCm / 2;
+            
+            // If we haven't reached new halfway yet, allow alert again
+            if (mDistanceCm < newHalfway) {
+                mDistHalfwayShown = false;
+            }
+            // If we haven't reached new goal yet, allow alert again
+            if (mDistanceCm < newGoalCm) {
+                mDistGoalShown = false;
+            }
+            _saveState();
+            WatchUi.requestUpdate();
+        } else {
+            // Not active, start fresh but check midnight reset
+            startDistanceGoal();
+        }
+        
+        // Start smart timer if time goal is 0
+        _startSmartTimerIfNeeded();
+    }
+    
+    // ═══ RESET DISTANCE GOAL - Reset to 0 and deactivate ═══
+    function resetDistanceGoal() {
+        mDistGoalActive = false;
+        mDistanceCm = 0;
+        mStartSteps = 0;
+        mStartDistCm = 0;
+        mDistHalfwayShown = false;
+        mDistGoalShown = false;
+        
+        // Also reset smart timer
+        if (!mTimeGoalActive) {
+            mElapsedWalkSec = 0;
+            mSmartTimerActive = false;
+        }
+        
+        // Save last reset date
+        _saveLastResetDate();
+        _saveState();
+        WatchUi.requestUpdate();
+    }
+    
+    // ═══ MIDNIGHT AUTO-RESET CHECK ═══
+    function _checkMidnightReset() {
+        try {
+            var now = Time.now();
+            var today = Time.Gregorian.info(now, Time.FORMAT_SHORT);
+            var todayKey = today.year * 10000 + today.month * 100 + today.day;
+            
+            var lastResetDate = Application.Storage.getValue("lastResetDate");
+            if (lastResetDate == null || lastResetDate != todayKey) {
+                // New day! Reset distance
+                mDistanceCm = 0;
+                mStartSteps = 0;
+                mStartDistCm = 0;
+                mDistHalfwayShown = false;
+                mDistGoalShown = false;
+                
+                // Reset smart timer too
+                mElapsedWalkSec = 0;
+                
+                // Get current baseline
+                try {
+                    var info = ActivityMonitor.getInfo();
+                    if (info != null) {
+                        if (info.steps != null) { mStartSteps = info.steps; }
+                        if (info.distance != null) { mStartDistCm = info.distance; }
+                    }
+                } catch(e) {}
+                
+                _saveLastResetDate();
+            }
+        } catch(e) {}
+    }
+    
+    function _saveLastResetDate() {
+        try {
+            var now = Time.now();
+            var today = Time.Gregorian.info(now, Time.FORMAT_SHORT);
+            var todayKey = today.year * 10000 + today.month * 100 + today.day;
+            Application.Storage.setValue("lastResetDate", todayKey);
+        } catch(e) {}
     }
     
     // ═══ START TIME GOAL - Does NOT reset distance! ═══
@@ -214,6 +305,7 @@ class FitBeatView extends WatchUi.View {
         mElapsedWalkSec = 0;  // Reset time counter
         mTimeHalfwayShown = false;
         mTimeGoalShown = false;
+        mSmartTimerActive = false;  // Disable smart timer when time goal is set
         _calculateHrTarget();
         _saveState();
         WatchUi.requestUpdate();
