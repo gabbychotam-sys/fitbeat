@@ -102,5 +102,26 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 - Country restriction: Israel not supported for Garmin Merchant Account (monetization)
 
 ## Future Ideas
-- PayPal donation link in app description
-- WhatsApp integration (user inquiry - needs research)
+
+### 1. PayPal Donation Link
+- Add to app store description
+
+### 2. Route Sharing via WhatsApp (Priority Feature)
+**Concept:** Send workout route map to a contact via WhatsApp
+
+**Settings to add:**
+- Phone number field (e.g., +972501234567)
+
+**Flow:**
+1. Watch records GPS points during workout
+2. On goal completion → sends GPS data to server
+3. Server generates map with route
+4. Server sends WhatsApp message to saved phone number:
+   - "גבי finished a workout! 🏃‍♂️"
+   - Distance, Time, Pace
+   - Link to view route on map
+
+**Required integrations:**
+- WhatsApp Business API (or Twilio)
+- Map service (Google Maps / Mapbox)
+- Backend server for processing
