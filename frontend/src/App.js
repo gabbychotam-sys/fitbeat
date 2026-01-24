@@ -1152,8 +1152,8 @@ function FitBeatSimulator() {
         distanceCm: s.distGoalActive ? s.distanceCm : 0,
         distHalfwayShown,
         distGoalShown,
-        // Start smart timer if time goal is 0
-        smartTimerActive: s.goalTimeMin <= 0 || !s.timeGoalActive,
+        // ═══ SMART TIMER: Start timer if no time goal ═══
+        elapsedWalkSec: (!s.timeGoalActive && !s.distGoalActive) ? 0 : s.elapsedWalkSec,
       };
       saveState(newState);
       return newState;
