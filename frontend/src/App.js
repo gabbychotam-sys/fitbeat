@@ -1173,6 +1173,7 @@ function FitBeatSimulator() {
         // ALWAYS reset timer when resetting distance
         elapsedWalkSec: 0,
       };
+      // Save ALL values to backend (like Storage in native code)
       saveState(newState);
       return newState;
     });
