@@ -245,7 +245,7 @@ class GoalPickerView extends WatchUi.View {
         var resetBtnW = w / 3;
         var resetBtnH = h / 14;
         var resetBtnX = (w - resetBtnW) / 2;
-        var resetBtnY = h / 12;
+        var resetBtnY = h / 9;  // Lowered (was h/12)
         
         dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
         dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
