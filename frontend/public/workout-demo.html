@@ -47,7 +47,7 @@
             margin-top: 10px;
         }
         
-        /* Map Section */
+        /* Satellite Map Section */
         .map-section {
             background: #0f0f23;
             border-radius: 16px;
@@ -57,48 +57,168 @@
         }
         
         .map-container {
-            height: 250px;
-            background: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/34.78,32.08,13,0/500x250@2x?access_token=pk.placeholder') center/cover;
-            background-color: #1a1a3e;
+            height: 300px;
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            overflow: hidden;
         }
         
-        .map-container::before {
-            content: '';
+        /* Satellite map background */
+        .satellite-bg {
             position: absolute;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
             background: 
-                radial-gradient(circle at 30% 40%, rgba(0,212,255,0.3) 0%, transparent 50%),
-                radial-gradient(circle at 70% 60%, rgba(0,212,255,0.2) 0%, transparent 40%);
+                /* Simulated satellite imagery with terrain */
+                radial-gradient(ellipse at 20% 30%, #2d4a2d 0%, transparent 40%),
+                radial-gradient(ellipse at 60% 50%, #3d5a3d 0%, transparent 35%),
+                radial-gradient(ellipse at 80% 20%, #2a3a2a 0%, transparent 45%),
+                radial-gradient(ellipse at 40% 70%, #4a5a4a 0%, transparent 30%),
+                radial-gradient(ellipse at 90% 80%, #3a4a3a 0%, transparent 40%),
+                /* Roads */
+                linear-gradient(45deg, transparent 48%, #555 48%, #555 52%, transparent 52%),
+                linear-gradient(-30deg, transparent 49%, #444 49%, #444 51%, transparent 51%),
+                /* Base terrain */
+                linear-gradient(180deg, #1a2f1a 0%, #2a3f2a 30%, #3a4f3a 60%, #2a3a2a 100%);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 100% 100%, 100% 100%, 200% 200%, 200% 200%, 100% 100%;
+        }
+        
+        /* Grid overlay like satellite */
+        .satellite-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+        
+        /* Buildings/structures simulation */
+        .satellite-bg::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                /* Scattered buildings */
+                radial-gradient(2px 2px at 15% 25%, #666 50%, transparent 50%),
+                radial-gradient(3px 3px at 25% 45%, #555 50%, transparent 50%),
+                radial-gradient(2px 2px at 35% 35%, #666 50%, transparent 50%),
+                radial-gradient(4px 4px at 55% 65%, #555 50%, transparent 50%),
+                radial-gradient(2px 2px at 75% 55%, #666 50%, transparent 50%),
+                radial-gradient(3px 3px at 85% 35%, #555 50%, transparent 50%),
+                radial-gradient(2px 2px at 45% 85%, #666 50%, transparent 50%),
+                radial-gradient(3px 3px at 65% 25%, #555 50%, transparent 50%);
         }
         
         .map-route {
-            position: relative;
-            z-index: 1;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: 2;
         }
         
-        /* Fake route SVG */
         .route-svg {
-            width: 400px;
-            height: 200px;
+            width: 100%;
+            height: 100%;
         }
         
+        /* Glowing red route path */
         .route-path {
             fill: none;
-            stroke: #00d4ff;
+            stroke: #ff3333;
             stroke-width: 4;
             stroke-linecap: round;
-            filter: drop-shadow(0 0 8px rgba(0,212,255,0.8));
+            stroke-linejoin: round;
+            filter: drop-shadow(0 0 6px rgba(255,50,50,0.9)) drop-shadow(0 0 12px rgba(255,50,50,0.6));
         }
         
-        .start-marker, .end-marker {
-            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        .route-path-glow {
+            fill: none;
+            stroke: #ff6666;
+            stroke-width: 8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            opacity: 0.3;
+            filter: blur(3px);
+        }
+        
+        /* Pulsing start marker */
+        .start-marker circle.pulse {
+            animation: pulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { r: 12; opacity: 0.5; }
+            50% { r: 18; opacity: 0; }
+        }
+        
+        /* Map legend */
+        .map-legend {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0,0,0,0.7);
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-size: 11px;
+            display: flex;
+            gap: 15px;
+            z-index: 3;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .legend-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+        
+        .legend-dot.start { background: #22c55e; }
+        .legend-dot.end { background: #ef4444; }
+        .legend-line {
+            width: 20px;
+            height: 3px;
+            background: #ff3333;
+            border-radius: 2px;
+            box-shadow: 0 0 6px rgba(255,50,50,0.8);
+        }
+        
+        /* Distance marker on map */
+        .distance-marker {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 15px;
+            border-radius: 10px;
+            z-index: 3;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .distance-marker .value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00d4ff;
+        }
+        
+        .distance-marker .unit {
+            font-size: 14px;
+            color: #888;
         }
         
         /* Stats Grid */
@@ -315,9 +435,19 @@
             box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
         }
         
+        .share-btn:active {
+            transform: translateY(0);
+        }
+        
         .whatsapp-icon {
             width: 24px;
             height: 24px;
+        }
+        
+        .share-hint {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #666;
         }
         
         /* Footer */
@@ -344,24 +474,92 @@
             <div class="user">גבי סיים אימון!</div>
         </div>
         
-        <!-- Map -->
+        <!-- Satellite Map -->
         <div class="map-section">
             <div class="map-container">
+                <!-- Satellite background -->
+                <div class="satellite-bg"></div>
+                
+                <!-- Route overlay -->
                 <div class="map-route">
-                    <svg class="route-svg" viewBox="0 0 400 200">
-                        <!-- Fake route path -->
-                        <path class="route-path" d="M 50,150 Q 80,100 120,120 T 180,80 T 250,100 T 320,60 T 370,90" />
-                        <!-- Start marker -->
-                        <g class="start-marker" transform="translate(50, 150)">
-                            <circle r="12" fill="#22c55e" />
-                            <circle r="6" fill="white" />
+                    <svg class="route-svg" viewBox="0 0 500 300">
+                        <!-- Glow effect path -->
+                        <path class="route-path-glow" d="M 60,250 
+                            Q 80,230 100,220 
+                            L 130,200 
+                            Q 150,180 180,170 
+                            L 220,150 
+                            Q 250,130 280,120 
+                            L 320,100 
+                            Q 350,85 380,90 
+                            L 420,80 
+                            Q 450,70 460,60" />
+                        
+                        <!-- Main route path -->
+                        <path class="route-path" d="M 60,250 
+                            Q 80,230 100,220 
+                            L 130,200 
+                            Q 150,180 180,170 
+                            L 220,150 
+                            Q 250,130 280,120 
+                            L 320,100 
+                            Q 350,85 380,90 
+                            L 420,80 
+                            Q 450,70 460,60" />
+                        
+                        <!-- Start marker (green) -->
+                        <g class="start-marker" transform="translate(60, 250)">
+                            <circle class="pulse" r="12" fill="#22c55e" opacity="0.5" />
+                            <circle r="8" fill="#22c55e" />
+                            <circle r="4" fill="white" />
                         </g>
-                        <!-- End marker -->
-                        <g class="end-marker" transform="translate(370, 90)">
-                            <circle r="12" fill="#ef4444" />
-                            <rect x="-4" y="-8" width="8" height="16" fill="white" rx="1" />
+                        
+                        <!-- End marker (red flag) -->
+                        <g class="end-marker" transform="translate(460, 60)">
+                            <circle r="10" fill="#ef4444" filter="drop-shadow(0 0 6px rgba(239,68,68,0.8))" />
+                            <circle r="5" fill="white" />
+                        </g>
+                        
+                        <!-- Distance markers along route -->
+                        <g transform="translate(130, 200)">
+                            <circle r="4" fill="#fff" opacity="0.6" />
+                            <text x="10" y="4" fill="#fff" font-size="10" opacity="0.7">1km</text>
+                        </g>
+                        <g transform="translate(220, 150)">
+                            <circle r="4" fill="#fff" opacity="0.6" />
+                            <text x="10" y="4" fill="#fff" font-size="10" opacity="0.7">2km</text>
+                        </g>
+                        <g transform="translate(320, 100)">
+                            <circle r="4" fill="#fff" opacity="0.6" />
+                            <text x="10" y="4" fill="#fff" font-size="10" opacity="0.7">3km</text>
+                        </g>
+                        <g transform="translate(420, 80)">
+                            <circle r="4" fill="#fff" opacity="0.6" />
+                            <text x="10" y="4" fill="#fff" font-size="10" opacity="0.7">4km</text>
                         </g>
                     </svg>
+                </div>
+                
+                <!-- Distance marker -->
+                <div class="distance-marker">
+                    <span class="value">5.23</span>
+                    <span class="unit">ק"מ</span>
+                </div>
+                
+                <!-- Legend -->
+                <div class="map-legend">
+                    <div class="legend-item">
+                        <div class="legend-dot start"></div>
+                        <span>התחלה</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-line"></div>
+                        <span>מסלול</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-dot end"></div>
+                        <span>סיום</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -490,12 +688,13 @@
         
         <!-- Share Button -->
         <div class="share-section">
-            <button class="share-btn">
+            <button class="share-btn" onclick="shareToWhatsApp()">
                 <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="currentColor">
                     <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
                 </svg>
                 שתף ב-WhatsApp
             </button>
+            <div class="share-hint">📲 בחר איש קשר או שלח לעצמך</div>
         </div>
         
         <!-- Footer -->
@@ -504,5 +703,24 @@
             <div>Powered by Garmin Fenix 8 Solar</div>
         </div>
     </div>
+    
+    <script>
+        function shareToWhatsApp() {
+            const text = `🏃‍♂️ גבי סיים אימון!
+
+📍 מרחק: 5.23 ק"מ
+⏱️ זמן: 45:32
+⚡ קצב ממוצע: 8:42 /ק"מ
+
+⛰️ עלייה: +127 מ' | ירידה: -89 מ'
+❤️ דופק ממוצע: 142 BPM
+
+🗺️ צפה במסלול המלא:
+${window.location.href}`;
+            
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+        }
+    </script>
 </body>
 </html>
