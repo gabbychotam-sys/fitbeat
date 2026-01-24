@@ -430,6 +430,7 @@ class TimeGoalPickerView extends WatchUi.View {
     var mDownZone = null;
     var mStartZone = null;
     var mCancelZone = null;  // X button for cancel/back
+    var mResetZone = null;   // RESET button
     var mMainView;
 
     function initialize(mainView) {
@@ -452,6 +453,18 @@ class TimeGoalPickerView extends WatchUi.View {
 
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
+
+        // ═══ RESET BUTTON AT TOP ═══
+        var resetBtnW = w / 3;
+        var resetBtnH = h / 12;
+        var resetBtnX = (w - resetBtnW) / 2;
+        var resetBtnY = h / 9;
+        
+        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
+        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, resetBtnY + resetBtnH / 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mResetZone = [resetBtnY - 5, resetBtnY + resetBtnH + 5, resetBtnX - 10, resetBtnX + resetBtnW + 10];
 
         // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
