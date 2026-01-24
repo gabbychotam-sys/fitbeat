@@ -189,6 +189,9 @@ var TR_HR_TARGET_SET = ["HR target set", "יעד דופק נקבע", "Objetivo F
 var TR_STAY_BELOW = ["Stay below", "לא לעבור", "Mantente bajo", "Reste en dessous de", "Bleib unter", "保持低于"];
 var TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
 
+// Reset button
+var TR_RESET = ["RESET", "איפוס", "RESET", "RESET", "RESET", "重置"];
+
 function getLang() {
     var l = Application.Storage.getValue("lang");
     if (l == null || l < 0 || l > 5) { return 0; }
