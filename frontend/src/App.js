@@ -1163,13 +1163,15 @@ function FitBeatSimulator() {
     setView('main');
   };
   
-  // Reset distance goal - Reset to 0 and deactivate
+  // Reset distance goal - Reset to 0 and deactivate (EXACTLY like native code)
   const resetDistanceGoal = () => {
     setState(s => {
       const newState = {
         ...s,
         distGoalActive: false,
         distanceCm: 0,
+        startSteps: 0,
+        startDistCm: 0,
         distHalfwayShown: false,
         distGoalShown: false,
         // ALWAYS reset timer when resetting distance
