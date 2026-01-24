@@ -151,6 +151,8 @@ class FitBeatView extends WatchUi.View {
     function getDistZone() { return [mDistZoneTop, mDistZoneBottom]; }
     function getTimeGoalZone() { return [mTimeGoalZoneTop, mTimeGoalZoneBottom]; }
     function getHrZone() { return [mHrZoneTop, mHrZoneBottom]; }
+    function isDistGoalActive() { return mDistGoalActive; }
+    function isTimeGoalActive() { return mTimeGoalActive; }
     
     function setGoal(goal) { 
         var oldGoal = mGoalDist;
