@@ -746,6 +746,9 @@ class FitBeatView extends WatchUi.View {
                 mDistGoalShown = true;
                 _saveState();
                 // Distance continues tracking! No reset!
+                
+                // ═══ SEND WORKOUT TO SERVER! ═══
+                _sendWorkoutToServer();
             }
         }
     }
@@ -774,6 +777,9 @@ class FitBeatView extends WatchUi.View {
             if (mElapsedWalkSec >= goalSec) {
                 _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang], "goal");
                 mTimeGoalShown = true;
+                
+                // ═══ SEND WORKOUT TO SERVER! ═══
+                _sendWorkoutToServer();
                 
                 // Time goal RESETS after completion!
                 mTimeGoalActive = false;
