@@ -608,12 +608,12 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* RESET Button - at very top (only for distance) */}
+      {/* RESET Button - lowered (only for distance) */}
       {type === 'distance' && onReset && (
         <button 
           className="absolute left-1/2 -translate-x-1/2"
           style={{ 
-            top: '6%',
+            top: '10%',
             fontSize: '12px',
             fontWeight: 'bold',
             backgroundColor: '#8B0000',
@@ -672,18 +672,18 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       {/* X Cancel button - ABOVE START */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ top: '60%', width: '32px', height: '32px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        style={{ top: '64%', width: '32px', height: '32px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
         onClick={onClose}
         data-testid="goal-cancel"
       >
         <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>X</span>
       </div>
       
-      {/* START button */}
+      {/* START button - lowered */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          top: '72%',
+          top: '78%',
           fontSize: '16px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
