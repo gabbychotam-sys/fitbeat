@@ -243,7 +243,7 @@ class GoalPickerView extends WatchUi.View {
         
         // ═══ RESET BUTTON AT TOP ═══
         var resetBtnW = w / 3;
-        var resetBtnH = h / 14;
+        var resetBtnH = h / 12;  // Taller button for easier tap
         var resetBtnX = (w - resetBtnW) / 2;
         var resetBtnY = h / 9;  // Lowered (was h/12)
         
@@ -251,7 +251,8 @@ class GoalPickerView extends WatchUi.View {
         dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
         dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
         dc.drawText(w / 2, resetBtnY + resetBtnH / 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
+        // Expanded tap zone for easier touch
+        mResetZone = [resetBtnY - 5, resetBtnY + resetBtnH + 5, resetBtnX - 10, resetBtnX + resetBtnW + 10];
         
         // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
