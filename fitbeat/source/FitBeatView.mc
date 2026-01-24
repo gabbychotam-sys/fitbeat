@@ -40,6 +40,10 @@ class FitBeatView extends WatchUi.View {
     var mLastRawSteps = 0;
     var mLastRawDistCm = 0;
     
+    // ═══ SMART TIMER - Track movement for 5-minute stop detection ═══
+    var mLastMovementTime = 0;      // Time of last detected movement
+    var mLastStepsForMovement = 0;  // Steps count at last check
+    
     // ═══ SEPARATE ALERTS FOR EACH GOAL! ═══
     var mDistHalfwayShown = false;
     var mDistGoalShown = false;
