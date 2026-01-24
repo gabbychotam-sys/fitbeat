@@ -208,35 +208,6 @@ class FitBeatView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
     
-    // ═══ START DISTANCE GOAL WITH TIMER - starts counting time! ═══
-    function startDistanceGoalWithTimer() {
-        startDistanceGoal();
-        
-        // If no time goal is set, start counting exercise time
-        if (!mTimeGoalActive) {
-            mElapsedWalkSec = 0;
-            _saveState();
-        }
-    }
-    
-    // ═══ RESET DISTANCE GOAL - Reset to 0 and deactivate ═══
-    function resetDistanceGoal() {
-        mDistGoalActive = false;
-        mDistanceCm = 0;
-        mStartSteps = 0;
-        mStartDistCm = 0;
-        mDistHalfwayShown = false;
-        mDistGoalShown = false;
-        
-        // Also reset timer if no time goal
-        if (!mTimeGoalActive) {
-            mElapsedWalkSec = 0;
-        }
-        
-        _saveState();
-        WatchUi.requestUpdate();
-    }
-    
     // ═══ START TIME GOAL - Does NOT reset distance! ═══
     function startTimeGoal() {
         mTimeGoalActive = true;
@@ -474,12 +445,6 @@ class FitBeatView extends WatchUi.View {
             mElapsedWalkSec += 1;  // Count every second!
             Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
             _checkTimeAlerts();
-        }
-        
-        // ═══ SMART TIMER: Count time when distance goal is active but no time goal ═══
-        if (mDistGoalActive && !mTimeGoalActive && !mAlertActive) {
-            mElapsedWalkSec += 1;  // Count seconds when walking!
-            Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
         }
         
         // Check distance alerts if distance goal is active
