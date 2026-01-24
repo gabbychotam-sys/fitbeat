@@ -49,6 +49,12 @@ class FitBeatView extends WatchUi.View {
     var mHrAlertShown = false;
     var mHrMonitoringActive = false;
     
+    // ═══ SMART TIMER (when time goal = 0) ═══
+    var mSmartTimerActive = false;    // Is smart timer running?
+    var mLastMovementTime = 0;        // Last time user moved (epoch seconds)
+    var mLastDistanceForMovement = 0; // Last distance reading to detect movement
+    var mStopDurationSec = 0;         // How long user has been stopped
+    
     var mTimer = null;
     var mIsVisible = false;
     
