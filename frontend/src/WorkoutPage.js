@@ -41,17 +41,13 @@ function formatDateHebrew(dateStr) {
 export default function WorkoutPage() {
   const { userId } = useParams();
   const [workout, setWorkout] = useState(null);
-  const [stats, setStats] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
   useEffect(() => {
     async function fetchData() {
       try {
-        const [workoutRes, statsRes] = await Promise.all([
-          fetch(`${API}/workout/latest/${userId}`),
-          fetch(`${API}/user/${userId}/stats`)
-        ]);
+        const workoutRes = await fetch(`${API}/workout/latest/${userId}`);
         
         if (workoutRes.status === 404) {
           setError("לא נמצאו אימונים עבור משתמש זה");
@@ -60,10 +56,7 @@ export default function WorkoutPage() {
         }
         
         const workoutData = await workoutRes.json();
-        const statsData = await statsRes.json();
-        
         setWorkout(workoutData);
-        setStats(statsData);
         setLoading(false);
       } catch (err) {
         setError("שגיאה בטעינת הנתונים");
