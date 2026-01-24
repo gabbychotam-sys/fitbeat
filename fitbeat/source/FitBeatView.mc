@@ -466,10 +466,9 @@ class FitBeatView extends WatchUi.View {
             if (steps < 0) { steps = 0; }
             if (distCm < 0) { distCm = 0; }
             mDistanceCm = distCm;
-        } else {
-            // When not in distance goal, still show total distance
-            mDistanceCm = distCm;
         }
+        // When not in distance goal, keep mDistanceCm as is (could be 0 after reset)
+        // Don't overwrite with ActivityMonitor value!
 
         hr = _getHeartRate();
         return [steps, mDistanceCm, hr];
