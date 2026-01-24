@@ -59,6 +59,9 @@ const TR_HR_TARGET_SET = ["HR target set", "יעד דופק נקבע", "Objetivo
 const TR_STAY_BELOW = ["Stay below", "לא לעבור", "Mantente bajo", "Reste en dessous de", "Bleib unter", "保持低于"];
 const TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
 
+// Reset button translation
+const TR_RESET = ["RESET", "איפוס", "RESET", "RESET", "RESET", "重置"];
+
 // QWERTY REVERSED keyboards for each language (as per Garmin spec!)
 const KEYBOARDS = {
   0: [["P","O","I","U","Y","T","R","E","W","Q"],["L","K","J","H","G","F","D","S","A"],["M","N","B","V","C","X","Z"]], // English
