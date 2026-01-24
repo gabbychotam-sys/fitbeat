@@ -367,12 +367,14 @@ class FitBeatView extends WatchUi.View {
         // Generate ID from device info
         var deviceId = System.getDeviceSettings().uniqueIdentifier;
         if (deviceId == null) {
-            deviceId = "device_" + System.getTimer();
+            deviceId = System.getTimer().toString();
         }
         
-        // Create short hash (first 8 chars)
-        var hash = deviceId.hashCode().abs().toString();
-        var userId = hash.substring(0, 8);
+        // Create short hash (use modulo to get 8 digit number)
+        var hash = deviceId.hashCode();
+        if (hash < 0) { hash = -hash; }
+        hash = hash % 100000000;  // Keep 8 digits max
+        var userId = hash.format("%08d");
         
         Application.Storage.setValue("userId", userId);
         return userId;
