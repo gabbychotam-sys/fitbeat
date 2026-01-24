@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FitBeat - סיכום אימון</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            color: #fff;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            text-align: center;
+            padding: 20px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+        
+        .header h1 {
+            font-size: 24px;
+            color: #00d4ff;
+            margin-bottom: 5px;
+        }
+        
+        .header .date {
+            color: #888;
+            font-size: 14px;
+        }
+        
+        .header .user {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+        
+        /* Map Section */
+        .map-section {
+            background: #0f0f23;
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+        
+        .map-container {
+            height: 250px;
+            background: url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/34.78,32.08,13,0/500x250@2x?access_token=pk.placeholder') center/cover;
+            background-color: #1a1a3e;
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .map-container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(0,212,255,0.3) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(0,212,255,0.2) 0%, transparent 40%);
+        }
+        
+        .map-route {
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* Fake route SVG */
+        .route-svg {
+            width: 400px;
+            height: 200px;
+        }
+        
+        .route-path {
+            fill: none;
+            stroke: #00d4ff;
+            stroke-width: 4;
+            stroke-linecap: round;
+            filter: drop-shadow(0 0 8px rgba(0,212,255,0.8));
+        }
+        
+        .start-marker, .end-marker {
+            filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5));
+        }
+        
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background: linear-gradient(145deg, #1e1e3f, #151530);
+            border-radius: 12px;
+            padding: 16px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-card.full-width {
+            grid-column: span 2;
+        }
+        
+        .stat-icon {
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #888;
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .stat-value.highlight {
+            color: #00d4ff;
+        }
+        
+        .stat-unit {
+            font-size: 14px;
+            color: #666;
+            margin-right: 4px;
+        }
+        
+        /* Elevation Profile */
+        .elevation-section {
+            background: linear-gradient(145deg, #1e1e3f, #151530);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .section-title {
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .elevation-graph {
+            height: 100px;
+            position: relative;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        
+        .elevation-svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .elevation-fill {
+            fill: url(#elevationGradient);
+        }
+        
+        .elevation-line {
+            fill: none;
+            stroke: #00d4ff;
+            stroke-width: 2;
+        }
+        
+        .elevation-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .elev-stat {
+            text-align: center;
+        }
+        
+        .elev-stat .value {
+            font-size: 18px;
+            font-weight: bold;
+        }
+        
+        .elev-stat .label {
+            font-size: 11px;
+            color: #888;
+        }
+        
+        .elev-stat.up .value { color: #4ade80; }
+        .elev-stat.down .value { color: #f87171; }
+        
+        /* Heart Rate Section */
+        .hr-section {
+            background: linear-gradient(145deg, #1e1e3f, #151530);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .hr-graph {
+            height: 80px;
+            position: relative;
+            background: rgba(0,0,0,0.2);
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 12px;
+        }
+        
+        .hr-zones {
+            display: flex;
+            gap: 4px;
+            margin-top: 12px;
+        }
+        
+        .zone {
+            flex: 1;
+            text-align: center;
+            padding: 8px 4px;
+            border-radius: 6px;
+            font-size: 11px;
+        }
+        
+        .zone.z1 { background: #3b82f6; }
+        .zone.z2 { background: #22c55e; }
+        .zone.z3 { background: #eab308; }
+        .zone.z4 { background: #f97316; }
+        .zone.z5 { background: #ef4444; }
+        
+        .zone .time {
+            font-weight: bold;
+            display: block;
+            margin-top: 2px;
+        }
+        
+        /* Additional Stats */
+        .additional-stats {
+            background: linear-gradient(145deg, #1e1e3f, #151530);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        
+        .stat-row:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-row .label {
+            color: #888;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .stat-row .value {
+            font-weight: bold;
+        }
+        
+        /* Share Button */
+        .share-section {
+            text-align: center;
+            padding: 20px 0;
+        }
+        
+        .share-btn {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .share-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(37, 211, 102, 0.5);
+        }
+        
+        .whatsapp-icon {
+            width: 24px;
+            height: 24px;
+        }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 20px 0;
+            color: #555;
+            font-size: 12px;
+        }
+        
+        .footer .logo {
+            color: #00d4ff;
+            font-weight: bold;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <h1>🏃‍♂️ סיכום אימון</h1>
+            <div class="date">24 בינואר 2025 • 08:30</div>
+            <div class="user">גבי סיים אימון!</div>
+        </div>
+        
+        <!-- Map -->
+        <div class="map-section">
+            <div class="map-container">
+                <div class="map-route">
+                    <svg class="route-svg" viewBox="0 0 400 200">
+                        <!-- Fake route path -->
+                        <path class="route-path" d="M 50,150 Q 80,100 120,120 T 180,80 T 250,100 T 320,60 T 370,90" />
+                        <!-- Start marker -->
+                        <g class="start-marker" transform="translate(50, 150)">
+                            <circle r="12" fill="#22c55e" />
+                            <circle r="6" fill="white" />
+                        </g>
+                        <!-- End marker -->
+                        <g class="end-marker" transform="translate(370, 90)">
+                            <circle r="12" fill="#ef4444" />
+                            <rect x="-4" y="-8" width="8" height="16" fill="white" rx="1" />
+                        </g>
+                    </svg>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">📍</div>
+                <div class="stat-label">מרחק</div>
+                <div class="stat-value highlight">5.23<span class="stat-unit">ק"מ</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⏱️</div>
+                <div class="stat-label">זמן</div>
+                <div class="stat-value">45:32</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">⚡</div>
+                <div class="stat-label">קצב ממוצע</div>
+                <div class="stat-value">8:42<span class="stat-unit">/ק"מ</span></div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-icon">🚀</div>
+                <div class="stat-label">קצב מקסימלי</div>
+                <div class="stat-value">7:15<span class="stat-unit">/ק"מ</span></div>
+            </div>
+        </div>
+        
+        <!-- Elevation Profile -->
+        <div class="elevation-section">
+            <div class="section-title">⛰️ פרופיל גובה</div>
+            <div class="elevation-graph">
+                <svg class="elevation-svg" viewBox="0 0 400 100" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="elevationGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#00d4ff;stop-opacity:0.4" />
+                            <stop offset="100%" style="stop-color:#00d4ff;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    <path class="elevation-fill" d="M 0,100 L 0,70 Q 50,60 100,50 T 200,30 T 300,45 T 400,35 L 400,100 Z" />
+                    <path class="elevation-line" d="M 0,70 Q 50,60 100,50 T 200,30 T 300,45 T 400,35" />
+                </svg>
+            </div>
+            <div class="elevation-stats">
+                <div class="elev-stat up">
+                    <div class="value">+127 מ'</div>
+                    <div class="label">עלייה</div>
+                </div>
+                <div class="elev-stat">
+                    <div class="value">85 מ'</div>
+                    <div class="label">מינימום</div>
+                </div>
+                <div class="elev-stat">
+                    <div class="value">212 מ'</div>
+                    <div class="label">מקסימום</div>
+                </div>
+                <div class="elev-stat down">
+                    <div class="value">-89 מ'</div>
+                    <div class="label">ירידה</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Heart Rate -->
+        <div class="hr-section">
+            <div class="section-title">❤️ דופק</div>
+            <div class="hr-graph">
+                <svg class="elevation-svg" viewBox="0 0 400 80" preserveAspectRatio="none">
+                    <defs>
+                        <linearGradient id="hrGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#ef4444;stop-opacity:0.4" />
+                            <stop offset="100%" style="stop-color:#ef4444;stop-opacity:0" />
+                        </linearGradient>
+                    </defs>
+                    <path fill="url(#hrGradient)" d="M 0,80 L 0,60 Q 30,55 60,45 T 120,50 T 180,35 T 240,40 T 300,30 T 360,38 T 400,42 L 400,80 Z" />
+                    <path fill="none" stroke="#ef4444" stroke-width="2" d="M 0,60 Q 30,55 60,45 T 120,50 T 180,35 T 240,40 T 300,30 T 360,38 T 400,42" />
+                </svg>
+            </div>
+            <div class="stats-grid" style="margin-bottom: 0;">
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-label">ממוצע</div>
+                    <div class="stat-value" style="font-size: 20px; color: #ef4444;">142 <span class="stat-unit">BPM</span></div>
+                </div>
+                <div class="stat-card" style="padding: 12px;">
+                    <div class="stat-label">מקסימום</div>
+                    <div class="stat-value" style="font-size: 20px; color: #ef4444;">168 <span class="stat-unit">BPM</span></div>
+                </div>
+            </div>
+            <div class="hr-zones">
+                <div class="zone z1">Z1<span class="time">2:30</span></div>
+                <div class="zone z2">Z2<span class="time">12:45</span></div>
+                <div class="zone z3">Z3<span class="time">18:20</span></div>
+                <div class="zone z4">Z4<span class="time">10:15</span></div>
+                <div class="zone z5">Z5<span class="time">1:42</span></div>
+            </div>
+        </div>
+        
+        <!-- Additional Stats -->
+        <div class="additional-stats">
+            <div class="section-title">📊 נתונים נוספים</div>
+            <div class="stat-row">
+                <span class="label">🌬️ נשימות/דקה (ממוצע)</span>
+                <span class="value">24</span>
+            </div>
+            <div class="stat-row">
+                <span class="label">🩸 SpO2</span>
+                <span class="value">96%</span>
+            </div>
+            <div class="stat-row">
+                <span class="label">📈 Training Effect</span>
+                <span class="value">3.2 (אירובי)</span>
+            </div>
+            <div class="stat-row">
+                <span class="label">⏰ Recovery Time</span>
+                <span class="value">18 שעות</span>
+            </div>
+            <div class="stat-row">
+                <span class="label">👟 צעדים</span>
+                <span class="value">6,842</span>
+            </div>
+            <div class="stat-row">
+                <span class="label">🦶 קדנס ממוצע</span>
+                <span class="value">165 spm</span>
+            </div>
+        </div>
+        
+        <!-- Share Button -->
+        <div class="share-section">
+            <button class="share-btn">
+                <svg class="whatsapp-icon" viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                </svg>
+                שתף ב-WhatsApp
+            </button>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <div class="logo">FitBeat</div>
+            <div>Powered by Garmin Fenix 8 Solar</div>
+        </div>
+    </div>
+</body>
+</html>
