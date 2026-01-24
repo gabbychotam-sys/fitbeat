@@ -6,6 +6,8 @@ using Toybox.Activity;
 using Toybox.ActivityMonitor;
 using Toybox.Timer;
 using Toybox.Attention;
+using Toybox.Time;
+using Toybox.Time.Gregorian;
 
 // ╔════════════════════════════════════════════════════════════╗
 // ║  MAIN VIEW - FitBeat v4.3.2 - SEPARATE GOALS FIX          ║
