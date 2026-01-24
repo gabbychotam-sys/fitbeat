@@ -209,6 +209,127 @@ async def reset_fitbeat_state():
     )
     return {"status": "reset", "state": default_state.model_dump()}
 
+# ═══════════════════════════════════════════════════════════════
+# Workout Summary API - For sharing workouts via WhatsApp
+# ═══════════════════════════════════════════════════════════════
+
+@api_router.post("/workout")
+async def submit_workout(workout: WorkoutSubmit):
+    """Receive workout data from watch and save to DB"""
+    workout_obj = WorkoutSummary(
+        user_id=workout.user_id,
+        user_name=workout.user_name,
+        distance_cm=workout.distance_cm,
+        duration_sec=workout.duration_sec,
+        avg_hr=workout.avg_hr,
+        max_hr=workout.max_hr,
+        elevation_gain=workout.elevation_gain,
+        elevation_loss=workout.elevation_loss,
+        steps=workout.steps,
+        cadence=workout.cadence,
+        route=[p.model_dump() for p in workout.route] if workout.route else None
+    )
+    
+    doc = workout_obj.model_dump()
+    doc['timestamp'] = doc['timestamp'].isoformat()
+    await db.workouts.insert_one(doc)
+    
+    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s")
+    
+    return {
+        "status": "saved",
+        "workout_id": workout_obj.id,
+        "user_id": workout.user_id
+    }
+
+@api_router.get("/workout/user/{user_id}")
+async def get_user_workouts(user_id: str, limit: int = 10):
+    """Get workouts for a specific user"""
+    workouts = await db.workouts.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(limit)
+    
+    return {
+        "user_id": user_id,
+        "workouts": workouts,
+        "count": len(workouts)
+    }
+
+@api_router.get("/workout/latest/{user_id}")
+async def get_latest_workout(user_id: str):
+    """Get the latest workout for a user"""
+    workout = await db.workouts.find_one(
+        {"user_id": user_id},
+        {"_id": 0},
+        sort=[("timestamp", -1)]
+    )
+    
+    if not workout:
+        return JSONResponse(status_code=404, content={"error": "No workouts found for this user"})
+    
+    return workout
+
+@api_router.get("/user/{user_id}/stats")
+async def get_user_stats(user_id: str):
+    """Get aggregated stats for a user"""
+    pipeline = [
+        {"$match": {"user_id": user_id}},
+        {"$group": {
+            "_id": "$user_id",
+            "total_workouts": {"$sum": 1},
+            "total_distance_cm": {"$sum": "$distance_cm"},
+            "total_duration_sec": {"$sum": "$duration_sec"},
+            "avg_hr": {"$avg": "$avg_hr"},
+            "user_name": {"$last": "$user_name"}
+        }}
+    ]
+    
+    result = await db.workouts.aggregate(pipeline).to_list(1)
+    
+    if not result:
+        return {
+            "user_id": user_id,
+            "total_workouts": 0,
+            "total_distance_km": 0,
+            "total_duration_min": 0
+        }
+    
+    stats = result[0]
+    return {
+        "user_id": user_id,
+        "user_name": stats.get("user_name", ""),
+        "total_workouts": stats["total_workouts"],
+        "total_distance_km": round(stats["total_distance_cm"] / 100000, 2),
+        "total_duration_min": round(stats["total_duration_sec"] / 60, 1),
+        "avg_hr": round(stats["avg_hr"]) if stats.get("avg_hr") else None
+    }
+
+@api_router.post("/user/register")
+async def register_user(device_id: str, user_name: str = ""):
+    """Register a new user and get their unique ID"""
+    user_id = generate_user_id(device_id)
+    
+    # Check if user exists
+    existing = await db.users.find_one({"user_id": user_id})
+    
+    if not existing:
+        await db.users.insert_one({
+            "user_id": user_id,
+            "device_id": device_id,
+            "user_name": user_name,
+            "created_at": datetime.now(timezone.utc).isoformat()
+        })
+        logger.info(f"New user registered: {user_id}")
+    elif user_name and user_name != existing.get("user_name"):
+        # Update user name if changed
+        await db.users.update_one(
+            {"user_id": user_id},
+            {"$set": {"user_name": user_name}}
+        )
+    
+    return {"user_id": user_id}
+
 # Include the router in the main app
 app.include_router(api_router)
 
