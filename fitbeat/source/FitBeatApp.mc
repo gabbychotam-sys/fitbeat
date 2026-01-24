@@ -302,7 +302,7 @@ class GoalPickerView extends WatchUi.View {
         var btnH = dc.getFontHeight(btnFont);
         var btnW = w * 4 / 10;
         var btnX = (w - btnW) / 2;
-        var btnY = h - btnH - h / 10;  // Lower position (was h/6, now h/10)
+        var btnY = h - btnH - h / 14;  // Even lower (was h/10)
         
         dc.setColor(color, color);
         dc.fillRoundedRectangle(btnX, btnY, btnW, btnH + h / 20, h / 40);
