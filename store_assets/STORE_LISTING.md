@@ -66,7 +66,7 @@ Website: [YOUR WEBSITE - optional]
 - `/app/store_assets/launcher_icon_400x400.png` - Store listing icon
 
 ### Screenshots
-Use the simulator at: https://fitness-goals-30.preview.emergentagent.com
+Use the simulator at: https://garmin-tracker-2.preview.emergentagent.com
 Or take screenshots from your actual Garmin watch
 
 ### IQ File

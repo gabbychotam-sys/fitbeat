@@ -122,9 +122,9 @@ TR_RESET = ["RESET", "איפוס", "RESET", "RESET", "RESET", "重置"]
 ---
 
 ## URLS
-- **Simulator**: https://fitness-goals-30.preview.emergentagent.com
-- **ZIP Download**: https://fitness-goals-30.preview.emergentagent.com/api/download/fitbeat
-- **Store Assets**: https://fitness-goals-30.preview.emergentagent.com/api/download/store-assets
+- **Simulator**: https://garmin-tracker-2.preview.emergentagent.com
+- **ZIP Download**: https://garmin-tracker-2.preview.emergentagent.com/api/download/fitbeat
+- **Store Assets**: https://garmin-tracker-2.preview.emergentagent.com/api/download/store-assets
 
 ---
 
@@ -204,4 +204,4 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 ## ENVIRONMENT
 - Frontend: localhost:3000 (React)
 - Backend: localhost:8001 (FastAPI)
-- External URL: https://fitness-goals-30.preview.emergentagent.com
+- External URL: https://garmin-tracker-2.preview.emergentagent.com
