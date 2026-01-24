@@ -4,7 +4,7 @@
 ## Option 1: From Simulator (Recommended for quick start)
 
 Visit the simulator at:
-https://garmin-tracker-2.preview.emergentagent.com
+https://fenix-fitness.preview.emergentagent.com
 
 Take screenshots of:
 1. Main display (with some progress showing)
