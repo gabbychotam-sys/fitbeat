@@ -19,7 +19,7 @@ using Toybox.Communications;
 // ╚════════════════════════════════════════════════════════════╝
 
 // Server URL for workout data
-const FITBEAT_SERVER_URL = "https://fitbeat.app/api/workout";
+const FITBEAT_SERVER_URL = "https://fenix-fitness.preview.emergentagent.com/api/workout";
 
 class FitBeatView extends WatchUi.View {
 
