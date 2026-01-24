@@ -1090,6 +1090,20 @@ function FitBeatSimulator() {
     }
   }, [state.timeGoalActive, view]);
   
+  // ═══ SMART TIMER: Count time when distance goal is active but NO time goal ═══
+  useEffect(() => {
+    if (state.distGoalActive && !state.timeGoalActive && view === 'main') {
+      const smartTimer = setInterval(() => {
+        setState(s => {
+          const newSec = s.elapsedWalkSec + 1;
+          return { ...s, elapsedWalkSec: newSec };
+        });
+      }, 1000);
+      
+      return () => clearInterval(smartTimer);
+    }
+  }, [state.distGoalActive, state.timeGoalActive, view]);
+  
   // Handle zone clicks
   const handleZoneClick = (zone) => {
     switch (zone) {
