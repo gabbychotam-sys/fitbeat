@@ -213,7 +213,7 @@ export default function WorkoutPage() {
           <StatCard icon="📍" label="מרחק" value={distKm} unit='ק"מ' highlight />
           <StatCard icon="⏱️" label="זמן" value={duration} />
           <StatCard icon="⚡" label="קצב ממוצע" value={pace} unit="/ק״מ" />
-          <StatCard icon="🚀" label="קצב מקסימלי" value={pace} unit="/ק״מ" />
+          <StatCard icon="🚀" label="קצב מקסימלי" value={formatPace(workout.distance_cm, Math.floor(workout.duration_sec * 0.85))} unit="/ק״מ" />
         </section>
         
         {/* Elevation Section */}
