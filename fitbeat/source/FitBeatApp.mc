@@ -963,14 +963,14 @@ class AlertView extends WatchUi.View {
         dc.setColor(mColor, Graphics.COLOR_TRANSPARENT);
 
         if (mLine3 != null && !mLine3.equals("")) {
-            // 3 lines format
-            dc.drawText(w/2, (h*25)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
+            // 3 lines format - evenly spaced across the screen
+            dc.drawText(w/2, (h*22)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
             dc.drawText(w/2, (h*45)/100, fBig, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*65)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*68)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
         } else {
-            // 2 lines format
-            dc.drawText(w/2, (h*36)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*56)/100, fSmall, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
+            // 2 lines format - centered
+            dc.drawText(w/2, (h*35)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*55)/100, fSmall, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 }
