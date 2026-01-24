@@ -241,7 +241,19 @@ class GoalPickerView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // ═══ LAYOUT: Arrows in original positions, RESET between UP arrow and number ═══
+        // ═══ RESET BUTTON AT VERY TOP ═══
+        var resetBtnW = w / 3;
+        var resetBtnH = h / 14;
+        var resetBtnX = (w - resetBtnW) / 2;
+        var resetBtnY = h / 15;  // At the very top
+        
+        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
+        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, resetBtnY + resetBtnH / 2 - 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
+        
+        // ═══ ORIGINAL LAYOUT: Number+Unit on LEFT, Arrows on RIGHT ═══
         var arrowSize = w / 12;
         var centerY = h / 2 - h / 10;  // Original position
         
@@ -252,10 +264,22 @@ class GoalPickerView extends WatchUi.View {
         var numStr = mGoal.toString();
         var numW = dc.getTextWidthInPixels(numStr, numFont);
         
-        // RIGHT SIDE: ▲ UP ARROW (original position at top)
+        // LEFT SIDE: Number + Unit (ORIGINAL)
+        var leftX = w / 6;
+        var numY = centerY - numH / 2;
+        
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(leftX, numY, numFont, numStr, Graphics.TEXT_JUSTIFY_LEFT);
+        
+        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(leftX + numW + w / 30, centerY - dc.getFontHeight(unitFont) / 2, unitFont, unit, Graphics.TEXT_JUSTIFY_LEFT);
+        
+        // RIGHT SIDE: ▲ and ▼ arrows (ORIGINAL POSITIONS)
         var arrowX = w * 3 / 4;
         var upY = centerY - arrowSize - h / 15;
+        var downY = centerY + h / 15;
         
+        // ▲ UP ARROW
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon([
             [arrowX, upY],
@@ -264,46 +288,7 @@ class GoalPickerView extends WatchUi.View {
         ]);
         mUpZone = [upY, upY + arrowSize, arrowX - arrowSize, arrowX + arrowSize];
         
-        // ═══ RESET BUTTON - between UP arrow and number ═══
-        var resetBtnW = w / 3;
-        var resetBtnH = h / 14;
-        var resetBtnX = (w - resetBtnW) / 2;
-        var resetBtnY = h / 6;  // Above the number
-        
-        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
-        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, resetBtnY + resetBtnH / 2 - 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
-        
-        // LEFT SIDE: Unit + Number + X button in a row
-        var leftX = w / 10;
-        var numY = centerY - numH / 2;
-        
-        // Unit first
-        dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(leftX, centerY - dc.getFontHeight(unitFont) / 2, unitFont, unit, Graphics.TEXT_JUSTIFY_LEFT);
-        
-        // Number
-        var numX = leftX + dc.getTextWidthInPixels(unit, unitFont) + w / 25;
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(numX, numY, numFont, numStr, Graphics.TEXT_JUSTIFY_LEFT);
-        
-        // X CANCEL BUTTON - to the right of number
-        var xSize = 24;
-        var xBtnX = numX + numW + w / 15;
-        var xBtnY = centerY;
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-        dc.fillCircle(xBtnX, xBtnY, xSize / 2 + 4);
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
-        dc.drawCircle(xBtnX, xBtnY, xSize / 2 + 4);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(xBtnX, xBtnY - 2, Graphics.FONT_XTINY, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mCancelZone = [xBtnY - xSize, xBtnY + xSize, xBtnX - xSize, xBtnX + xSize];
-        
-        // RIGHT SIDE: ▼ DOWN ARROW (original position)
-        var downY = centerY + h / 15;
-        
+        // ▼ DOWN ARROW
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.fillPolygon([
             [arrowX, downY + arrowSize],
@@ -312,13 +297,25 @@ class GoalPickerView extends WatchUi.View {
         ]);
         mDownZone = [downY, downY + arrowSize, arrowX - arrowSize, arrowX + arrowSize];
 
-        // BOTTOM: START button
+        // BOTTOM: X CANCEL and START buttons
         var btnFont = Graphics.FONT_SMALL;
         var btnH = dc.getFontHeight(btnFont);
         var btnW = w * 4 / 10;
         var btnX = (w - btnW) / 2;
         var btnY = h - btnH - h / 6;
         
+        // X CANCEL BUTTON - ABOVE START
+        var xSize = 28;
+        var xBtnY = btnY - h / 10;
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+        dc.fillCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
+        dc.drawCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, xBtnY - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mCancelZone = [xBtnY - xSize, xBtnY + xSize, w / 2 - xSize, w / 2 + xSize];
+        
+        // START button
         dc.setColor(color, color);
         dc.fillRoundedRectangle(btnX, btnY, btnW, btnH + h / 20, h / 40);
         
