@@ -1303,7 +1303,7 @@ function FitBeatSimulator() {
           setView('alert');
         }} onClose={() => setView('main')} />;
       case 'distPicker':
-        return <GoalPicker state={state} type="distance" onStart={startDistanceGoal} onClose={() => setView('main')} />;
+        return <GoalPicker state={state} type="distance" onStart={startDistanceGoal} onReset={resetDistanceGoal} onClose={() => setView('main')} />;
       case 'timePicker':
         return <GoalPicker state={state} type="time" onStart={startTimeGoal} onClose={() => setView('main')} />;
       case 'nameEntry':
