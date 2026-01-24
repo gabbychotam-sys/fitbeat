@@ -305,6 +305,90 @@ class FitBeatView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
     
+    // ═══════════════════════════════════════════════════════════════
+    // SEND WORKOUT DATA TO SERVER - Called when goal is completed
+    // ═══════════════════════════════════════════════════════════════
+    function _sendWorkoutToServer() {
+        // Get user ID (unique per device)
+        var userId = _getUserId();
+        var userName = _getUserName();
+        
+        // Get workout data
+        var distCm = mDistanceCm;
+        var durationSec = mElapsedWalkSec;
+        var avgHr = _getHeartRate();
+        var steps = _getSteps();
+        
+        // Build request body
+        var body = {
+            "user_id" => userId,
+            "user_name" => userName,
+            "distance_cm" => distCm,
+            "duration_sec" => durationSec,
+            "avg_hr" => avgHr,
+            "max_hr" => mMaxHR,
+            "steps" => steps,
+            "cadence" => null
+        };
+        
+        // Send to server
+        var options = {
+            :method => Communications.HTTP_REQUEST_METHOD_POST,
+            :headers => {
+                "Content-Type" => Communications.REQUEST_CONTENT_TYPE_JSON
+            },
+            :responseType => Communications.HTTP_RESPONSE_CONTENT_TYPE_JSON
+        };
+        
+        Communications.makeWebRequest(
+            FITBEAT_SERVER_URL,
+            body,
+            options,
+            method(:_onWorkoutSent)
+        );
+    }
+    
+    // Callback when workout is sent
+    function _onWorkoutSent(responseCode, data) {
+        if (responseCode == 200 || responseCode == 201) {
+            System.println("Workout sent successfully!");
+        } else {
+            System.println("Failed to send workout: " + responseCode);
+        }
+    }
+    
+    // Get unique user ID based on device
+    function _getUserId() {
+        var storedId = Application.Storage.getValue("userId");
+        if (storedId != null) {
+            return storedId;
+        }
+        
+        // Generate ID from device info
+        var deviceId = System.getDeviceSettings().uniqueIdentifier;
+        if (deviceId == null) {
+            deviceId = "device_" + System.getTimer();
+        }
+        
+        // Create short hash (first 8 chars)
+        var hash = deviceId.hashCode().abs().toString();
+        var userId = hash.substring(0, 8);
+        
+        Application.Storage.setValue("userId", userId);
+        return userId;
+    }
+    
+    // Get current steps from ActivityMonitor
+    function _getSteps() {
+        try {
+            var info = ActivityMonitor.getInfo();
+            if (info != null && info.steps != null) {
+                return info.steps - mStartSteps;
+            }
+        } catch(e) {}
+        return 0;
+    }
+    
     // Legacy function for compatibility
     function startActivity(mode) {
         if (mode == null || mode == MODE_DISTANCE) {
