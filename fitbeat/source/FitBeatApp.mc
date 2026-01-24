@@ -189,9 +189,6 @@ var TR_HR_TARGET_SET = ["HR target set", "יעד דופק נקבע", "Objetivo F
 var TR_STAY_BELOW = ["Stay below", "לא לעבור", "Mantente bajo", "Reste en dessous de", "Bleib unter", "保持低于"];
 var TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
 
-// Reset button translation
-var TR_RESET = ["RESET", "איפוס", "RESET", "RESET", "RESET", "重置"];
-
 function getLang() {
     var l = Application.Storage.getValue("lang");
     if (l == null || l < 0 || l > 5) { return 0; }
@@ -222,7 +219,6 @@ class GoalPickerView extends WatchUi.View {
     var mDownZone = null;
     var mStartZone = null;
     var mCancelZone = null;  // X button for cancel/back
-    var mResetZone = null;   // Reset button at top
     
     function initialize(mainView) {
         View.initialize();
@@ -241,21 +237,9 @@ class GoalPickerView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
-        // ═══ RESET BUTTON AT VERY TOP ═══
-        var resetBtnW = w / 3;
-        var resetBtnH = h / 14;
-        var resetBtnX = (w - resetBtnW) / 2;
-        var resetBtnY = h / 15;  // At the very top
-        
-        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
-        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, resetBtnY + resetBtnH / 2 - 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
-        
-        // ═══ ORIGINAL LAYOUT: Number+Unit on LEFT, Arrows on RIGHT ═══
+        // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
-        var centerY = h / 2 - h / 10;  // Original position
+        var centerY = h / 2 - h / 10;
         
         var numFont = Graphics.FONT_NUMBER_HOT;
         var unitFont = Graphics.FONT_SMALL;
@@ -264,7 +248,7 @@ class GoalPickerView extends WatchUi.View {
         var numStr = mGoal.toString();
         var numW = dc.getTextWidthInPixels(numStr, numFont);
         
-        // LEFT SIDE: Number + Unit (ORIGINAL)
+        // LEFT SIDE: Number + Unit
         var leftX = w / 6;
         var numY = centerY - numH / 2;
         
@@ -274,7 +258,7 @@ class GoalPickerView extends WatchUi.View {
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
         dc.drawText(leftX + numW + w / 30, centerY - dc.getFontHeight(unitFont) / 2, unitFont, unit, Graphics.TEXT_JUSTIFY_LEFT);
         
-        // RIGHT SIDE: ▲ and ▼ arrows (ORIGINAL POSITIONS)
+        // RIGHT SIDE: ▲ and ▼ arrows
         var arrowX = w * 3 / 4;
         var upY = centerY - arrowSize - h / 15;
         var downY = centerY + h / 15;
@@ -297,25 +281,13 @@ class GoalPickerView extends WatchUi.View {
         ]);
         mDownZone = [downY, downY + arrowSize, arrowX - arrowSize, arrowX + arrowSize];
 
-        // BOTTOM: X CANCEL and START buttons
+        // BOTTOM: START button
         var btnFont = Graphics.FONT_SMALL;
         var btnH = dc.getFontHeight(btnFont);
         var btnW = w * 4 / 10;
         var btnX = (w - btnW) / 2;
         var btnY = h - btnH - h / 6;
         
-        // X CANCEL BUTTON - ABOVE START
-        var xSize = 28;
-        var xBtnY = btnY - h / 10;
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-        dc.fillCircle(w / 2, xBtnY, xSize / 2 + 6);
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
-        dc.drawCircle(w / 2, xBtnY, xSize / 2 + 6);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, xBtnY - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mCancelZone = [xBtnY - xSize, xBtnY + xSize, w / 2 - xSize, w / 2 + xSize];
-        
-        // START button
         dc.setColor(color, color);
         dc.fillRoundedRectangle(btnX, btnY, btnW, btnH + h / 20, h / 40);
         
@@ -323,13 +295,23 @@ class GoalPickerView extends WatchUi.View {
         dc.drawText(w / 2, btnY + h / 60, btnFont, "START", Graphics.TEXT_JUSTIFY_CENTER);
         
         mStartZone = [btnY, btnY + btnH + h / 20, btnX, btnX + btnW];
+        
+        // ═══ X CANCEL BUTTON - ABOVE START (same horizontal center) ═══
+        var xSize = 28;
+        var xBtnY = btnY - h / 10;  // Above START button
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+        dc.fillCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
+        dc.drawCircle(w / 2, xBtnY, xSize / 2 + 6);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, xBtnY - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mCancelZone = [xBtnY - xSize, xBtnY + xSize, w / 2 - xSize, w / 2 + xSize];
     }
     
     function getUpZone() { return mUpZone; }
     function getDownZone() { return mDownZone; }
     function getStartZone() { return mStartZone; }
     function getCancelZone() { return mCancelZone; }
-    function getResetZone() { return mResetZone; }
     function getGoal() { return mGoal; }
     
     function incrementGoal() {
@@ -363,16 +345,6 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
         var downZone = picker.getDownZone();
         var startZone = picker.getStartZone();
         var cancelZone = picker.getCancelZone();
-        var resetZone = picker.getResetZone();
-        
-        // RESET button - reset distance and cancel goal
-        if (resetZone != null && tapY >= resetZone[0] && tapY <= resetZone[1] && tapX >= resetZone[2] && tapX <= resetZone[3]) {
-            if (mMainView != null) {
-                mMainView.resetDistanceGoal();  // Reset distance to 0 and deactivate goal
-            }
-            WatchUi.popView(WatchUi.SLIDE_DOWN);
-            return true;
-        }
         
         // X CANCEL button - go back without saving
         if (cancelZone != null && tapY >= cancelZone[0] && tapY <= cancelZone[1] && tapX >= cancelZone[2] && tapX <= cancelZone[3]) {
@@ -392,13 +364,13 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         
-        // START button - starts DISTANCE goal, keeps current distance if already walking
+        // START button - starts DISTANCE goal ONLY, doesn't reset time!
         if (startZone != null && tapY >= startZone[0] && tapY <= startZone[1] && tapX >= startZone[2] && tapX <= startZone[3]) {
             var goal = picker.getGoal();
             Application.Storage.setValue("goalDist", goal);
             if (mMainView != null) {
                 mMainView.setGoal(goal);
-                mMainView.continueOrStartDistanceGoal();  // Continue from current distance!
+                mMainView.startDistanceGoal();  // Only starts distance!
             }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
             return true;
@@ -960,14 +932,14 @@ class AlertView extends WatchUi.View {
         dc.setColor(mColor, Graphics.COLOR_TRANSPARENT);
 
         if (mLine3 != null && !mLine3.equals("")) {
-            // 3 lines format - evenly spaced across the screen
-            dc.drawText(w/2, (h*22)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
+            // 3 lines format
+            dc.drawText(w/2, (h*25)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
             dc.drawText(w/2, (h*45)/100, fBig, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*68)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*65)/100, fSmall, mLine3, Graphics.TEXT_JUSTIFY_CENTER);
         } else {
-            // 2 lines format - centered
-            dc.drawText(w/2, (h*35)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
-            dc.drawText(w/2, (h*55)/100, fSmall, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
+            // 2 lines format
+            dc.drawText(w/2, (h*36)/100, fBig, mLine1, Graphics.TEXT_JUSTIFY_CENTER);
+            dc.drawText(w/2, (h*56)/100, fSmall, mLine2, Graphics.TEXT_JUSTIFY_CENTER);
         }
     }
 }

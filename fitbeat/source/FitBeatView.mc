@@ -49,12 +49,6 @@ class FitBeatView extends WatchUi.View {
     var mHrAlertShown = false;
     var mHrMonitoringActive = false;
     
-    // ═══ SMART TIMER (when time goal = 0) ═══
-    var mSmartTimerActive = false;    // Is smart timer running?
-    var mLastMovementTime = 0;        // Last time user moved (epoch seconds)
-    var mLastDistanceForMovement = 0; // Last distance reading to detect movement
-    var mStopDurationSec = 0;         // How long user has been stopped
-    
     var mTimer = null;
     var mIsVisible = false;
     
@@ -210,99 +204,8 @@ class FitBeatView extends WatchUi.View {
         mDistHalfwayShown = false;
         mDistGoalShown = false;
         _calculateHrTarget();
-        _checkMidnightReset();  // Check if we need to reset (new day)
         _saveState();
         WatchUi.requestUpdate();
-    }
-    
-    // ═══ CONTINUE OR START DISTANCE GOAL - Keeps current distance! ═══
-    function continueOrStartDistanceGoal() {
-        // If already active, just update the goal (keep current distance)
-        if (mDistGoalActive) {
-            // Recalculate alerts based on new goal
-            var newGoalCm = _getGoalInCm();
-            var newHalfway = newGoalCm / 2;
-            
-            // If we haven't reached new halfway yet, allow alert again
-            if (mDistanceCm < newHalfway) {
-                mDistHalfwayShown = false;
-            }
-            // If we haven't reached new goal yet, allow alert again
-            if (mDistanceCm < newGoalCm) {
-                mDistGoalShown = false;
-            }
-            _saveState();
-            WatchUi.requestUpdate();
-        } else {
-            // Not active, start fresh but check midnight reset
-            startDistanceGoal();
-        }
-        
-        // Start smart timer if time goal is 0
-        _startSmartTimerIfNeeded();
-    }
-    
-    // ═══ RESET DISTANCE GOAL - Reset to 0 and deactivate ═══
-    function resetDistanceGoal() {
-        mDistGoalActive = false;
-        mDistanceCm = 0;
-        mStartSteps = 0;
-        mStartDistCm = 0;
-        mDistHalfwayShown = false;
-        mDistGoalShown = false;
-        
-        // Also reset smart timer
-        if (!mTimeGoalActive) {
-            mElapsedWalkSec = 0;
-            mSmartTimerActive = false;
-        }
-        
-        // Save last reset date
-        _saveLastResetDate();
-        _saveState();
-        WatchUi.requestUpdate();
-    }
-    
-    // ═══ MIDNIGHT AUTO-RESET CHECK ═══
-    function _checkMidnightReset() {
-        try {
-            var now = Time.now();
-            var today = Time.Gregorian.info(now, Time.FORMAT_SHORT);
-            var todayKey = today.year * 10000 + today.month * 100 + today.day;
-            
-            var lastResetDate = Application.Storage.getValue("lastResetDate");
-            if (lastResetDate == null || lastResetDate != todayKey) {
-                // New day! Reset distance
-                mDistanceCm = 0;
-                mStartSteps = 0;
-                mStartDistCm = 0;
-                mDistHalfwayShown = false;
-                mDistGoalShown = false;
-                
-                // Reset smart timer too
-                mElapsedWalkSec = 0;
-                
-                // Get current baseline
-                try {
-                    var info = ActivityMonitor.getInfo();
-                    if (info != null) {
-                        if (info.steps != null) { mStartSteps = info.steps; }
-                        if (info.distance != null) { mStartDistCm = info.distance; }
-                    }
-                } catch(e) {}
-                
-                _saveLastResetDate();
-            }
-        } catch(e) {}
-    }
-    
-    function _saveLastResetDate() {
-        try {
-            var now = Time.now();
-            var today = Time.Gregorian.info(now, Time.FORMAT_SHORT);
-            var todayKey = today.year * 10000 + today.month * 100 + today.day;
-            Application.Storage.setValue("lastResetDate", todayKey);
-        } catch(e) {}
     }
     
     // ═══ START TIME GOAL - Does NOT reset distance! ═══
@@ -311,7 +214,6 @@ class FitBeatView extends WatchUi.View {
         mElapsedWalkSec = 0;  // Reset time counter
         mTimeHalfwayShown = false;
         mTimeGoalShown = false;
-        mSmartTimerActive = false;  // Disable smart timer when time goal is set
         _calculateHrTarget();
         _saveState();
         WatchUi.requestUpdate();
@@ -538,19 +440,11 @@ class FitBeatView extends WatchUi.View {
             }
         }
         
-        // Check midnight reset
-        _checkMidnightReset();
-        
         // Update time goal if active (count every second!)
         if (mTimeGoalActive && !mAlertActive) {
             mElapsedWalkSec += 1;  // Count every second!
             Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
             _checkTimeAlerts();
-        }
-        
-        // ═══ SMART TIMER - Count time when moving (only if time goal = 0) ═══
-        if (mSmartTimerActive && !mTimeGoalActive && !mAlertActive) {
-            _updateSmartTimer();
         }
         
         // Check distance alerts if distance goal is active
@@ -564,48 +458,6 @@ class FitBeatView extends WatchUi.View {
         }
         
         WatchUi.requestUpdate();
-    }
-    
-    // ═══ SMART TIMER LOGIC ═══
-    function _startSmartTimerIfNeeded() {
-        // Start smart timer if time goal is 0 and distance goal is active
-        if (!mTimeGoalActive && mDistGoalActive) {
-            mSmartTimerActive = true;
-            mLastMovementTime = Time.now().value();
-            mLastDistanceForMovement = mDistanceCm;
-            mStopDurationSec = 0;
-            // Reset elapsed time to start fresh
-            mElapsedWalkSec = 0;
-        }
-    }
-    
-    function _updateSmartTimer() {
-        var currentDist = mDistanceCm;
-        var now = Time.now().value();
-        
-        // Check if user moved (distance increased by at least 5 meters = 500cm)
-        var movement = currentDist - mLastDistanceForMovement;
-        if (movement < 0) { movement = 0; }
-        
-        if (movement > 500) {  // Moved more than 5 meters
-            // User is moving! Count time
-            mElapsedWalkSec += 1;
-            mLastMovementTime = now;
-            mLastDistanceForMovement = currentDist;
-            mStopDurationSec = 0;
-            Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
-        } else {
-            // User stopped or barely moving
-            mStopDurationSec += 1;
-            
-            // If stopped for more than 5 minutes (300 seconds), reset timer
-            if (mStopDurationSec >= 300) {
-                mElapsedWalkSec = 0;
-                mStopDurationSec = 0;
-                mLastDistanceForMovement = currentDist;
-                Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
-            }
-        }
     }
     
     function _checkHrAlert() {
