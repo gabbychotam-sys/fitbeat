@@ -137,17 +137,12 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 | **נשימה** | קצב נשימה ממוצע | ✅ | Respiration Sensor |
 | | קצב נשימה מקסימלי | ✅ | Respiration Sensor |
 | **חמצן** | SpO2 (רוויון חמצן) | ✅ | Pulse Oximeter |
-| **אנרגיה** | קלוריות שנשרפו | ✅ | Calculated |
-| | Body Battery (לפני/אחרי) | ✅ | Garmin Sensor |
 | **מאמץ** | Training Effect (אירובי) | ✅ | Calculated |
 | | Training Effect (אנאירובי) | ✅ | Calculated |
 | | Training Load | ✅ | Calculated |
 | | Recovery Time | ✅ | Calculated |
-| **סטרס** | רמת סטרס ממוצעת | ✅ | HRV Analysis |
 | **צעדים** | מספר צעדים | ✅ | Accelerometer |
 | | קדנס ממוצע | ✅ | Accelerometer |
-| **טמפרטורה** | טמפרטורה | ✅ | Temperature Sensor |
-| **מזג אוויר** | תנאי מזג אוויר | ✅ | Connected to phone |
 
 **Message Template (Full Version):**
 ```
@@ -169,16 +164,10 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 🌬️ נשימות/דקה (ממוצע): 24
 🩸 SpO2: 96%
 
-🔥 קלוריות: 380 kcal
-🔋 Body Battery: 65 → 45
-
 📊 Training Effect: 3.2 (אירובי)
-😰 סטרס ממוצע: 28
 
 👟 צעדים: 6,450
 🦶 קדנס: 165 spm
-
-🌡️ טמפרטורה: 22°C
 
 🗺️ צפה במסלול המלא:
 https://fitbeat.app/r/abc123
