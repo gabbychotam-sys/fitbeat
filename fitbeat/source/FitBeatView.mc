@@ -476,6 +476,12 @@ class FitBeatView extends WatchUi.View {
             _checkTimeAlerts();
         }
         
+        // ═══ SMART TIMER: Count time when distance goal is active but no time goal ═══
+        if (mDistGoalActive && !mTimeGoalActive && !mAlertActive) {
+            mElapsedWalkSec += 1;  // Count seconds when walking!
+            Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
+        }
+        
         // Check distance alerts if distance goal is active
         if (mDistGoalActive && !mAlertActive) {
             _checkDistanceAlerts();
