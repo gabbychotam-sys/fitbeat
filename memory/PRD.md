@@ -107,52 +107,103 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 - Add to app store description
 
 ### 2. Route Sharing via WhatsApp (Priority Feature)
-**Concept:** Send detailed workout summary with route map to a contact via WhatsApp
+**Concept:** Send comprehensive workout summary with ALL available metrics + route map
 
 **Settings to add:**
 - Phone number field (e.g., +972501234567)
 
-**Data to collect during workout:**
-- GPS points (for route map)
-- Elevation data (ascent/descent) - from barometric altimeter
-- Heart rate data (average, max) - from optical sensor
-- Distance, Time, Pace
+**ALL Available Metrics from Fenix 8 Solar:**
 
-**Message content:**
+| קטגוריה | מדד | זמין? | חיישן |
+|---------|-----|-------|-------|
+| **מיקום** | GPS coordinates | ✅ | GPS/GNSS |
+| | מסלול על מפה | ✅ | GPS |
+| **מרחק/זמן** | מרחק | ✅ | GPS |
+| | זמן אימון | ✅ | Timer |
+| | קצב ממוצע | ✅ | Calculated |
+| | קצב מקסימלי | ✅ | Calculated |
+| | מהירות ממוצעת | ✅ | GPS |
+| | מהירות מקסימלית | ✅ | GPS |
+| **גובה** | עלייה כוללת | ✅ | Barometric Altimeter |
+| | ירידה כוללת | ✅ | Barometric Altimeter |
+| | גובה מינימלי | ✅ | Barometric Altimeter |
+| | גובה מקסימלי | ✅ | Barometric Altimeter |
+| | גרף גובה | ✅ | Barometric Altimeter |
+| **דופק** | דופק ממוצע | ✅ | Optical HR |
+| | דופק מקסימלי | ✅ | Optical HR |
+| | דופק מינימלי | ✅ | Optical HR |
+| | אזורי דופק (זמן בכל אזור) | ✅ | Optical HR |
+| | גרף דופק | ✅ | Optical HR |
+| **נשימה** | קצב נשימה ממוצע | ✅ | Respiration Sensor |
+| | קצב נשימה מקסימלי | ✅ | Respiration Sensor |
+| **חמצן** | SpO2 (רוויון חמצן) | ✅ | Pulse Oximeter |
+| **אנרגיה** | קלוריות שנשרפו | ✅ | Calculated |
+| | Body Battery (לפני/אחרי) | ✅ | Garmin Sensor |
+| **מאמץ** | Training Effect (אירובי) | ✅ | Calculated |
+| | Training Effect (אנאירובי) | ✅ | Calculated |
+| | Training Load | ✅ | Calculated |
+| | Recovery Time | ✅ | Calculated |
+| **סטרס** | רמת סטרס ממוצעת | ✅ | HRV Analysis |
+| **צעדים** | מספר צעדים | ✅ | Accelerometer |
+| | קדנס ממוצע | ✅ | Accelerometer |
+| **טמפרטורה** | טמפרטורה | ✅ | Temperature Sensor |
+| **מזג אוויר** | תנאי מזג אוויר | ✅ | Connected to phone |
+
+**Message Template (Full Version):**
 ```
-🏃‍♂️ [Name] finished a workout!
+🏃‍♂️ [Name] סיים אימון!
 
-📍 Distance: 5.2 km
-⏱️ Time: 45:30
-⚡ Average pace: 8:45 min/km
+📍 מרחק: 5.2 ק"מ
+⏱️ זמן: 45:30
+⚡ קצב ממוצע: 8:45 /ק"מ
+🚀 קצב מקסימלי: 7:20 /ק"מ
 
-⛰️ Ascent: +120 m
-⛰️ Descent: -85 m
+⛰️ עלייה: +120 מ'
+⛰️ ירידה: -85 מ'
+🏔️ גובה מקס': 450 מ'
 
-❤️ Average HR: 142 BPM
-❤️ Max HR: 165 BPM
+❤️ דופק ממוצע: 142 BPM
+❤️ דופק מקסימלי: 165 BPM
+💗 אזורי דופק: Z2: 15min | Z3: 25min | Z4: 5min
 
-🗺️ View route:
+🌬️ נשימות/דקה (ממוצע): 24
+🩸 SpO2: 96%
+
+🔥 קלוריות: 380 kcal
+🔋 Body Battery: 65 → 45
+
+📊 Training Effect: 3.2 (אירובי)
+😰 סטרס ממוצע: 28
+
+👟 צעדים: 6,450
+🦶 קדנס: 165 spm
+
+🌡️ טמפרטורה: 22°C
+
+🗺️ צפה במסלול המלא:
 https://fitbeat.app/r/abc123
 ```
 
-**Units by language:**
-- Hebrew: km, meters
-- English: miles, feet
-- Other languages: km, meters
-
-**Map link includes:**
+**Map Page Includes:**
 - Interactive route on map
 - Elevation profile graph
-- Start/end markers
+- Heart rate graph over time
+- Pace graph over time
+- Split times (per km/mile)
+- Weather conditions during workout
+
+**Units by language:**
+| שפה | מרחק | גובה | טמפ' |
+|-----|------|------|------|
+| עברית | ק"מ | מטרים | °C |
+| English | miles | feet | °F |
+| Español | km | metros | °C |
+| Français | km | mètres | °C |
+| Deutsch | km | Meter | °C |
+| 中文 | 公里 | 米 | °C |
 
 **Required integrations:**
 - WhatsApp Business API (or Twilio)
 - Map service (Google Maps / Mapbox)
 - Backend server for processing
-
-**Flow:**
-1. Watch records GPS + elevation + HR during workout
-2. On goal completion → sends all data to server
-3. Server generates interactive map with elevation profile
-4. Server sends WhatsApp message to saved phone number
+- Garmin Connect IQ SDK (Activity.Info, Sensor data)
