@@ -4,5 +4,8 @@
         <iq:products>
             <iq:product id="fenix8solar51mm" />
         </iq:products>
+        <iq:permissions>
+            <iq:uses-permission id="Communications" />
+        </iq:permissions>
     </iq:application>
 </iq:manifest>
