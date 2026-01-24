@@ -1189,7 +1189,6 @@ function FitBeatSimulator() {
         elapsedWalkSec: 0,
         timeHalfwayShown: false,
         timeGoalShown: false,
-        smartTimerActive: false,  // Disable smart timer when time goal is set
       };
       saveState(newState);
       return newState;
