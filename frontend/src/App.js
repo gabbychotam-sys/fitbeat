@@ -1120,6 +1120,9 @@ function FitBeatSimulator() {
               alertType: 'goal'
             });
             setView('alert');
+            
+            // ═══ SEND WORKOUT TO SERVER! ═══
+            sendWorkoutToServer({...s, elapsedWalkSec: newSec});
           }
           
           return newState;
@@ -1128,7 +1131,7 @@ function FitBeatSimulator() {
       
       return () => clearInterval(timerRef.current);
     }
-  }, [state.timeGoalActive, view]);
+  }, [state.timeGoalActive, view, sendWorkoutToServer]);
   
   // ═══ SMART TIMER: Count time when distance goal is active but NO time goal ═══
   useEffect(() => {
