@@ -298,45 +298,6 @@ export default function WorkoutPage() {
           </div>
         </section>
         
-        {/* Link to Monthly Summary */}
-        <a 
-          href={`/u/${userId}/monthly`}
-          className="block bg-gradient-to-br from-[#1e1e3f] to-[#151530] rounded-xl p-4 mb-6 border border-white/5 hover:border-cyan-400/30 transition-colors"
-          data-testid="monthly-summary-link"
-        >
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">📅</span>
-              <div>
-                <div className="font-medium">סיכום חודשי</div>
-                <div className="text-gray-500 text-xs">צפה בכל האימונים שלך החודש</div>
-              </div>
-            </div>
-            <span className="text-cyan-400 text-xl">←</span>
-          </div>
-        </a>
-        
-        {/* User Stats Summary */}
-        {stats && stats.total_workouts > 1 && (
-          <section className="bg-gradient-to-br from-[#1e1e3f] to-[#151530] rounded-xl p-4 mb-6 border border-white/5">
-            <h3 className="text-gray-400 text-sm mb-3 flex items-center gap-2">📈 סה"כ</h3>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div>
-                <div className="text-cyan-400 text-xl font-bold">{stats.total_workouts}</div>
-                <div className="text-gray-500 text-xs">אימונים</div>
-              </div>
-              <div>
-                <div className="text-cyan-400 text-xl font-bold">{stats.total_distance_km}</div>
-                <div className="text-gray-500 text-xs">ק"מ</div>
-              </div>
-              <div>
-                <div className="text-cyan-400 text-xl font-bold">{Math.round(stats.total_duration_min)}</div>
-                <div className="text-gray-500 text-xs">דקות</div>
-              </div>
-            </div>
-          </section>
-        )}
-        
         {/* Share Button */}
         <section className="text-center py-6">
           <button
