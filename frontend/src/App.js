@@ -609,32 +609,10 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* RESET Button - at very top (only for distance) */}
-      {type === 'distance' && onReset && (
-        <button 
-          className="absolute left-1/2 -translate-x-1/2"
-          style={{ 
-            top: '6%',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            backgroundColor: '#8B0000',
-            color: '#fff',
-            padding: '4px 16px',
-            borderRadius: '10px',
-            border: 'none',
-            cursor: 'pointer'
-          }}
-          onClick={onReset}
-          data-testid="goal-reset"
-        >
-          {TR_RESET[lang]}
-        </button>
-      )}
-      
-      {/* UP Arrow - top adjusted for reset button */}
+      {/* UP Arrow - top: 5% (original position) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ top: type === 'distance' ? '18%' : '5%' }}
+        style={{ top: '5%' }}
         onClick={() => setGoal(g => Math.min(max, g + step))}
         data-testid="goal-up"
       >
@@ -646,10 +624,32 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         }} />
       </div>
       
-      {/* Number + Unit - top adjusted */}
+      {/* RESET Button - between UP arrow and number (only for distance) */}
+      {type === 'distance' && onReset && (
+        <button 
+          className="absolute left-1/2 -translate-x-1/2"
+          style={{ 
+            top: '17%',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            backgroundColor: '#8B0000',
+            color: '#fff',
+            padding: '3px 14px',
+            borderRadius: '10px',
+            border: 'none',
+            cursor: 'pointer'
+          }}
+          onClick={onReset}
+          data-testid="goal-reset"
+        >
+          {TR_RESET[lang]}
+        </button>
+      )}
+      
+      {/* Number + Unit - top: 24% (original position) */}
       <div 
         className="absolute left-[42%] -translate-x-1/2 flex items-baseline gap-2"
-        style={{ top: type === 'distance' ? '32%' : '24%', flexDirection: 'row-reverse' }}
+        style={{ top: '24%', flexDirection: 'row-reverse' }}
       >
         {/* Number - 80px */}
         <span style={{ fontSize: '80px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
@@ -660,18 +660,18 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       {/* X Cancel button - ABOVE START (centered) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ top: '60%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        style={{ top: '56%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
         onClick={onClose}
         data-testid="goal-cancel"
       >
         <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
       </div>
       
-      {/* START button - top: 73% */}
+      {/* START button - top: 68% (original position) */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          top: '73%',
+          top: '68%',
           fontSize: '18px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
@@ -687,10 +687,10 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         {TR_START[lang]}
       </button>
       
-      {/* DOWN Arrow - bottom: 3% */}
+      {/* DOWN Arrow - bottom: 5% (original position) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ bottom: '3%' }}
+        style={{ bottom: '5%' }}
         onClick={() => setGoal(g => Math.max(min, g - step))}
         data-testid="goal-down"
       >
