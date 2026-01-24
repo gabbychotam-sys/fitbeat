@@ -285,6 +285,22 @@ class FitBeatView extends WatchUi.View {
         WatchUi.requestUpdate();
     }
     
+    // ═══ RESET TIME GOAL - Reset time to 0 and deactivate ═══
+    function resetTimeGoal() {
+        mTimeGoalActive = false;
+        mElapsedWalkSec = 0;
+        mTimeHalfwayShown = false;
+        mTimeGoalShown = false;
+        
+        // Save ALL values to Storage
+        Application.Storage.setValue("timeGoalActive", false);
+        Application.Storage.setValue("elapsedWalkSec", 0);
+        Application.Storage.setValue("timeHalfwayShown", false);
+        Application.Storage.setValue("timeGoalShown", false);
+        
+        WatchUi.requestUpdate();
+    }
+    
     // Legacy function for compatibility
     function startActivity(mode) {
         if (mode == null || mode == MODE_DISTANCE) {
