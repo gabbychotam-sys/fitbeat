@@ -65,9 +65,51 @@ class FitBeatState(BaseModel):
     timeHalfwayShown: bool = False
     timeGoalShown: bool = False
 
+# Workout Summary Models
+class WorkoutPoint(BaseModel):
+    lat: float
+    lon: float
+    timestamp: int  # Unix timestamp in seconds
+    hr: Optional[int] = None
+    elevation: Optional[float] = None
+
+class WorkoutSubmit(BaseModel):
+    user_id: str
+    user_name: str = ""
+    distance_cm: int
+    duration_sec: int
+    avg_hr: Optional[int] = None
+    max_hr: Optional[int] = None
+    elevation_gain: Optional[float] = None
+    elevation_loss: Optional[float] = None
+    steps: Optional[int] = None
+    cadence: Optional[int] = None
+    route: Optional[List[WorkoutPoint]] = None
+
+class WorkoutSummary(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+    id: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    user_id: str
+    user_name: str = ""
+    distance_cm: int
+    duration_sec: int
+    avg_hr: Optional[int] = None
+    max_hr: Optional[int] = None
+    elevation_gain: Optional[float] = None
+    elevation_loss: Optional[float] = None
+    steps: Optional[int] = None
+    cadence: Optional[int] = None
+    route: Optional[List[dict]] = None
+    timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+
+def generate_user_id(device_id: str) -> str:
+    """Generate a short unique user ID from device ID"""
+    hash_obj = hashlib.sha256(device_id.encode())
+    return hash_obj.hexdigest()[:8]
+
 @api_router.get("/")
 async def root():
-    return {"message": "FitBeat API v4.3.2"}
+    return {"message": "FitBeat API v4.4.0"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
