@@ -93,13 +93,14 @@ function WatchDisplay({ state, onZoneClick }) {
   const goalCm = lang === 0 ? goalDist * 160934 : goalDist * 100000;
   const distFrac = goalCm > 0 ? Math.min(distanceCm / goalCm, 1) : 0;
   const goalSec = goalTimeMin * 60;
-  // If time goal is set, use time progress; otherwise if distance goal is active, use distance progress
+  // Time progress bar logic - EXACTLY like native code
   let timeFrac;
-  if (goalSec > 0 && timeGoalActive) {
+  if (goalSec > 0) {
+    // If time goal is set, use time progress
     timeFrac = Math.min(elapsedWalkSec / goalSec, 1);
   } else if (distGoalActive) {
-    // No time goal but distance goal is active - use distance progress for both bars
-    timeFrac = distFrac;
+    // If no time goal but distance goal is active, use distance progress for both bars
+    timeFrac = goalCm > 0 ? Math.min(distanceCm / goalCm, 1) : 0;
   } else {
     timeFrac = 0;
   }
