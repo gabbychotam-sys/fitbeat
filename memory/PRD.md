@@ -101,98 +101,56 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 - Published on Garmin Connect IQ Store
 - Country restriction: Israel not supported for Garmin Merchant Account (monetization)
 
-## Future Ideas
+## Future Features
 
 ### 1. PayPal Donation Link
 - Add to app store description
 
-### 2. Route Sharing via WhatsApp (Priority Feature)
-**Concept:** Send comprehensive workout summary with ALL available metrics + route map
+### 2. Workout Summary with SMS Link (Priority Feature)
 
-**Settings to add:**
-- Phone number field (e.g., +972501234567)
+**Concept:** After each workout, send SMS to user with link to full summary page
 
-**ALL Available Metrics from Fenix 8 Solar:**
-
-| קטגוריה | מדד | זמין? | חיישן |
-|---------|-----|-------|-------|
-| **מיקום** | GPS coordinates | ✅ | GPS/GNSS |
-| | מסלול על מפה | ✅ | GPS |
-| **מרחק/זמן** | מרחק | ✅ | GPS |
-| | זמן אימון | ✅ | Timer |
-| | קצב ממוצע | ✅ | Calculated |
-| | קצב מקסימלי | ✅ | Calculated |
-| | מהירות ממוצעת | ✅ | GPS |
-| | מהירות מקסימלית | ✅ | GPS |
-| **גובה** | עלייה כוללת | ✅ | Barometric Altimeter |
-| | ירידה כוללת | ✅ | Barometric Altimeter |
-| | גובה מינימלי | ✅ | Barometric Altimeter |
-| | גובה מקסימלי | ✅ | Barometric Altimeter |
-| | גרף גובה | ✅ | Barometric Altimeter |
-| **דופק** | דופק ממוצע | ✅ | Optical HR |
-| | דופק מקסימלי | ✅ | Optical HR |
-| | דופק מינימלי | ✅ | Optical HR |
-| | אזורי דופק (זמן בכל אזור) | ✅ | Optical HR |
-| | גרף דופק | ✅ | Optical HR |
-| **נשימה** | קצב נשימה ממוצע | ✅ | Respiration Sensor |
-| | קצב נשימה מקסימלי | ✅ | Respiration Sensor |
-| **חמצן** | SpO2 (רוויון חמצן) | ✅ | Pulse Oximeter |
-| **מאמץ** | Training Effect (אירובי) | ✅ | Calculated |
-| | Training Effect (אנאירובי) | ✅ | Calculated |
-| | Training Load | ✅ | Calculated |
-| | Recovery Time | ✅ | Calculated |
-| **צעדים** | מספר צעדים | ✅ | Accelerometer |
-| | קדנס ממוצע | ✅ | Accelerometer |
-
-**Message Template (Full Version):**
+**Simple Flow:**
 ```
-🏃‍♂️ [Name] סיים אימון!
-
-📍 מרחק: 5.2 ק"מ
-⏱️ זמן: 45:30
-⚡ קצב ממוצע: 8:45 /ק"מ
-🚀 קצב מקסימלי: 7:20 /ק"מ
-
-⛰️ עלייה: +120 מ'
-⛰️ ירידה: -85 מ'
-🏔️ גובה מקס': 450 מ'
-
-❤️ דופק ממוצע: 142 BPM
-❤️ דופק מקסימלי: 165 BPM
-💗 אזורי דופק: Z2: 15min | Z3: 25min | Z4: 5min
-
-🌬️ נשימות/דקה (ממוצע): 24
-🩸 SpO2: 96%
-
-📊 Training Effect: 3.2 (אירובי)
-
-👟 צעדים: 6,450
-🦶 קדנס: 165 spm
-
-🗺️ צפה במסלול המלא:
-https://fitbeat.app/r/abc123
+Watch completes workout
+        ↓
+Watch sends data to server (GPS, HR, elevation, etc.)
+        ↓
+Server creates summary page + unique link
+        ↓
+Server sends SMS to user's phone:
+"🏃 סיימת אימון! 5.2km, 45:32
+צפה במסלול: fitbeat.app/r/abc123"
+        ↓
+User copies link and shares with anyone they want
+(WhatsApp, SMS, Email, Telegram, etc.)
 ```
 
-**Map Page Includes:**
-- Interactive route on map
-- Elevation profile graph
-- Heart rate graph over time
-- Pace graph over time
-- Split times (per km/mile)
-- Weather conditions during workout
+**Settings needed:**
+- Phone number (user's own number for receiving SMS)
+
+**Summary page includes:**
+- Satellite map with route (red line)
+- Start point (green) / End point (red)
+- Distance, Time, Pace (avg/max)
+- Elevation profile (ascent/descent/min/max)
+- Heart rate (avg/max/min + zones graph)
+- Respiration rate
+- SpO2
+- Training Effect / Training Load / Recovery Time
+- Steps / Cadence
 
 **Units by language:**
-| שפה | מרחק | גובה | טמפ' |
-|-----|------|------|------|
-| עברית | ק"מ | מטרים | °C |
-| English | miles | feet | °F |
-| Español | km | metros | °C |
-| Français | km | mètres | °C |
-| Deutsch | km | Meter | °C |
-| 中文 | 公里 | 米 | °C |
+- Hebrew: km, meters
+- English: miles, feet
 
 **Required integrations:**
-- WhatsApp Business API (or Twilio)
-- Map service (Google Maps / Mapbox)
-- Backend server for processing
-- Garmin Connect IQ SDK (Activity.Info, Sensor data)
+- Twilio SMS (~$0.05 per message)
+- Map service (Mapbox/Google Maps)
+- Server (Vercel/Railway - free tier)
+- Database (MongoDB - free tier)
+
+**Bonus features:**
+- SMS also appears on watch (via Bluetooth notification)
+- Link expires after X days (optional)
+- Weekly summary email (optional)
