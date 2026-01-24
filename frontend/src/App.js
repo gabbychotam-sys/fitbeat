@@ -1015,6 +1015,8 @@ function FitBeatSimulator() {
     timeGoalActive: false,
     elapsedWalkSec: 0,
     distanceCm: 0,
+    startSteps: 0,      // Added to match native code
+    startDistCm: 0,     // Added to match native code
     distHalfwayShown: false,
     distGoalShown: false,
     timeHalfwayShown: false,
