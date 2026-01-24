@@ -208,6 +208,58 @@ class FitBeatView extends WatchUi.View {
         mDistHalfwayShown = false;
         mDistGoalShown = false;
         _calculateHrTarget();
+        
+        // ═══ SMART TIMER: If no time goal, start timer and track movement ═══
+        if (!mTimeGoalActive) {
+            mElapsedWalkSec = 0;
+            mLastMovementTime = System.getTimer();
+            try {
+                var info = ActivityMonitor.getInfo();
+                if (info != null && info.steps != null) {
+                    mLastStepsForMovement = info.steps;
+                }
+            } catch(e) {}
+        }
+        
+        _saveState();
+        WatchUi.requestUpdate();
+    }
+    
+    // ═══ RESET DISTANCE GOAL - Reset distance to 0 and deactivate ═══
+    function resetDistanceGoal() {
+        mDistGoalActive = false;
+        mDistanceCm = 0;
+        mStartSteps = 0;
+        mStartDistCm = 0;
+        mDistHalfwayShown = false;
+        mDistGoalShown = false;
+        
+        // Also reset timer if no time goal
+        if (!mTimeGoalActive) {
+            mElapsedWalkSec = 0;
+        }
+        
+        _saveState();
+        WatchUi.requestUpdate();
+    }
+    
+    // ═══ CONTINUE DISTANCE GOAL - Keep current progress, just update goal ═══
+    function continueDistanceGoal() {
+        // Don't reset distance - just reactivate with new goal
+        mDistGoalActive = true;
+        
+        // Recalculate alerts based on new goal
+        var newGoalCm = _getGoalInCm();
+        var newHalfway = newGoalCm / 2;
+        
+        if (mDistanceCm < newHalfway) {
+            mDistHalfwayShown = false;
+        }
+        if (mDistanceCm < newGoalCm) {
+            mDistGoalShown = false;
+        }
+        
+        _calculateHrTarget();
         _saveState();
         WatchUi.requestUpdate();
     }
