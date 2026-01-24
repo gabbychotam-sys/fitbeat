@@ -608,8 +608,8 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* RESET Button - lowered (only for distance) */}
-      {type === 'distance' && onReset && (
+      {/* RESET Button - for BOTH distance and time */}
+      {onReset && (
         <button 
           className="absolute left-1/2 -translate-x-1/2"
           style={{ 
