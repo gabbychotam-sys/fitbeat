@@ -239,7 +239,15 @@ class FitBeatView extends WatchUi.View {
         // ALWAYS reset timer (smart timer) when resetting distance
         mElapsedWalkSec = 0;
         
-        _saveState();
+        // Save ALL values to Storage
+        Application.Storage.setValue("distGoalActive", false);
+        Application.Storage.setValue("distanceCm", 0);
+        Application.Storage.setValue("startSteps", 0);
+        Application.Storage.setValue("startDist", 0);
+        Application.Storage.setValue("distHalfwayShown", false);
+        Application.Storage.setValue("distGoalShown", false);
+        Application.Storage.setValue("elapsedWalkSec", 0);
+        
         WatchUi.requestUpdate();
     }
     
