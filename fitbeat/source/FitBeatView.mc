@@ -531,9 +531,10 @@ class FitBeatView extends WatchUi.View {
     // ═══ CHECK FOR MIDNIGHT AND RESET DISTANCE ═══
     function _checkMidnightReset() {
         try {
-            var ct = System.getClockTime();
+            var now = Time.now();
+            var info = Gregorian.info(now, Time.FORMAT_SHORT);
             var lastResetDay = Application.Storage.getValue("lastResetDay");
-            var today = ct.day;
+            var today = info.day;
             
             // If it's a new day, reset distance
             if (lastResetDay != null && lastResetDay != today) {
