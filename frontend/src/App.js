@@ -614,7 +614,7 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         <button 
           className="absolute left-1/2 -translate-x-1/2"
           style={{ 
-            top: '8%',
+            top: '6%',
             fontSize: '12px',
             fontWeight: 'bold',
             backgroundColor: '#8B0000',
@@ -660,18 +660,18 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       {/* X Cancel button - ABOVE START (centered) */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
-        style={{ top: '56%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        style={{ top: '60%', width: '35px', height: '35px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
         onClick={onClose}
         data-testid="goal-cancel"
       >
         <span style={{ color: '#fff', fontSize: '20px', fontWeight: 'bold' }}>✕</span>
       </div>
       
-      {/* START button - top: 68% */}
+      {/* START button - top: 73% */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          top: '68%',
+          top: '73%',
           fontSize: '18px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
@@ -687,10 +687,10 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         {TR_START[lang]}
       </button>
       
-      {/* DOWN Arrow - bottom: 5% */}
+      {/* DOWN Arrow - bottom: 3% */}
       <div 
         className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ bottom: '5%' }}
+        style={{ bottom: '3%' }}
         onClick={() => setGoal(g => Math.max(min, g - step))}
         data-testid="goal-down"
       >
