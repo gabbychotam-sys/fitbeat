@@ -1307,6 +1307,9 @@ function FitBeatSimulator() {
           alertType: 'goal'
         });
         setView('alert');
+        
+        // ═══ SEND WORKOUT TO SERVER! ═══
+        sendWorkoutToServer({...s, distanceCm: newDist});
       }
       
       saveState(newState);
