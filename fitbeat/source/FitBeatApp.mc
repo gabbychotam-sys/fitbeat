@@ -276,15 +276,30 @@ class GoalPickerView extends WatchUi.View {
         dc.drawText(w / 2, resetBtnY + resetBtnH / 2 - 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
         mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
         
-        // LEFT SIDE: Number + Unit (original position)
-        var leftX = w / 6;
+        // LEFT SIDE: Unit + Number + X button in a row
+        var leftX = w / 10;
         var numY = centerY - numH / 2;
         
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(leftX, numY, numFont, numStr, Graphics.TEXT_JUSTIFY_LEFT);
-        
+        // Unit first
         dc.setColor(color, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(leftX + numW + w / 30, centerY - dc.getFontHeight(unitFont) / 2, unitFont, unit, Graphics.TEXT_JUSTIFY_LEFT);
+        dc.drawText(leftX, centerY - dc.getFontHeight(unitFont) / 2, unitFont, unit, Graphics.TEXT_JUSTIFY_LEFT);
+        
+        // Number
+        var numX = leftX + dc.getTextWidthInPixels(unit, unitFont) + w / 25;
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(numX, numY, numFont, numStr, Graphics.TEXT_JUSTIFY_LEFT);
+        
+        // X CANCEL BUTTON - to the right of number
+        var xSize = 24;
+        var xBtnX = numX + numW + w / 15;
+        var xBtnY = centerY;
+        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
+        dc.fillCircle(xBtnX, xBtnY, xSize / 2 + 4);
+        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
+        dc.drawCircle(xBtnX, xBtnY, xSize / 2 + 4);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(xBtnX, xBtnY - 2, Graphics.FONT_XTINY, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mCancelZone = [xBtnY - xSize, xBtnY + xSize, xBtnX - xSize, xBtnX + xSize];
         
         // RIGHT SIDE: ▼ DOWN ARROW (original position)
         var downY = centerY + h / 15;
@@ -311,17 +326,6 @@ class GoalPickerView extends WatchUi.View {
         dc.drawText(w / 2, btnY + h / 60, btnFont, "START", Graphics.TEXT_JUSTIFY_CENTER);
         
         mStartZone = [btnY, btnY + btnH + h / 20, btnX, btnX + btnW];
-        
-        // ═══ X CANCEL BUTTON - ABOVE START (same horizontal center) ═══
-        var xSize = 28;
-        var xBtnY = btnY - h / 10;  // Above START button
-        dc.setColor(Graphics.COLOR_DK_GRAY, Graphics.COLOR_DK_GRAY);
-        dc.fillCircle(w / 2, xBtnY, xSize / 2 + 6);
-        dc.setColor(Graphics.COLOR_LT_GRAY, Graphics.COLOR_LT_GRAY);
-        dc.drawCircle(w / 2, xBtnY, xSize / 2 + 6);
-        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
-        dc.drawText(w / 2, xBtnY - 2, Graphics.FONT_SMALL, "X", Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
-        mCancelZone = [xBtnY - xSize, xBtnY + xSize, w / 2 - xSize, w / 2 + xSize];
     }
     
     function getUpZone() { return mUpZone; }
