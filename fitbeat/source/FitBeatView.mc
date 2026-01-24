@@ -8,14 +8,18 @@ using Toybox.Timer;
 using Toybox.Attention;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
+using Toybox.Communications;
 
 // ╔════════════════════════════════════════════════════════════╗
-// ║  MAIN VIEW - FitBeat v4.3.2 - SEPARATE GOALS FIX          ║
+// ║  MAIN VIEW - FitBeat v4.4.0 - WORKOUT SHARING              ║
 // ║  Displays: Time, Distance, Time Goal, Heart Rate          ║
 // ║  ALL POSITIONS IN PERCENTAGES!                            ║
 // ║  SEPARATE GOALS: Distance & Time work INDEPENDENTLY!      ║
-// ║  EXACT FONT SIZES PER GARMIN SPECS                        ║
+// ║  AUTO-SEND to server when goal is completed!              ║
 // ╚════════════════════════════════════════════════════════════╝
+
+// Server URL for workout data
+const FITBEAT_SERVER_URL = "https://fitbeat.app/api/workout";
 
 class FitBeatView extends WatchUi.View {
 
