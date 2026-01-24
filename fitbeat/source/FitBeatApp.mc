@@ -576,6 +576,16 @@ class TimeGoalPickerDelegate extends WatchUi.BehaviorDelegate {
         var downZone = picker.getDownZone();
         var startZone = picker.getStartZone();
         var cancelZone = picker.getCancelZone();
+        var resetZone = picker.getResetZone();
+
+        // RESET button - reset time goal and go back
+        if (resetZone != null && tapY >= resetZone[0] && tapY <= resetZone[1] && tapX >= resetZone[2] && tapX <= resetZone[3]) {
+            if (mMainView != null) {
+                mMainView.resetTimeGoal();
+            }
+            WatchUi.popView(WatchUi.SLIDE_DOWN);
+            return true;
+        }
 
         // X CANCEL button - go back without saving
         if (cancelZone != null && tapY >= cancelZone[0] && tapY <= cancelZone[1] && tapX >= cancelZone[2] && tapX <= cancelZone[3]) {
