@@ -305,10 +305,14 @@ async def get_user_stats(user_id: str):
         "avg_hr": round(stats["avg_hr"]) if stats.get("avg_hr") else None
     }
 
+class UserRegister(BaseModel):
+    device_id: str
+    user_name: str = ""
+
 @api_router.post("/user/register")
-async def register_user(device_id: str, user_name: str = ""):
+async def register_user(data: UserRegister):
     """Register a new user and get their unique ID"""
-    user_id = generate_user_id(device_id)
+    user_id = generate_user_id(data.device_id)
     
     # Check if user exists
     existing = await db.users.find_one({"user_id": user_id})
@@ -316,16 +320,16 @@ async def register_user(device_id: str, user_name: str = ""):
     if not existing:
         await db.users.insert_one({
             "user_id": user_id,
-            "device_id": device_id,
-            "user_name": user_name,
+            "device_id": data.device_id,
+            "user_name": data.user_name,
             "created_at": datetime.now(timezone.utc).isoformat()
         })
         logger.info(f"New user registered: {user_id}")
-    elif user_name and user_name != existing.get("user_name"):
+    elif data.user_name and data.user_name != existing.get("user_name"):
         # Update user name if changed
         await db.users.update_one(
             {"user_id": user_id},
-            {"$set": {"user_name": user_name}}
+            {"$set": {"user_name": data.user_name}}
         )
     
     return {"user_id": user_id}
