@@ -222,6 +222,7 @@ class GoalPickerView extends WatchUi.View {
     var mDownZone = null;
     var mStartZone = null;
     var mCancelZone = null;  // X button for cancel/back
+    var mResetZone = null;   // Reset button at top
     
     function initialize(mainView) {
         View.initialize();
@@ -240,9 +241,21 @@ class GoalPickerView extends WatchUi.View {
         dc.setColor(Graphics.COLOR_BLACK, Graphics.COLOR_BLACK);
         dc.clear();
         
+        // ═══ RESET BUTTON AT TOP ═══
+        var resetBtnW = w / 3;
+        var resetBtnH = h / 12;
+        var resetBtnX = (w - resetBtnW) / 2;
+        var resetBtnY = h / 12;
+        
+        dc.setColor(Graphics.COLOR_DK_RED, Graphics.COLOR_DK_RED);
+        dc.fillRoundedRectangle(resetBtnX, resetBtnY, resetBtnW, resetBtnH, h / 50);
+        dc.setColor(Graphics.COLOR_WHITE, Graphics.COLOR_TRANSPARENT);
+        dc.drawText(w / 2, resetBtnY + resetBtnH / 2 - 2, Graphics.FONT_XTINY, TR_RESET[lang], Graphics.TEXT_JUSTIFY_CENTER | Graphics.TEXT_JUSTIFY_VCENTER);
+        mResetZone = [resetBtnY, resetBtnY + resetBtnH, resetBtnX, resetBtnX + resetBtnW];
+        
         // ═══ LAYOUT: Number+Unit on LEFT, Arrows on RIGHT, START at BOTTOM ═══
         var arrowSize = w / 12;
-        var centerY = h / 2 - h / 10;
+        var centerY = h / 2 - h / 15;  // Moved up slightly for Reset button
         
         var numFont = Graphics.FONT_NUMBER_HOT;
         var unitFont = Graphics.FONT_SMALL;
@@ -315,6 +328,7 @@ class GoalPickerView extends WatchUi.View {
     function getDownZone() { return mDownZone; }
     function getStartZone() { return mStartZone; }
     function getCancelZone() { return mCancelZone; }
+    function getResetZone() { return mResetZone; }
     function getGoal() { return mGoal; }
     
     function incrementGoal() {
