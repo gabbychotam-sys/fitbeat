@@ -107,21 +107,52 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 - Add to app store description
 
 ### 2. Route Sharing via WhatsApp (Priority Feature)
-**Concept:** Send workout route map to a contact via WhatsApp
+**Concept:** Send detailed workout summary with route map to a contact via WhatsApp
 
 **Settings to add:**
 - Phone number field (e.g., +972501234567)
 
-**Flow:**
-1. Watch records GPS points during workout
-2. On goal completion → sends GPS data to server
-3. Server generates map with route
-4. Server sends WhatsApp message to saved phone number:
-   - "גבי finished a workout! 🏃‍♂️"
-   - Distance, Time, Pace
-   - Link to view route on map
+**Data to collect during workout:**
+- GPS points (for route map)
+- Elevation data (ascent/descent) - from barometric altimeter
+- Heart rate data (average, max) - from optical sensor
+- Distance, Time, Pace
+
+**Message content:**
+```
+🏃‍♂️ [Name] finished a workout!
+
+📍 Distance: 5.2 km
+⏱️ Time: 45:30
+⚡ Average pace: 8:45 min/km
+
+⛰️ Ascent: +120 m
+⛰️ Descent: -85 m
+
+❤️ Average HR: 142 BPM
+❤️ Max HR: 165 BPM
+
+🗺️ View route:
+https://fitbeat.app/r/abc123
+```
+
+**Units by language:**
+- Hebrew: km, meters
+- English: miles, feet
+- Other languages: km, meters
+
+**Map link includes:**
+- Interactive route on map
+- Elevation profile graph
+- Start/end markers
 
 **Required integrations:**
 - WhatsApp Business API (or Twilio)
 - Map service (Google Maps / Mapbox)
 - Backend server for processing
+
+**Flow:**
+1. Watch records GPS + elevation + HR during workout
+2. On goal completion → sends all data to server
+3. Server generates interactive map with elevation profile
+4. Server sends WhatsApp message to saved phone number
