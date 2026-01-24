@@ -1131,24 +1131,48 @@ function FitBeatSimulator() {
   };
   
   // Start distance goal - EXACTLY like native code
+  // If already active, continue from current distance; otherwise start fresh
   const startDistanceGoal = (goal) => {
     setState(s => {
-      // In native code: mDistanceCm = 0, mDistHalfwayShown = false, mDistGoalShown = false
-      // Smart timer starts if no time goal is active
-      const newState = {
-        ...s,
-        goalDist: goal,
-        distGoalActive: true,
-        distanceCm: 0,  // Always reset to 0 when starting new goal (like native)
-        startSteps: 0,  // Would be set from ActivityMonitor in native
-        startDistCm: 0, // Would be set from ActivityMonitor in native
-        distHalfwayShown: false,
-        distGoalShown: false,
-        // ═══ SMART TIMER: Start timer if no time goal ═══
-        elapsedWalkSec: !s.timeGoalActive ? 0 : s.elapsedWalkSec,
-      };
-      saveState(newState);
-      return newState;
+      if (s.distGoalActive) {
+        // Continue from current distance (like continueDistanceGoal in native)
+        const goalCm = s.lang === 0 ? goal * 160934 : goal * 100000;
+        const halfway = goalCm / 2;
+        
+        let distHalfwayShown = s.distHalfwayShown;
+        let distGoalShown = s.distGoalShown;
+        
+        // Recalculate alerts based on new goal
+        if (s.distanceCm < halfway) { distHalfwayShown = false; }
+        if (s.distanceCm < goalCm) { distGoalShown = false; }
+        
+        const newState = {
+          ...s,
+          goalDist: goal,
+          distGoalActive: true,
+          // Keep current distance!
+          distHalfwayShown,
+          distGoalShown,
+        };
+        saveState(newState);
+        return newState;
+      } else {
+        // Start fresh (like startDistanceGoal in native)
+        const newState = {
+          ...s,
+          goalDist: goal,
+          distGoalActive: true,
+          distanceCm: 0,
+          startSteps: 0,
+          startDistCm: 0,
+          distHalfwayShown: false,
+          distGoalShown: false,
+          // ═══ SMART TIMER: Start timer if no time goal ═══
+          elapsedWalkSec: !s.timeGoalActive ? 0 : s.elapsedWalkSec,
+        };
+        saveState(newState);
+        return newState;
+      }
     });
     setView('main');
   };
