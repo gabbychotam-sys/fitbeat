@@ -843,7 +843,17 @@ class FitBeatView extends WatchUi.View {
 
         // Time progress bar (staircase RTL)
         var goalSec = _getGoalTimeSec();
-        var timeFrac = goalSec > 0 ? _clamp01((mElapsedWalkSec * 1.0) / goalSec) : 0.0;
+        var timeFrac;
+        if (goalSec > 0) {
+            // If time goal is set, use time progress
+            timeFrac = _clamp01((mElapsedWalkSec * 1.0) / goalSec);
+        } else if (mDistGoalActive) {
+            // If no time goal but distance goal is active, use distance progress for both bars
+            var goalCm = _getGoalInCm();
+            timeFrac = goalCm > 0 ? _clamp01((mDistanceCm * 1.0) / goalCm) : 0.0;
+        } else {
+            timeFrac = 0.0;
+        }
         _drawSegmentBar(dc, padSide, y, barW, barH, timeFrac);
         y += barH + h / 25;
         mTimeGoalZoneBottom = y;
