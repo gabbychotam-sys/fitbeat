@@ -392,13 +392,19 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
             return true;
         }
         
-        // START button - starts DISTANCE goal ONLY, doesn't reset time!
+        // START button - starts DISTANCE goal
+        // If already active, continue from current distance; otherwise start fresh
         if (startZone != null && tapY >= startZone[0] && tapY <= startZone[1] && tapX >= startZone[2] && tapX <= startZone[3]) {
             var goal = picker.getGoal();
             Application.Storage.setValue("goalDist", goal);
             if (mMainView != null) {
                 mMainView.setGoal(goal);
-                mMainView.startDistanceGoal();  // Only starts distance!
+                // Check if distance goal is already active
+                if (mMainView.isDistGoalActive()) {
+                    mMainView.continueDistanceGoal();  // Continue from current distance
+                } else {
+                    mMainView.startDistanceGoal();  // Start fresh
+                }
             }
             WatchUi.popView(WatchUi.SLIDE_DOWN);
             return true;
