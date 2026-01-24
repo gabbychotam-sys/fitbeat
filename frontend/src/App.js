@@ -76,7 +76,7 @@ const KEYBOARDS = {
 // MAIN WATCH DISPLAY - Garmin Font Sizes per spec
 // ═══════════════════════════════════════════════════════════════
 function WatchDisplay({ state, onZoneClick }) {
-  const { lang, color, distanceCm, elapsedWalkSec, goalDist, goalTimeMin } = state;
+  const { lang, color, distanceCm, elapsedWalkSec, goalDist, goalTimeMin, timeGoalActive, distGoalActive } = state;
   const mainColor = COLOR_HEX[color];
   const unit = TR_KM[lang];  // Use translated unit!
   
