@@ -1215,6 +1215,22 @@ function FitBeatSimulator() {
     setView('main');
   };
   
+  // Reset time goal - Reset time to 0 and deactivate (EXACTLY like native code)
+  const resetTimeGoal = () => {
+    setState(s => {
+      const newState = {
+        ...s,
+        timeGoalActive: false,
+        elapsedWalkSec: 0,
+        timeHalfwayShown: false,
+        timeGoalShown: false,
+      };
+      saveState(newState);
+      return newState;
+    });
+    setView('main');
+  };
+  
   // Test controls
   const addDistance = (cm) => {
     setState(s => {
