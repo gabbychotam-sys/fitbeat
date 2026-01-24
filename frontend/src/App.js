@@ -609,27 +609,12 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       className="relative bg-black overflow-hidden flex flex-col items-center"
       style={{ width: '280px', height: '280px', borderRadius: '50%' }}
     >
-      {/* UP Arrow - top: 5% (original position) */}
-      <div 
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ top: '5%' }}
-        onClick={() => setGoal(g => Math.min(max, g + step))}
-        data-testid="goal-up"
-      >
-        <div style={{ 
-          width: 0, height: 0, 
-          borderLeft: '20px solid transparent', 
-          borderRight: '20px solid transparent', 
-          borderBottom: `25px solid ${mainColor}` 
-        }} />
-      </div>
-      
-      {/* RESET Button - between UP arrow and number (only for distance) */}
+      {/* RESET Button - at very top (only for distance) */}
       {type === 'distance' && onReset && (
         <button 
           className="absolute left-1/2 -translate-x-1/2"
           style={{ 
-            top: '17%',
+            top: '6%',
             fontSize: '12px',
             fontWeight: 'bold',
             backgroundColor: '#8B0000',
@@ -646,41 +631,62 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
         </button>
       )}
       
-      {/* Number + Unit + X button in a row */}
+      {/* UP Arrow - top: 15% (adjusted for reset button) */}
       <div 
-        className="absolute flex items-center"
-        style={{ top: '30%', left: '50%', transform: 'translateX(-50%)' }}
+        className="absolute cursor-pointer"
+        style={{ top: '15%', right: '18%' }}
+        onClick={() => setGoal(g => Math.min(max, g + step))}
+        data-testid="goal-up"
       >
-        {/* Unit on left */}
-        <span style={{ fontSize: '30px', color: mainColor, marginRight: '8px' }}>{unit}</span>
-        {/* Number */}
-        <span style={{ fontSize: '80px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
-        {/* X Cancel button - to the right of number */}
-        <div 
-          className="cursor-pointer hover:opacity-80"
-          style={{ 
-            width: '30px', 
-            height: '30px', 
-            backgroundColor: '#444', 
-            borderRadius: '50%', 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'center', 
-            border: '2px solid #666',
-            marginLeft: '12px'
-          }}
-          onClick={onClose}
-          data-testid="goal-cancel"
-        >
-          <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>✕</span>
-        </div>
+        <div style={{ 
+          width: 0, height: 0, 
+          borderLeft: '20px solid transparent', 
+          borderRight: '20px solid transparent', 
+          borderBottom: `25px solid ${mainColor}` 
+        }} />
       </div>
       
-      {/* START button - top: 68% (original position) */}
+      {/* Number + Unit on LEFT side (original layout) */}
+      <div 
+        className="absolute flex items-baseline gap-2"
+        style={{ top: '32%', left: '15%' }}
+      >
+        {/* Number */}
+        <span style={{ fontSize: '70px', fontWeight: 'bold', color: '#fff' }}>{goal}</span>
+        {/* Unit */}
+        <span style={{ fontSize: '28px', color: mainColor }}>{unit}</span>
+      </div>
+      
+      {/* DOWN Arrow - on the right side */}
+      <div 
+        className="absolute cursor-pointer"
+        style={{ top: '45%', right: '18%' }}
+        onClick={() => setGoal(g => Math.max(min, g - step))}
+        data-testid="goal-down"
+      >
+        <div style={{ 
+          width: 0, height: 0, 
+          borderLeft: '20px solid transparent', 
+          borderRight: '20px solid transparent', 
+          borderTop: `25px solid ${mainColor}` 
+        }} />
+      </div>
+      
+      {/* X Cancel button - ABOVE START */}
+      <div 
+        className="absolute left-1/2 -translate-x-1/2 cursor-pointer hover:opacity-80"
+        style={{ top: '60%', width: '32px', height: '32px', backgroundColor: '#444', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2px solid #666' }}
+        onClick={onClose}
+        data-testid="goal-cancel"
+      >
+        <span style={{ color: '#fff', fontSize: '18px', fontWeight: 'bold' }}>✕</span>
+      </div>
+      
+      {/* START button - bottom */}
       <button 
         className="absolute left-1/2 -translate-x-1/2"
         style={{ 
-          top: '68%',
+          top: '74%',
           fontSize: '18px',
           fontWeight: 'bold',
           backgroundColor: mainColor,
@@ -695,21 +701,6 @@ function GoalPicker({ state, type, onStart, onClose, onReset }) {
       >
         {TR_START[lang]}
       </button>
-      
-      {/* DOWN Arrow - bottom: 5% (original position) */}
-      <div 
-        className="absolute left-1/2 -translate-x-1/2 cursor-pointer"
-        style={{ bottom: '5%' }}
-        onClick={() => setGoal(g => Math.max(min, g - step))}
-        data-testid="goal-down"
-      >
-        <div style={{ 
-          width: 0, height: 0, 
-          borderLeft: '20px solid transparent', 
-          borderRight: '20px solid transparent', 
-          borderTop: `25px solid ${mainColor}` 
-        }} />
-      </div>
     </div>
   );
 }
