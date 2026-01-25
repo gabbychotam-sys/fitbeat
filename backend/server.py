@@ -265,6 +265,17 @@ async def delete_all_user_workouts(user_id: str):
         "deleted_count": result.deleted_count
     }
 
+@api_router.delete("/workout/{workout_id}")
+async def delete_single_workout(workout_id: str):
+    """Delete a single workout by ID"""
+    result = await db.workouts.delete_one({"id": workout_id})
+    if result.deleted_count == 0:
+        return JSONResponse(status_code=404, content={"error": "Workout not found"})
+    return {
+        "status": "deleted",
+        "workout_id": workout_id
+    }
+
 @api_router.get("/workout/user/{user_id}")
 async def get_user_workouts(user_id: str, limit: int = 10):
     """Get workouts for a specific user"""
