@@ -1285,13 +1285,16 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
     """
 
 @api_router.get("/u/{user_id}/workout/{workout_id}", response_class=HTMLResponse)
-async def single_workout_page(user_id: str, workout_id: str):
+async def single_workout_page(user_id: str, workout_id: str, lang: int = None):
     """Serve single workout HTML page"""
     workout = await db.workouts.find_one(
         {"id": workout_id, "user_id": user_id},
         {"_id": 0}
     )
-    return generate_workout_html(workout, user_id)
+    # Get language from parameter or workout
+    if lang is None:
+        lang = workout.get('lang', 0) if workout else 0
+    return generate_workout_html(workout, user_id, lang)
 
 @api_router.get("/u/{user_id}/monthly", response_class=HTMLResponse)
 async def monthly_page(user_id: str):
