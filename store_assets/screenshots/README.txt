@@ -4,7 +4,7 @@
 ## Option 1: From Simulator (Recommended for quick start)
 
 Visit the simulator at:
-https://fenix-fitness.preview.emergentagent.com
+https://exercise-journal-9.preview.emergentagent.com
 
 Take screenshots of:
 1. Main display (with some progress showing)

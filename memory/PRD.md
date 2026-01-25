@@ -94,8 +94,8 @@ java -jar "%APPDATA%\Garmin\ConnectIQ\Sdks\connectiq-sdk-win-8.4.0-2025-12-03-51
 ```
 
 ## URLs
-- Simulator: https://fenix-fitness.preview.emergentagent.com
-- Download ZIP: https://fenix-fitness.preview.emergentagent.com/api/download/fitbeat
+- Simulator: https://exercise-journal-9.preview.emergentagent.com
+- Download ZIP: https://exercise-journal-9.preview.emergentagent.com/api/download/fitbeat
 
 ## App Store
 - Published on Garmin Connect IQ Store
