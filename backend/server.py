@@ -1231,7 +1231,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
             .workout-pace {{ color: #888; font-size: 0.75rem; }}
             .workout-time {{ color: #00d4ff; font-weight: bold; font-size: 0.9rem; margin: 0 0.75rem; }}
             .workout-hr {{ color: #ef4444; font-size: 0.85rem; }}
-            .workout-arrow {{ color: #00d4ff; font-size: 1rem; margin-right: 0.25rem; }}
+            .workout-arrow {{ color: #00d4ff; font-size: 1rem; {"margin-right" if is_rtl(lang) else "margin-left"}: 0.25rem; }}
             
             .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; margin-bottom: 1.5rem; }}
             
@@ -1240,44 +1240,43 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
     </head>
     <body>
         <div class="container">
-            <a href="/api/u/{user_id}/year/{year}" class="back">→ חזרה ל-{year}</a>
+            <a href="/api/u/{user_id}/year/{year}?lang={lang}" class="back">{'→' if is_rtl(lang) else '←'} {t('back', lang)} {year}</a>
             <header>
                 <h1>📁 {month_name} {year}</h1>
-                <p class="subtitle">{len(workouts)} אימונים</p>
+                <p class="subtitle">{len(workouts)} {t('workouts', lang)}</p>
             </header>
             
             <div class="summary">
-                <div class="summary-title">📊 סיכום {month_name}</div>
+                <div class="summary-title">📊 {t('monthly_summary', lang)}</div>
                 <div class="summary-row">
                     <div class="summary-item">
                         <div class="summary-value">{len(workouts)}</div>
-                        <div class="summary-label">אימונים</div>
+                        <div class="summary-label">{t('workouts', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value green">{total_dist:.1f}</div>
-                        <div class="summary-label">ק"מ</div>
+                        <div class="summary-label">{t('km', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">{time_str}</div>
-                        <div class="summary-label">שעות</div>
+                        <div class="summary-label">{t('hours', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" style="color:#ef4444;">{avg_hr}</div>
-                        <div class="summary-label">דופק</div>
+                        <div class="summary-label">{t('avg_hr', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">{total_steps:,}</div>
-                        <div class="summary-label">צעדים</div>
+                        <div class="summary-label">{t('steps', lang)}</div>
                     </div>
                 </div>
             </div>
             
             <div class="workouts">
-                <div class="workouts-title">🏃 אימונים</div>
                 {workouts_html}
             </div>
             
-            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 שתף ב-WhatsApp</a>
+            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
             
             <footer>FitBeat</footer>
         </div>
