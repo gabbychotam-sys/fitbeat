@@ -69,13 +69,14 @@ async def get_status_checks():
 
 @api_router.get("/download/fitbeat")
 async def download_fitbeat():
-    """Download FitBeat GPS v4.5 zip file"""
-    file_path = Path("/app/fitbeat_gps_v4.5.zip")
+    """Download FitBeat GPS v4.5.1 zip file"""
+    file_path = Path("/app/fitbeat_gps_v4.5.1.zip")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="fitbeat_gps_v4.5.zip",
-            media_type="application/zip"
+            filename="fitbeat_gps_v4.5.1.zip",
+            media_type="application/zip",
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
         )
     return {"error": "File not found"}
 
