@@ -1138,16 +1138,22 @@ async def year_page(user_id: str, year: str, lang: int = None):
     """
 
 @api_router.get("/u/{user_id}/year/{year}/month/{month}", response_class=HTMLResponse)
-async def month_page_view(user_id: str, year: str, month: str):
+async def month_page_view(user_id: str, year: str, month: str, lang: int = None):
     """Month page - shows workouts list"""
     workouts = await db.workouts.find(
         {"user_id": user_id, "timestamp": {"$regex": f"^{year}-{month}"}},
         {"_id": 0}
     ).sort("timestamp", -1).to_list(100)
     
-    month_names = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
-                   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
-    month_name = month_names[int(month)]
+    # Get language
+    if lang is None:
+        lang = workouts[0].get('lang', 0) if workouts else 0
+    
+    # RTL support
+    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
+    
+    month_name = get_month_name(int(month), lang)
     
     total_dist = sum(w.get('distance_cm', 0) for w in workouts) / 100000
     total_time = sum(w.get('duration_sec', 0) for w in workouts)
@@ -1175,24 +1181,24 @@ async def month_page_view(user_id: str, year: str, month: str):
             pace_str = "--:--"
         
         workouts_html += f"""
-        <a href="/api/u/{user_id}/workout/{workout_id}" class="workout-row">
+        <a href="/api/u/{user_id}/workout/{workout_id}?lang={lang}" class="workout-row">
             <div class="workout-day">{day}</div>
             <div class="workout-info">
-                <div class="workout-dist">{dist_km:.2f} ק"מ</div>
-                <div class="workout-pace">⚡ {pace_str}/ק"מ</div>
+                <div class="workout-dist">{dist_km:.2f} {t('km', lang)}</div>
+                <div class="workout-pace">⚡ {pace_str}/{t('km', lang)}</div>
             </div>
             <div class="workout-time">{dur_min}:{dur_s:02d}</div>
             <div class="workout-hr">❤️ {hr}</div>
-            <div class="workout-arrow">←</div>
+            <div class="workout-arrow">{'←' if is_rtl(lang) else '→'}</div>
         </a>
         """
     
     base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
-    share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} אימונים%0A📍 {total_dist:.1f} ק״מ%0A⏱️ {time_str} שעות%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}"
+    share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_dist:.1f} {t('km', lang)}%0A⏱️ {time_str} {t('hours', lang)}%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}?lang={lang}"
     
     return f"""
     <!DOCTYPE html>
-    <html lang="he" dir="rtl">
+    <html lang="{lang_code}" {dir_attr}>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
