@@ -590,16 +590,20 @@ async def register_user(data: UserRegister):
 # HTML PAGES - Workout Summary Pages
 # ═══════════════════════════════════════════════════════════════
 
-def generate_workout_html(workout, user_id):
+def generate_workout_html(workout, user_id, lang=0):
     """Generate HTML page for workout summary"""
+    # RTL support
+    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
+    
     if not workout:
         return f"""
         <!DOCTYPE html>
-        <html lang="he" dir="rtl">
+        <html lang="{lang_code}" {dir_attr}>
         <head>
             <meta charset="UTF-8">
             <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>FitBeat - לא נמצאו אימונים</title>
+            <title>FitBeat - {t('no_workouts', lang)}</title>
             <style>
                 * {{ margin: 0; padding: 0; box-sizing: border-box; }}
                 body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; display: flex; align-items: center; justify-content: center; }}
@@ -614,8 +618,8 @@ def generate_workout_html(workout, user_id):
             <div class="container">
                 <div class="icon">🏃‍♂️</div>
                 <h1>FitBeat</h1>
-                <p>לא נמצאו אימונים עבור משתמש זה</p>
-                <p class="user-id">מזהה: {user_id}</p>
+                <p>{t('no_workouts', lang)}</p>
+                <p class="user-id">{t('user_id', lang)}: {user_id}</p>
             </div>
         </body>
         </html>
@@ -652,19 +656,28 @@ def generate_workout_html(workout, user_id):
     # Get base URL
     base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
     
-    # WhatsApp share text
-    share_text = f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str} /ק״מ"
+    # WhatsApp share text (translated)
+    share_texts = {
+        0: f"🏃‍♂️ {user_name} finished a workout!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Time: {duration_str}%0A⚡ Pace: {pace_str}/km",
+        1: f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str}/ק״מ",
+        2: f"🏃‍♂️ ¡{user_name} terminó un entrenamiento!%0A%0A📍 Distancia: {dist_km:.2f} km%0A⏱️ Tiempo: {duration_str}%0A⚡ Ritmo: {pace_str}/km",
+        3: f"🏃‍♂️ {user_name} a terminé un entraînement!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Temps: {duration_str}%0A⚡ Allure: {pace_str}/km",
+        4: f"🏃‍♂️ {user_name} hat ein Training beendet!%0A%0A📍 Distanz: {dist_km:.2f} km%0A⏱️ Zeit: {duration_str}%0A⚡ Tempo: {pace_str}/km",
+        5: f"🏃‍♂️ {user_name}完成了训练!%0A%0A📍 距离: {dist_km:.2f} km%0A⏱️ 时间: {duration_str}%0A⚡ 配速: {pace_str}/km",
+    }
+    share_text = share_texts.get(lang, share_texts[0])
     if avg_hr:
-        share_text += f"%0A❤️ דופק: {avg_hr} BPM"
-    share_text += f"%0A%0A🔗 צפה בסיכום:%0A{base_url}/api/u/{user_id}"
+        hr_texts = {0: f"%0A❤️ HR: {avg_hr} BPM", 1: f"%0A❤️ דופק: {avg_hr} BPM", 2: f"%0A❤️ FC: {avg_hr} LPM", 3: f"%0A❤️ FC: {avg_hr} BPM", 4: f"%0A❤️ HF: {avg_hr} SPM", 5: f"%0A❤️ 心率: {avg_hr} BPM"}
+        share_text += hr_texts.get(lang, hr_texts[0])
+    share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}?lang={lang}"
     
     return f"""
     <!DOCTYPE html>
-    <html lang="he" dir="rtl">
+    <html lang="{lang_code}" {dir_attr}>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>FitBeat - סיכום אימון</title>
+        <title>FitBeat - {t('workout', lang)}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
@@ -675,7 +688,7 @@ def generate_workout_html(workout, user_id):
             .user-name {{ font-size: 1.1rem; margin-top: 0.5rem; }}
             .map {{ background: linear-gradient(135deg, #2d4a2d 0%, #1a2f1a 100%); border-radius: 1rem; height: 200px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }}
             .map svg {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
-            .map-badge {{ position: absolute; top: 0.75rem; left: 0.75rem; background: rgba(0,0,0,0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }}
+            .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }}
             .map-badge .value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
             .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
             .stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }}
