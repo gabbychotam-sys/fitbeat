@@ -959,37 +959,37 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
             </header>
             
             <div class="summary">
-                <div class="summary-title">📊 סיכום כולל</div>
+                <div class="summary-title">📊 {t('total_summary', lang)}</div>
                 <div class="summary-grid">
                     <div>
                         <div class="summary-value">{len(workouts)}</div>
-                        <div class="summary-label">אימונים</div>
+                        <div class="summary-label">{t('workouts', lang)}</div>
                     </div>
                     <div>
                         <div class="summary-value green">{total_km:.1f}</div>
-                        <div class="summary-label">ק"מ סה"כ</div>
+                        <div class="summary-label">{t('km_total', lang)}</div>
                     </div>
                 </div>
             </div>
             
             <div class="folders">
-                <div class="folders-title">📁 לפי שנים</div>
-                {years_html if years_html else '<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>אין אימונים עדיין</p><p style="font-size:0.8rem;margin-top:0.5rem;color:#888;">סיים יעד בשעון והאימון יופיע כאן!</p></div>'}
+                <div class="folders-title">📁 {t('by_years', lang)}</div>
+                {years_html if years_html else f'<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>{t("no_workouts", lang)}</p><p style="font-size:0.8rem;margin-top:0.5rem;color:#888;">{t("finish_goal", lang)}</p></div>'}
             </div>
             
             <div class="buttons">
-                <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 שתף ב-WhatsApp</a>
-                {'<button onclick="deleteAll()" class="delete-btn">🗑️ מחק הכל</button>' if workouts else ''}
+                <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
+                {f'<button onclick="deleteAll()" class="delete-btn">🗑️ {t("delete_all", lang)}</button>' if workouts else ''}
             </div>
             
             <footer>
                 <div class="brand">FitBeat</div>
-                <div class="user-id">מזהה: {user_id}</div>
+                <div class="user-id">{t('user_id', lang)}: {user_id}</div>
             </footer>
         </div>
         <script>
             async function deleteAll() {{
-                if (confirm('למחוק את כל האימונים?')) {{
+                if (confirm('{t("confirm_delete_all", lang)}')) {{
                     await fetch('/api/workout/user/{user_id}/all', {{ method: 'DELETE' }});
                     location.reload();
                 }}
