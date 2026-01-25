@@ -699,6 +699,15 @@ async def workout_page(user_id: str):
     )
     return generate_workout_html(workout, user_id)
 
+@app.get("/u/{user_id}/workout/{workout_id}", response_class=HTMLResponse)
+async def single_workout_page(user_id: str, workout_id: str):
+    """Serve single workout HTML page"""
+    workout = await db.workouts.find_one(
+        {"id": workout_id, "user_id": user_id},
+        {"_id": 0}
+    )
+    return generate_workout_html(workout, user_id)
+
 @app.get("/u/{user_id}/monthly", response_class=HTMLResponse)
 async def monthly_page(user_id: str):
     """Serve monthly summary HTML page with all workouts"""
