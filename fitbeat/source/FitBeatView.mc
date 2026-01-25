@@ -9,6 +9,7 @@ using Toybox.Attention;
 using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Communications;
+using Toybox.Lang;
 
 // ╔════════════════════════════════════════════════════════════╗
 // ║  MAIN VIEW - FitBeat v4.4.0 - WORKOUT SHARING              ║
