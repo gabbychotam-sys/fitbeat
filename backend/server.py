@@ -733,7 +733,7 @@ def generate_workout_html(workout, user_id):
     </html>
     """
 
-@app.get("/u/{user_id}", response_class=HTMLResponse)
+@api_router.get("/u/{user_id}", response_class=HTMLResponse)
 async def dashboard_page(user_id: str):
     """Main page - shows years as folders"""
     workouts = await db.workouts.find(
@@ -875,7 +875,7 @@ async def dashboard_page(user_id: str):
     </html>
     """
 
-@app.get("/u/{user_id}/year/{year}", response_class=HTMLResponse)
+@api_router.get("/u/{user_id}/year/{year}", response_class=HTMLResponse)
 async def year_page(user_id: str, year: str):
     """Year page - shows months as folders"""
     workouts = await db.workouts.find(
@@ -1002,7 +1002,7 @@ async def year_page(user_id: str, year: str):
     </html>
     """
 
-@app.get("/u/{user_id}/year/{year}/month/{month}", response_class=HTMLResponse)
+@api_router.get("/u/{user_id}/year/{year}/month/{month}", response_class=HTMLResponse)
 async def month_page_view(user_id: str, year: str, month: str):
     """Month page - shows workouts list"""
     workouts = await db.workouts.find(
@@ -1143,7 +1143,7 @@ async def month_page_view(user_id: str, year: str, month: str):
     </html>
     """
 
-@app.get("/u/{user_id}/workout/{workout_id}", response_class=HTMLResponse)
+@api_router.get("/u/{user_id}/workout/{workout_id}", response_class=HTMLResponse)
 async def single_workout_page(user_id: str, workout_id: str):
     """Serve single workout HTML page"""
     workout = await db.workouts.find_one(
@@ -1152,7 +1152,7 @@ async def single_workout_page(user_id: str, workout_id: str):
     )
     return generate_workout_html(workout, user_id)
 
-@app.get("/u/{user_id}/monthly", response_class=HTMLResponse)
+@api_router.get("/u/{user_id}/monthly", response_class=HTMLResponse)
 async def monthly_page(user_id: str):
     """Serve monthly summary HTML page with all workouts"""
     workouts = await db.workouts.find(
