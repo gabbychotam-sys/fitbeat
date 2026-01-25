@@ -314,11 +314,21 @@ class FitBeatView extends WatchUi.View {
         var userId = _getUserId();
         var userName = _getUserName();
         
-        // Get workout data
+        // Get workout data - get fresh data from ActivityMonitor
         var distCm = mDistanceCm;
         var durationSec = mElapsedWalkSec;
         var avgHr = _getHeartRate();
         var steps = _getSteps();
+        
+        // If distance is 0, try to get from ActivityMonitor
+        if (distCm == 0 || distCm == null) {
+            try {
+                var info = ActivityMonitor.getInfo();
+                if (info != null && info.distance != null) {
+                    distCm = info.distance;
+                }
+            } catch(e) {}
+        }
         
         // Build request body
         var body = {
