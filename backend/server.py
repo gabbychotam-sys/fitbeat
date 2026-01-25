@@ -849,14 +849,14 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         y_count = len(year_workouts)
         
         years_html += f"""
-        <a href="/api/u/{user_id}/year/{year}" class="folder-row">
+        <a href="/api/u/{user_id}/year/{year}?lang={lang}" class="folder-row">
             <div class="folder-icon">📁</div>
             <div class="folder-info">
                 <div class="folder-name">{year}</div>
-                <div class="folder-meta">{y_count} אימונים</div>
+                <div class="folder-meta">{y_count} {t('workouts', lang)}</div>
             </div>
-            <div class="folder-stats">{y_dist:.1f} ק"מ</div>
-            <div class="folder-arrow">←</div>
+            <div class="folder-stats">{y_dist:.1f} {t('km', lang)}</div>
+            <div class="folder-arrow">{'←' if is_rtl(lang) else '→'}</div>
         </a>
         """
     
