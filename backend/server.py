@@ -576,6 +576,7 @@ def generate_workout_html(workout, user_id):
     elevation_loss = workout.get('elevation_loss', 0) or 0
     steps = workout.get('steps', 0) or 0
     cadence = workout.get('cadence', 0) or 0
+    workout_id = workout.get('id', '')
     
     # Format date
     timestamp = workout.get('timestamp', '')
