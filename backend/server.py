@@ -1244,6 +1244,9 @@ async def monthly_page(user_id: str):
     total_mins = (total_time % 3600) // 60
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
+    # Get base URL
+    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    
     # Build workout rows
     workout_rows = ""
     for w in workouts:
