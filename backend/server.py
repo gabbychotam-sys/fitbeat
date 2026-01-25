@@ -719,7 +719,7 @@ def generate_workout_html(workout, user_id):
                         const response = await fetch('/api/workout/{workout_id}', {{ method: 'DELETE' }});
                         if (response.ok) {{
                             alert('האימון נמחק!');
-                            window.location.href = '/u/{user_id}';
+                            window.location.href = '/api/u/{user_id}';
                         }} else {{
                             alert('שגיאה במחיקה');
                         }}
@@ -767,7 +767,7 @@ async def dashboard_page(user_id: str):
         y_count = len(year_workouts)
         
         years_html += f"""
-        <a href="/u/{user_id}/year/{year}" class="folder-row">
+        <a href="/api/u/{user_id}/year/{year}" class="folder-row">
             <div class="folder-icon">📁</div>
             <div class="folder-info">
                 <div class="folder-name">{year}</div>
@@ -911,7 +911,7 @@ async def year_page(user_id: str, year: str):
         month_name = month_names[int(month)]
         
         months_html += f"""
-        <a href="/u/{user_id}/year/{year}/month/{month}" class="folder-row">
+        <a href="/api/u/{user_id}/year/{year}/month/{month}" class="folder-row">
             <div class="folder-icon">📁</div>
             <div class="folder-info">
                 <div class="folder-name">{month_name}</div>
@@ -963,7 +963,7 @@ async def year_page(user_id: str, year: str):
     </head>
     <body>
         <div class="container">
-            <a href="/u/{user_id}" class="back">→ חזרה</a>
+            <a href="/api/u/{user_id}" class="back">→ חזרה</a>
             <header>
                 <h1>📁 {year}</h1>
                 <p class="subtitle">{len(workouts)} אימונים</p>
@@ -1040,7 +1040,7 @@ async def month_page_view(user_id: str, year: str, month: str):
             pace_str = "--:--"
         
         workouts_html += f"""
-        <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
+        <a href="/api/u/{user_id}/workout/{workout_id}" class="workout-row">
             <div class="workout-day">{day}</div>
             <div class="workout-info">
                 <div class="workout-dist">{dist_km:.2f} ק"מ</div>
@@ -1098,7 +1098,7 @@ async def month_page_view(user_id: str, year: str, month: str):
     </head>
     <body>
         <div class="container">
-            <a href="/u/{user_id}/year/{year}" class="back">→ חזרה ל-{year}</a>
+            <a href="/api/u/{user_id}/year/{year}" class="back">→ חזרה ל-{year}</a>
             <header>
                 <h1>📁 {month_name} {year}</h1>
                 <p class="subtitle">{len(workouts)} אימונים</p>
@@ -1206,7 +1206,7 @@ async def monthly_page(user_id: str):
         ts = w.get('timestamp', '')[:10]
         workout_id = w.get('id', '')
         workout_rows += f"""
-        <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
+        <a href="/api/u/{user_id}/workout/{workout_id}" class="workout-row">
             <div class="workout-icon">🏃</div>
             <div class="workout-info">
                 <div class="workout-dist">{dist_km:.2f} ק"מ</div>
