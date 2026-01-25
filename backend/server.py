@@ -701,12 +701,32 @@ def generate_workout_html(workout, user_id):
             </a>
             <p class="share-hint">📲 בחר איש קשר או שלח לעצמך</p>
             
+            <button onclick="deleteWorkout()" class="delete-btn">🗑️ מחק אימון</button>
+            
             <footer>
                 <div class="brand">FitBeat</div>
                 <div>Powered by Garmin Fenix 8 Solar</div>
                 <div class="user-id">מזהה: {user_id}</div>
             </footer>
         </div>
+        
+        <script>
+            async function deleteWorkout() {{
+                if (confirm('למחוק את האימון הזה?')) {{
+                    try {{
+                        const response = await fetch('/api/workout/{workout_id}', {{ method: 'DELETE' }});
+                        if (response.ok) {{
+                            alert('האימון נמחק!');
+                            window.location.href = '/u/{user_id}';
+                        }} else {{
+                            alert('שגיאה במחיקה');
+                        }}
+                    }} catch (e) {{
+                        alert('שגיאה: ' + e.message);
+                    }}
+                }}
+            }}
+        </script>
     </body>
     </html>
     """
