@@ -168,6 +168,7 @@ class WorkoutSummary(BaseModel):
     cadence: Optional[int] = None
     route: Optional[List[dict]] = None
     timestamp: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
+    lang: int = 0  # Language preference
 
 def generate_user_id(device_id: str) -> str:
     """Generate a short unique user ID from device ID"""
