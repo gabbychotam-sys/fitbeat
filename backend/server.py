@@ -1098,6 +1098,7 @@ async def month_page_view(user_id: str, year: str, month: str):
         </a>
         """
     
+    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
     share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} אימונים%0A📍 {total_dist:.1f} ק״מ%0A⏱️ {time_str} שעות%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}"
     
     return f"""
