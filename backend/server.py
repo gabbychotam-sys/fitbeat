@@ -801,19 +801,6 @@ async def dashboard_page(user_id: str):
         """
     
     share_text = f"📊 סיכום FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}"
-            <div class="workout-middle">
-                <div class="workout-time">{dur_min}:{dur_s:02d}</div>
-                <div class="workout-pace">⚡ {pace_str}/ק"מ</div>
-            </div>
-            <div class="workout-stats">
-                <div class="workout-hr">❤️ {hr}</div>
-            </div>
-            <div class="workout-arrow">←</div>
-        </a>
-        """
-    
-    # WhatsApp share text
-    share_text = f"📊 סיכום FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}"
     
     return f"""
     <!DOCTYPE html>
@@ -828,44 +815,44 @@ async def dashboard_page(user_id: str):
             .container {{ max-width: 480px; margin: 0 auto; }}
             header {{ text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
             h1 {{ color: #00d4ff; font-size: 1.8rem; }}
-            .subtitle {{ color: #888; margin-top: 0.5rem; }}
             .user-name {{ font-size: 1.2rem; margin-top: 0.5rem; }}
             
             .summary {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
-            .summary-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }}
+            .summary-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
             .summary-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: center; }}
             .summary-value {{ font-size: 2.5rem; font-weight: bold; color: #00d4ff; }}
             .summary-value.green {{ color: #22c55e; }}
             .summary-label {{ color: #888; font-size: 0.9rem; margin-top: 0.25rem; }}
             .summary-stats {{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1); text-align: center; }}
-            .summary-stat-value {{ font-size: 1.1rem; font-weight: bold; }}
+            .summary-stat-value {{ font-size: 1rem; font-weight: bold; }}
             .summary-stat-label {{ color: #888; font-size: 0.7rem; margin-top: 0.25rem; }}
             
-            .workouts-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
-            .section-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }}
-            .section-title {{ color: #888; font-size: 0.9rem; }}
-            .workout-count {{ background: #00d4ff; color: #1a1a2e; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.8rem; font-weight: bold; }}
+            .month-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1rem; }}
+            .month-header {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.75rem; }}
+            .month-title {{ color: #00d4ff; font-weight: bold; font-size: 1.1rem; }}
+            .month-count {{ background: rgba(0,212,255,0.2); color: #00d4ff; padding: 0.25rem 0.75rem; border-radius: 1rem; font-size: 0.75rem; }}
+            .month-stats {{ display: flex; gap: 1rem; margin-bottom: 1rem; padding-bottom: 0.75rem; border-bottom: 1px solid rgba(255,255,255,0.1); }}
+            .month-stat {{ color: #888; font-size: 0.85rem; }}
+            .stat-val {{ color: white; font-weight: bold; }}
             
-            .workout-row {{ display: flex; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: all 0.2s; }}
+            .workout-list {{ }}
+            .workout-row {{ display: flex; align-items: center; padding: 0.6rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.4rem; text-decoration: none; color: white; transition: all 0.2s; }}
             .workout-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
-            .workout-icon {{ font-size: 1.5rem; margin-left: 0.75rem; }}
+            .workout-day {{ background: #00d4ff; color: #1a1a2e; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.85rem; margin-left: 0.75rem; }}
             .workout-info {{ flex: 1; }}
-            .workout-dist {{ font-weight: bold; font-size: 1.1rem; }}
-            .workout-date {{ color: #888; font-size: 0.75rem; }}
-            .workout-middle {{ text-align: center; margin: 0 1rem; }}
-            .workout-time {{ color: #00d4ff; font-weight: bold; }}
-            .workout-pace {{ color: #888; font-size: 0.7rem; }}
-            .workout-stats {{ text-align: left; }}
-            .workout-hr {{ color: #ef4444; font-weight: bold; }}
-            .workout-arrow {{ color: #00d4ff; font-size: 1.2rem; margin-right: 0.5rem; }}
+            .workout-dist {{ font-weight: bold; }}
+            .workout-pace {{ color: #888; font-size: 0.75rem; }}
+            .workout-middle {{ margin: 0 0.5rem; }}
+            .workout-time {{ color: #00d4ff; font-weight: bold; font-size: 0.9rem; }}
+            .workout-hr {{ color: #ef4444; font-size: 0.85rem; }}
+            .workout-arrow {{ color: #00d4ff; font-size: 1rem; margin-right: 0.25rem; }}
             
-            .no-workouts {{ text-align: center; padding: 2rem; color: #888; }}
-            .no-workouts-icon {{ font-size: 3rem; margin-bottom: 1rem; }}
+            .no-workouts {{ text-align: center; padding: 3rem 1rem; }}
+            .no-workouts-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
             
-            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin-bottom: 1.5rem; }}
+            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }}
             .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
-            .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }}
-            .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s; }}
+            .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
             .delete-btn:hover {{ background: #ef4444; color: white; }}
             
             footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
@@ -881,7 +868,7 @@ async def dashboard_page(user_id: str):
             </header>
             
             <div class="summary">
-                <div class="summary-title">📊 סיכום כולל</div>
+                <div class="summary-title">📊 סיכום שנתי כולל</div>
                 <div class="summary-grid">
                     <div>
                         <div class="summary-value">{len(workouts)}</div>
@@ -908,13 +895,7 @@ async def dashboard_page(user_id: str):
                 </div>
             </div>
             
-            <div class="workouts-section">
-                <div class="section-header">
-                    <div class="section-title">📋 כל האימונים</div>
-                    <div class="workout-count">{len(workouts)}</div>
-                </div>
-                {workout_rows if workouts else '<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>אין אימונים עדיין</p><p style="font-size:0.8rem;margin-top:0.5rem;">סיים יעד בשעון והאימון יופיע כאן!</p></div>'}
-            </div>
+            {months_html if months_html else '<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>אין אימונים עדיין</p><p style="font-size:0.8rem;margin-top:0.5rem;color:#888;">סיים יעד בשעון והאימון יופיע כאן!</p></div>'}
             
             <div class="buttons">
                 <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">
@@ -938,8 +919,6 @@ async def dashboard_page(user_id: str):
                         if (response.ok) {{
                             alert('כל האימונים נמחקו!');
                             window.location.reload();
-                        }} else {{
-                            alert('שגיאה במחיקה');
                         }}
                     }} catch (e) {{
                         alert('שגיאה: ' + e.message);
