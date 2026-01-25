@@ -734,12 +734,15 @@ def generate_workout_html(workout, user_id):
     """
 
 @api_router.get("/u/{user_id}", response_class=HTMLResponse)
-async def dashboard_page(user_id: str):
+async def dashboard_page(user_id: str, welcome: str = None):
     """Main page - shows years as folders"""
     workouts = await db.workouts.find(
         {"user_id": user_id},
         {"_id": 0}
     ).sort("timestamp", -1).to_list(500)
+    
+    # Check if this is first visit (show welcome banner)
+    is_first_visit = welcome == "1" or (len(workouts) == 1)
     
     # Group workouts by year
     from collections import defaultdict
@@ -778,7 +781,28 @@ async def dashboard_page(user_id: str):
         </a>
         """
     
-    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}"
+    # Get base URL from environment or use default
+    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    dashboard_url = f"{base_url}/api/u/{user_id}"
+    
+    # Welcome message for WhatsApp
+    welcome_text = f"🎉 שלום! הדשבורד האישי שלי ב-FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 שמור את הלינק הזה בסימניות!"
+    
+    # Welcome banner HTML (shown on first visit)
+    welcome_banner = ""
+    if is_first_visit and workouts:
+        welcome_banner = f"""
+        <div class="welcome-banner" id="welcomeBanner">
+            <div class="welcome-icon">🎉</div>
+            <h2>ברוכים הבאים ל-FitBeat!</h2>
+            <p>זהו הדשבורד האישי שלך</p>
+            <p class="welcome-link">{dashboard_url}</p>
+            <a href="https://wa.me/?text={welcome_text}" target="_blank" class="welcome-btn">
+                📲 שלח לעצמי ב-WhatsApp
+            </a>
+            <button onclick="closeWelcome()" class="welcome-close">הבנתי, תודה!</button>
+        </div>
+        """
     
     return f"""
     <!DOCTYPE html>
