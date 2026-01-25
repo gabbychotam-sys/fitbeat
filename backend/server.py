@@ -93,6 +93,19 @@ async def download_fitbeat_gps():
         )
     return {"error": "File not found"}
 
+@api_router.get("/dl/fb451")
+async def download_fitbeat_new():
+    """Download FitBeat GPS v4.5.1 - fresh endpoint"""
+    file_path = Path("/app/fitbeat_gps_1769350182.zip")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="fitbeat_gps_v4.5.1.zip",
+            media_type="application/zip",
+            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
+        )
+    return {"error": "File not found"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
