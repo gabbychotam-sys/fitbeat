@@ -86,6 +86,18 @@ async def download_fitbeat():
         )
     return {"error": "File not found"}
 
+@api_router.get("/download/server-py")
+async def download_server_py():
+    """Download updated server.py with Leaflet map"""
+    file_path = Path("/app/updated_server.py")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="server.py",
+            media_type="text/x-python"
+        )
+    return {"error": "File not found"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
