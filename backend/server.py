@@ -861,6 +861,7 @@ async def dashboard_page(user_id: str, welcome: str = None):
         </style>
     </head>
     <body>
+        {welcome_banner}
         <div class="container">
             <header>
                 <h1>🏃‍♂️ FitBeat</h1>
