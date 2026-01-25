@@ -686,6 +686,168 @@ async def workout_page(user_id: str):
     )
     return generate_workout_html(workout, user_id)
 
+@app.get("/u/{user_id}/monthly", response_class=HTMLResponse)
+async def monthly_page(user_id: str):
+    """Serve monthly summary HTML page with all workouts"""
+    workouts = await db.workouts.find(
+        {"user_id": user_id},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(100)
+    
+    if not workouts:
+        return f"""
+        <!DOCTYPE html>
+        <html lang="he" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>FitBeat - סיכום חודשי</title>
+            <style>
+                * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; display: flex; align-items: center; justify-content: center; }}
+                .container {{ text-align: center; padding: 2rem; }}
+                h1 {{ color: #00d4ff; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <h1>📅 אין אימונים</h1>
+                <p>מזהה: {user_id}</p>
+            </div>
+        </body>
+        </html>
+        """
+    
+    # Calculate totals
+    total_dist = sum(w.get('distance_cm', 0) for w in workouts)
+    total_time = sum(w.get('duration_sec', 0) for w in workouts)
+    total_steps = sum(w.get('steps', 0) or 0 for w in workouts)
+    avg_hr_list = [w.get('avg_hr') for w in workouts if w.get('avg_hr')]
+    avg_hr = round(sum(avg_hr_list) / len(avg_hr_list)) if avg_hr_list else 0
+    
+    # Format totals
+    total_km = total_dist / 100000
+    total_hrs = total_time // 3600
+    total_mins = (total_time % 3600) // 60
+    time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
+    
+    # Build workout rows
+    workout_rows = ""
+    for w in workouts:
+        dist_km = w.get('distance_cm', 0) / 100000
+        dur_min = w.get('duration_sec', 0) // 60
+        hr = w.get('avg_hr', '--')
+        ts = w.get('timestamp', '')[:10]
+        workout_rows += f"""
+        <div class="workout-row">
+            <div class="workout-icon">🏃</div>
+            <div class="workout-info">
+                <div class="workout-dist">{dist_km:.2f} ק"מ</div>
+                <div class="workout-date">{ts}</div>
+            </div>
+            <div class="workout-stats">
+                <div class="workout-time">{dur_min} דק'</div>
+                <div class="workout-hr">❤️ {hr}</div>
+            </div>
+        </div>
+        """
+    
+    user_name = workouts[0].get('user_name', '') if workouts else ''
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - סיכום חודשי</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 480px; margin: 0 auto; }}
+            header {{ text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
+            h1 {{ color: #00d4ff; font-size: 1.5rem; }}
+            .subtitle {{ color: #888; margin-top: 0.5rem; }}
+            .totals {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; }}
+            .totals-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: center; }}
+            .total-value {{ font-size: 2.5rem; font-weight: bold; color: #00d4ff; }}
+            .total-value.green {{ color: #22c55e; }}
+            .total-label {{ color: #888; font-size: 0.9rem; margin-top: 0.25rem; }}
+            .stats-row {{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.1); }}
+            .stat-item {{ text-align: center; }}
+            .stat-value {{ font-size: 1.1rem; font-weight: bold; }}
+            .stat-label {{ color: #888; font-size: 0.7rem; }}
+            .workouts-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
+            .section-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
+            .workout-row {{ display: flex; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; }}
+            .workout-icon {{ font-size: 1.5rem; margin-left: 0.75rem; }}
+            .workout-info {{ flex: 1; }}
+            .workout-dist {{ font-weight: bold; }}
+            .workout-date {{ color: #888; font-size: 0.75rem; }}
+            .workout-stats {{ text-align: left; }}
+            .workout-time {{ color: #00d4ff; font-weight: bold; }}
+            .workout-hr {{ color: #888; font-size: 0.75rem; }}
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 1.5rem auto; text-decoration: none; }}
+            footer {{ text-align: center; padding: 1rem 0; color: #888; font-size: 0.8rem; }}
+            footer .brand {{ color: #00d4ff; font-weight: bold; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>📅 סיכום חודשי</h1>
+                <p class="subtitle">{user_name}</p>
+            </header>
+            
+            <div class="totals">
+                <div class="totals-grid">
+                    <div>
+                        <div class="total-value">{len(workouts)}</div>
+                        <div class="total-label">אימונים</div>
+                    </div>
+                    <div>
+                        <div class="total-value green">{total_km:.1f}</div>
+                        <div class="total-label">ק"מ סה"כ</div>
+                    </div>
+                </div>
+                <div class="stats-row">
+                    <div class="stat-item">
+                        <div class="stat-value">⏱️</div>
+                        <div class="stat-label">{time_str}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">❤️</div>
+                        <div class="stat-label">{avg_hr} BPM</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">👟</div>
+                        <div class="stat-label">{total_steps:,}</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-value">📍</div>
+                        <div class="stat-label">{total_km/len(workouts):.1f} ק"מ/אימון</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workouts-section">
+                <div class="section-title">🏃 כל האימונים</div>
+                {workout_rows}
+            </div>
+            
+            <a href="https://wa.me/?text=📅 סיכום חודשי%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}/monthly" class="share-btn">
+                📤 שתף ב-WhatsApp
+            </a>
+            
+            <footer>
+                <div class="brand">FitBeat</div>
+                <div>מזהה: {user_id}</div>
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+
 # Include the router in the main app
 app.include_router(api_router)
 
