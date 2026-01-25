@@ -1009,15 +1009,20 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     """
 
 @api_router.get("/u/{user_id}/year/{year}", response_class=HTMLResponse)
-async def year_page(user_id: str, year: str):
+async def year_page(user_id: str, year: str, lang: int = None):
     """Year page - shows months as folders"""
     workouts = await db.workouts.find(
         {"user_id": user_id, "timestamp": {"$regex": f"^{year}"}},
         {"_id": 0}
     ).sort("timestamp", -1).to_list(500)
     
-    month_names = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
-                   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
+    # Get language
+    if lang is None:
+        lang = workouts[0].get('lang', 0) if workouts else 0
+    
+    # RTL support
+    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
     
     from collections import defaultdict
     months_data = defaultdict(list)
@@ -1034,30 +1039,28 @@ async def year_page(user_id: str, year: str):
     avg_hr_list = [w.get('avg_hr') for w in workouts if w.get('avg_hr')]
     avg_hr = round(sum(avg_hr_list) / len(avg_hr_list)) if avg_hr_list else 0
     
-    user_name = workouts[0].get('user_name', '') if workouts else ''
-    
     months_html = ""
     for month in sorted(months_data.keys(), reverse=True):
         month_workouts = months_data[month]
         m_dist = sum(w.get('distance_cm', 0) for w in month_workouts) / 100000
         m_count = len(month_workouts)
-        month_name = month_names[int(month)]
+        month_name = get_month_name(int(month), lang)
         
         months_html += f"""
-        <a href="/api/u/{user_id}/year/{year}/month/{month}" class="folder-row">
+        <a href="/api/u/{user_id}/year/{year}/month/{month}?lang={lang}" class="folder-row">
             <div class="folder-icon">📁</div>
             <div class="folder-info">
                 <div class="folder-name">{month_name}</div>
-                <div class="folder-meta">{m_count} אימונים</div>
+                <div class="folder-meta">{m_count} {t('workouts', lang)}</div>
             </div>
-            <div class="folder-stats">{m_dist:.1f} ק"מ</div>
-            <div class="folder-arrow">←</div>
+            <div class="folder-stats">{m_dist:.1f} {t('km', lang)}</div>
+            <div class="folder-arrow">{'←' if is_rtl(lang) else '→'}</div>
         </a>
         """
     
     return f"""
     <!DOCTYPE html>
-    <html lang="he" dir="rtl">
+    <html lang="{lang_code}" {dir_attr}>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
