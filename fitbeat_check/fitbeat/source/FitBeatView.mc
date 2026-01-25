@@ -223,8 +223,8 @@ class FitBeatView extends WatchUi.View {
         } catch(e) {}
     }
     
-    function _onPosition(info) {
-        if (info == null || info.position == null) {
+    function _onPosition(loc as Position.Info) as Void {
+        if (loc == null || loc.position == null) {
             return;
         }
         if (!mDistGoalActive && !mTimeGoalActive) {
@@ -235,7 +235,7 @@ class FitBeatView extends WatchUi.View {
             return;
         }
         mLastGpsTime = now;
-        var coords = info.position.toDegrees();
+        var coords = loc.position.toDegrees();
         if (coords == null || coords.size() < 2) {
             return;
         }
