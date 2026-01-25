@@ -100,6 +100,22 @@ webpackConfig.devServer = (devServerConfig) => {
     };
   }
 
+  // Serve static zip files
+  const originalSetupMiddlewares2 = devServerConfig.setupMiddlewares;
+  devServerConfig.setupMiddlewares = (middlewares, devServer) => {
+    if (originalSetupMiddlewares2) {
+      middlewares = originalSetupMiddlewares2(middlewares, devServer);
+    }
+    
+    // Serve zip file download
+    devServer.app.get('/download/fitbeat.zip', (req, res) => {
+      const filePath = '/app/fitbeat_final/fitbeat_gps_v451.zip';
+      res.download(filePath, 'fitbeat_gps_v451.zip');
+    });
+    
+    return middlewares;
+  };
+
   return devServerConfig;
 };
 
