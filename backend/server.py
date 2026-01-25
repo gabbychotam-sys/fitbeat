@@ -803,14 +803,16 @@ async def monthly_page(user_id: str):
             .stat-label {{ color: #888; font-size: 0.7rem; }}
             .workouts-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
             .section-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
-            .workout-row {{ display: flex; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; }}
+            .workout-row {{ display: flex; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: background 0.2s; }}
+            .workout-row:hover {{ background: rgba(0,212,255,0.1); }}
             .workout-icon {{ font-size: 1.5rem; margin-left: 0.75rem; }}
             .workout-info {{ flex: 1; }}
             .workout-dist {{ font-weight: bold; }}
             .workout-date {{ color: #888; font-size: 0.75rem; }}
-            .workout-stats {{ text-align: left; }}
+            .workout-stats {{ text-align: left; margin-left: 1rem; }}
             .workout-time {{ color: #00d4ff; font-weight: bold; }}
             .workout-hr {{ color: #888; font-size: 0.75rem; }}
+            .workout-arrow {{ color: #00d4ff; font-size: 1.2rem; margin-right: 0.5rem; }}
             .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 1.5rem auto; text-decoration: none; }}
             footer {{ text-align: center; padding: 1rem 0; color: #888; font-size: 0.8rem; }}
             footer .brand {{ color: #00d4ff; font-weight: bold; }}
