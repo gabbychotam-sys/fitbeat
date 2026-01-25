@@ -864,8 +864,16 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
     dashboard_url = f"{base_url}/api/u/{user_id}"
     
-    # Welcome message for WhatsApp
-    welcome_text = f"🎉 שלום! הדשבורד האישי שלי ב-FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 שמור את הלינק הזה בסימניות!"
+    # Welcome message for WhatsApp (translated)
+    welcome_wa_text = {
+        0: f"🎉 Welcome! My FitBeat dashboard:%0A%0A🔗 {dashboard_url}%0A%0A💾 Save this link!",
+        1: f"🎉 שלום! הדשבורד האישי שלי ב-FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 שמור את הלינק הזה!",
+        2: f"🎉 ¡Hola! Mi panel FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 ¡Guarda este enlace!",
+        3: f"🎉 Bonjour! Mon tableau FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 Sauvegardez ce lien!",
+        4: f"🎉 Hallo! Mein FitBeat Dashboard:%0A%0A🔗 {dashboard_url}%0A%0A💾 Speichere diesen Link!",
+        5: f"🎉 你好！我的FitBeat仪表板:%0A%0A🔗 {dashboard_url}%0A%0A💾 保存此链接!",
+    }
+    welcome_text = welcome_wa_text.get(lang, welcome_wa_text[0])
     
     # Welcome banner HTML (shown on first visit)
     welcome_banner = ""
@@ -873,18 +881,18 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         welcome_banner = f"""
         <div class="welcome-banner" id="welcomeBanner">
             <div class="welcome-icon">🎉</div>
-            <h2>ברוכים הבאים ל-FitBeat!</h2>
-            <p>זהו הדשבורד האישי שלך</p>
+            <h2>{t('welcome_title', lang)}</h2>
+            <p>{t('your_dashboard', lang)}</p>
             <p class="welcome-link">{dashboard_url}</p>
             <a href="https://wa.me/?text={welcome_text}" target="_blank" class="welcome-btn">
-                📲 שלח לעצמי ב-WhatsApp
+                📲 {t('send_whatsapp', lang)}
             </a>
-            <button onclick="closeWelcome()" class="welcome-close">הבנתי, תודה!</button>
+            <button onclick="closeWelcome()" class="welcome-close">{t('got_it', lang)}</button>
         </div>
         """
     
     # Share text for the main share button
-    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ%0A%0A🔗 {dashboard_url}"
+    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_km:.1f} {t('km', lang)}%0A%0A🔗 {dashboard_url}"
     
     return f"""
     <!DOCTYPE html>
