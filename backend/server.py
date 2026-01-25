@@ -841,6 +841,15 @@ async def dashboard_page(user_id: str, welcome: str = None):
             .no-workouts {{ text-align: center; padding: 3rem 1rem; }}
             .no-workouts-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
             
+            .welcome-banner {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 2rem; text-align: center; }}
+            .welcome-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
+            .welcome-banner h2 {{ color: #00d4ff; font-size: 1.8rem; margin-bottom: 0.5rem; }}
+            .welcome-banner p {{ color: #888; margin-bottom: 0.5rem; }}
+            .welcome-link {{ font-family: monospace; color: #00d4ff; font-size: 0.8rem; background: rgba(0,212,255,0.1); padding: 0.5rem 1rem; border-radius: 0.5rem; margin: 1rem 0; word-break: break-all; }}
+            .welcome-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; text-decoration: none; margin: 1rem 0; }}
+            .welcome-close {{ background: transparent; color: #888; border: 1px solid #888; padding: 0.5rem 1.5rem; border-radius: 9999px; cursor: pointer; margin-top: 1rem; }}
+            .welcome-close:hover {{ color: white; border-color: white; }}
+            
             .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }}
             .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
             .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
