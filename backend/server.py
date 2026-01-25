@@ -760,8 +760,9 @@ async def monthly_page(user_id: str):
         dur_min = w.get('duration_sec', 0) // 60
         hr = w.get('avg_hr', '--')
         ts = w.get('timestamp', '')[:10]
+        workout_id = w.get('id', '')
         workout_rows += f"""
-        <div class="workout-row">
+        <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
             <div class="workout-icon">🏃</div>
             <div class="workout-info">
                 <div class="workout-dist">{dist_km:.2f} ק"מ</div>
@@ -771,7 +772,8 @@ async def monthly_page(user_id: str):
                 <div class="workout-time">{dur_min} דק'</div>
                 <div class="workout-hr">❤️ {hr}</div>
             </div>
-        </div>
+            <div class="workout-arrow">←</div>
+        </a>
         """
     
     user_name = workouts[0].get('user_name', '') if workouts else ''
