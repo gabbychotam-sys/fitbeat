@@ -15,6 +15,7 @@ import io
 import tempfile
 import shutil
 import hashlib
+import json
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
@@ -38,6 +39,10 @@ TRANSLATIONS = {
     "hours": ["hours", "שעות", "horas", "heures", "Stunden", "小时"],
     "minutes": ["minutes", "דקות", "minutos", "minutes", "Minuten", "分钟"],
     "avg_hr": ["Avg HR", "דופק ממוצע", "FC Prom", "FC Moy", "Ø HF", "平均心率"],
+    "max_hr": ["Max HR", "דופק מקסימלי", "FC Máx", "FC Max", "Max HF", "最大心率"],
+    "elevation_gain": ["Elevation Gain", "עלייה", "Ascenso", "Dénivelé+", "Anstieg", "爬升"],
+    "elevation_loss": ["Elevation Loss", "ירידה", "Descenso", "Dénivelé-", "Abstieg", "下降"],
+    "cadence": ["Cadence", "קצב צעדים", "Cadencia", "Cadence", "Kadenz", "步频"],
     "steps": ["steps", "צעדים", "pasos", "pas", "Schritte", "步"],
     "pace": ["pace", "קצב", "ritmo", "allure", "Tempo", "配速"],
     "distance": ["Distance", "מרחק", "Distancia", "Distance", "Distanz", "距离"],
@@ -57,6 +62,10 @@ TRANSLATIONS = {
     "and": ["and", "ו-", "y", "et", "und", "和"],
     "total_time": ["Total time", "זמן כולל", "Tiempo total", "Temps total", "Gesamtzeit", "总时间"],
     "per_workout": ["per workout", "לאימון", "por entrenamiento", "par entraînement", "pro Training", "每次训练"],
+    "route": ["Route", "מסלול", "Ruta", "Parcours", "Strecke", "路线"],
+    "no_route": ["No GPS data", "אין נתוני GPS", "Sin datos GPS", "Pas de données GPS", "Keine GPS-Daten", "无GPS数据"],
+    "meters": ["m", "מ'", "m", "m", "m", "米"],
+    "spm": ["spm", "צ'/דק'", "ppm", "ppm", "spm", "步/分"],
 }
 
 # Month names in 6 languages
@@ -177,7 +186,7 @@ def generate_user_id(device_id: str) -> str:
 
 @api_router.get("/")
 async def root():
-    return {"message": "FitBeat API v4.4.0"}
+    return {"message": "FitBeat API v4.5.0"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -246,6 +255,19 @@ async def download_store_assets():
         filename='FitBeat_Store_Assets.zip',
         headers={"Content-Disposition": "attachment; filename=FitBeat_Store_Assets.zip"}
     )
+
+@api_router.get("/download/server-py")
+async def download_server_py():
+    """Download updated server.py with Leaflet map"""
+    file_path = Path("/app/backend/server.py")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="server.py",
+            media_type="text/plain; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=server.py"}
+        )
+    return {"error": "File not found"}
 
 # FitBeat State Management
 @api_router.get("/fitbeat/state")
@@ -591,7 +613,7 @@ async def register_user(data: UserRegister):
 # ═══════════════════════════════════════════════════════════════
 
 def generate_workout_html(workout, user_id, lang=0):
-    """Generate HTML page for workout summary"""
+    """Generate HTML page for workout summary with Leaflet map"""
     # RTL support
     dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
     lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
@@ -649,6 +671,7 @@ def generate_workout_html(workout, user_id, lang=0):
     steps = workout.get('steps', 0) or 0
     cadence = workout.get('cadence', 0) or 0
     workout_id = workout.get('id', '')
+    route = workout.get('route', []) or []
     
     # Format date
     timestamp = workout.get('timestamp', '')
@@ -671,6 +694,88 @@ def generate_workout_html(workout, user_id, lang=0):
         share_text += hr_texts.get(lang, hr_texts[0])
     share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}?lang={lang}"
     
+    # Convert route to JSON for JavaScript
+    route_json = json.dumps([[p['lat'], p['lon']] for p in route]) if route else "[]"
+    has_route = len(route) > 0
+    
+    # Generate map section - Leaflet if route exists, SVG fallback otherwise
+    if has_route:
+        map_section = f'''
+            <div class="map-container">
+                <div id="map"></div>
+                <div class="map-badge">
+                    <span class="value">{dist_km:.2f}</span>
+                    <span class="unit">{t('km', lang)}</span>
+                </div>
+            </div>
+        '''
+    else:
+        map_section = f'''
+            <div class="map">
+                <svg viewBox="0 0 400 200">
+                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff6666" stroke-width="6" stroke-linecap="round" opacity="0.3" style="filter: blur(3px);"/>
+                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff3333" stroke-width="3" stroke-linecap="round" style="filter: drop-shadow(0 0 4px rgba(255,50,50,0.8));"/>
+                    <circle cx="40" cy="160" r="6" fill="#22c55e"/>
+                    <circle cx="40" cy="160" r="3" fill="white"/>
+                    <circle cx="360" cy="60" r="6" fill="#ef4444" style="filter: drop-shadow(0 0 4px rgba(239,68,68,0.8));"/>
+                    <circle cx="360" cy="60" r="3" fill="white"/>
+                </svg>
+                <div class="map-badge">
+                    <span class="value">{dist_km:.2f}</span>
+                    <span class="unit">{t('km', lang)}</span>
+                </div>
+                <div class="no-gps">{t('no_route', lang)}</div>
+            </div>
+        '''
+    
+    # Build extra stats section with all parameters
+    extra_stats_html = ""
+    
+    # Max HR
+    if max_hr:
+        extra_stats_html += f'''
+            <div class="extra-stat">
+                <span class="label">💓 {t('max_hr', lang)}</span>
+                <span class="value" style="color:#ef4444;">{max_hr} BPM</span>
+            </div>
+        '''
+    
+    # Elevation Gain
+    if elevation_gain > 0:
+        extra_stats_html += f'''
+            <div class="extra-stat">
+                <span class="label">📈 {t('elevation_gain', lang)}</span>
+                <span class="value" style="color:#22c55e;">+{elevation_gain:.0f} {t('meters', lang)}</span>
+            </div>
+        '''
+    
+    # Elevation Loss
+    if elevation_loss > 0:
+        extra_stats_html += f'''
+            <div class="extra-stat">
+                <span class="label">📉 {t('elevation_loss', lang)}</span>
+                <span class="value" style="color:#f97316;">-{elevation_loss:.0f} {t('meters', lang)}</span>
+            </div>
+        '''
+    
+    # Cadence
+    if cadence > 0:
+        extra_stats_html += f'''
+            <div class="extra-stat">
+                <span class="label">🦶 {t('cadence', lang)}</span>
+                <span class="value">{cadence} {t('spm', lang)}</span>
+            </div>
+        '''
+    
+    # Steps
+    if steps > 0:
+        extra_stats_html += f'''
+            <div class="extra-stat">
+                <span class="label">👟 {t('steps', lang)}</span>
+                <span class="value">{steps:,}</span>
+            </div>
+        '''
+    
     return f"""
     <!DOCTYPE html>
     <html lang="{lang_code}" {dir_attr}>
@@ -678,6 +783,8 @@ def generate_workout_html(workout, user_id, lang=0):
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>FitBeat - {t('workout', lang)}</title>
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
@@ -686,11 +793,20 @@ def generate_workout_html(workout, user_id, lang=0):
             h1 {{ color: #00d4ff; font-size: 1.5rem; margin-bottom: 0.25rem; }}
             .subtitle {{ color: #888; font-size: 0.9rem; }}
             .user-name {{ font-size: 1.1rem; margin-top: 0.5rem; }}
-            .map {{ background: linear-gradient(135deg, #2d4a2d 0%, #1a2f1a 100%); border-radius: 1rem; height: 200px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }}
-            .map svg {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
-            .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }}
+            
+            /* Leaflet Map Container */
+            .map-container {{ position: relative; border-radius: 1rem; height: 220px; margin-bottom: 1.5rem; overflow: hidden; }}
+            #map {{ width: 100%; height: 100%; border-radius: 1rem; z-index: 1; }}
+            .map-container .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.85); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.2); z-index: 1000; }}
             .map-badge .value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
             .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
+            
+            /* SVG Fallback Map */
+            .map {{ background: linear-gradient(135deg, #2d4a2d 0%, #1a2f1a 100%); border-radius: 1rem; height: 200px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }}
+            .map svg {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
+            .map .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }}
+            .no-gps {{ position: absolute; bottom: 0.75rem; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); padding: 0.25rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; color: #888; }}
+            
             .stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }}
             .stat {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 0.75rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.05); }}
             .stat .icon {{ font-size: 1.25rem; margin-bottom: 0.5rem; }}
@@ -698,6 +814,7 @@ def generate_workout_html(workout, user_id, lang=0):
             .stat .value {{ font-size: 1.5rem; font-weight: bold; }}
             .stat .value.highlight {{ color: #00d4ff; }}
             .stat .unit {{ font-size: 0.8rem; color: #888; margin-right: 0.25rem; }}
+            
             .section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05); }}
             .section-title {{ color: #888; font-size: 0.8rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }}
             .hr-stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }}
@@ -705,12 +822,14 @@ def generate_workout_html(workout, user_id, lang=0):
             .hr-stat .label {{ color: #888; font-size: 0.7rem; }}
             .hr-stat .value {{ color: #ef4444; font-size: 1.25rem; font-weight: bold; }}
             .hr-stat .value span {{ font-size: 0.7rem; color: #888; }}
+            
             .extra-stats {{ display: flex; flex-direction: column; }}
             .extra-stat {{ display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }}
             .extra-stat:last-child {{ border-bottom: none; }}
             .extra-stat .label {{ color: #888; display: flex; align-items: center; gap: 0.5rem; }}
             .extra-stat .value {{ font-weight: bold; }}
-            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 2rem auto; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }}
+            
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 2rem auto; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); text-decoration: none; }}
             .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }}
             .share-btn svg {{ width: 1.5rem; height: 1.5rem; }}
             .share-hint {{ text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 1rem; }}
@@ -729,20 +848,7 @@ def generate_workout_html(workout, user_id, lang=0):
                 {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
             </header>
             
-            <div class="map">
-                <svg viewBox="0 0 400 200">
-                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff6666" stroke-width="6" stroke-linecap="round" opacity="0.3" style="filter: blur(3px);"/>
-                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff3333" stroke-width="3" stroke-linecap="round" style="filter: drop-shadow(0 0 4px rgba(255,50,50,0.8));"/>
-                    <circle cx="40" cy="160" r="6" fill="#22c55e"/>
-                    <circle cx="40" cy="160" r="3" fill="white"/>
-                    <circle cx="360" cy="60" r="6" fill="#ef4444" style="filter: drop-shadow(0 0 4px rgba(239,68,68,0.8));"/>
-                    <circle cx="360" cy="60" r="3" fill="white"/>
-                </svg>
-                <div class="map-badge">
-                    <span class="value">{dist_km:.2f}</span>
-                    <span class="unit">{t('km', lang)}</span>
-                </div>
-            </div>
+            {map_section}
             
             <div class="stats">
                 <div class="stat">
@@ -760,18 +866,14 @@ def generate_workout_html(workout, user_id, lang=0):
                     <div class="label">{t('pace', lang)}</div>
                     <div class="value">{pace_str}<span class="unit">/{t('km', lang)}</span></div>
                 </div>
+                {'<div class="stat"><div class="icon">❤️</div><div class="label">' + t("avg_hr", lang) + '</div><div class="value" style="color:#ef4444;">' + str(avg_hr) + '<span class="unit">BPM</span></div></div>' if avg_hr else ''}
             </div>
             
-            {'<div class="section"><div class="section-title">❤️ ' + t("avg_hr", lang) + '</div><div class="hr-stats"><div class="hr-stat"><div class="label">' + str(avg_hr) + '</div><div class="value">BPM</div></div></div></div>' if avg_hr else ''}
+            {f'<div class="section"><div class="section-title">📊 {t("workout", lang)}</div><div class="extra-stats">{extra_stats_html}</div></div>' if extra_stats_html else ''}
             
-            <div class="section">
-                {'<div class="extra-stat"><span class="label">👟 ' + t("steps", lang) + '</span><span class="value">' + f'{steps:,}' + '</span></div>' if steps else ''}
-            
-            <a href="https://wa.me/?text={share_text}" target="_blank" style="text-decoration: none;">
-                <button class="share-btn">
-                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                    {t('share_whatsapp', lang)}
-                </button>
+            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                {t('share_whatsapp', lang)}
             </a>
             
             <button onclick="deleteWorkout()" class="delete-btn">🗑️ {t('delete_workout', lang)}</button>
@@ -784,6 +886,52 @@ def generate_workout_html(workout, user_id, lang=0):
         </div>
         
         <script>
+            // Initialize Leaflet map if route data exists
+            const routeData = {route_json};
+            if (routeData.length > 0) {{
+                const map = L.map('map', {{
+                    zoomControl: true,
+                    attributionControl: false
+                }});
+                
+                // Add OpenStreetMap tiles
+                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    maxZoom: 19
+                }}).addTo(map);
+                
+                // Create polyline from route
+                const polyline = L.polyline(routeData, {{
+                    color: '#ff3333',
+                    weight: 4,
+                    opacity: 0.9,
+                    lineCap: 'round',
+                    lineJoin: 'round'
+                }}).addTo(map);
+                
+                // Add start marker (green)
+                const startIcon = L.divIcon({{
+                    html: '<div style="background:#22c55e;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+                    className: '',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                }});
+                L.marker(routeData[0], {{icon: startIcon}}).addTo(map);
+                
+                // Add end marker (red)
+                const endIcon = L.divIcon({{
+                    html: '<div style="background:#ef4444;width:16px;height:16px;border-radius:50%;border:3px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);"></div>',
+                    className: '',
+                    iconSize: [16, 16],
+                    iconAnchor: [8, 8]
+                }});
+                L.marker(routeData[routeData.length - 1], {{icon: endIcon}}).addTo(map);
+                
+                // Fit map to route bounds with padding
+                map.fitBounds(polyline.getBounds(), {{
+                    padding: [30, 30]
+                }});
+            }}
+            
             async function deleteWorkout() {{
                 if (confirm('{t("confirm_delete", lang)}')) {{
                     try {{
