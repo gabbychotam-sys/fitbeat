@@ -1087,11 +1087,11 @@ async def year_page(user_id: str, year: str, lang: int = None):
             
             .folder-row {{ display: flex; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: all 0.2s; }}
             .folder-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
-            .folder-icon {{ font-size: 1.75rem; margin-left: 0.75rem; }}
+            .folder-icon {{ font-size: 1.75rem; {"margin-left" if is_rtl(lang) else "margin-right"}: 0.75rem; }}
             .folder-info {{ flex: 1; }}
             .folder-name {{ font-weight: bold; font-size: 1.1rem; }}
             .folder-meta {{ color: #888; font-size: 0.8rem; }}
-            .folder-stats {{ color: #22c55e; font-weight: bold; margin-left: 0.75rem; }}
+            .folder-stats {{ color: #22c55e; font-weight: bold; {"margin-left" if is_rtl(lang) else "margin-right"}: 0.75rem; }}
             .folder-arrow {{ color: #00d4ff; font-size: 1.25rem; }}
             
             footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
@@ -1099,36 +1099,35 @@ async def year_page(user_id: str, year: str, lang: int = None):
     </head>
     <body>
         <div class="container">
-            <a href="/api/u/{user_id}" class="back">→ חזרה</a>
+            <a href="/api/u/{user_id}?lang={lang}" class="back">{'→' if is_rtl(lang) else '←'} {t('back', lang)}</a>
             <header>
                 <h1>📁 {year}</h1>
-                <p class="subtitle">{len(workouts)} אימונים</p>
+                <p class="subtitle">{len(workouts)} {t('workouts', lang)}</p>
             </header>
             
             <div class="summary">
-                <div class="summary-title">📊 סיכום {year}</div>
+                <div class="summary-title">📊 {t('yearly_summary', lang)} {year}</div>
                 <div class="summary-row">
                     <div class="summary-item">
                         <div class="summary-value">{len(workouts)}</div>
-                        <div class="summary-label">אימונים</div>
+                        <div class="summary-label">{t('workouts', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value green">{total_dist:.1f}</div>
-                        <div class="summary-label">ק"מ</div>
+                        <div class="summary-label">{t('km', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value">{time_str}</div>
-                        <div class="summary-label">שעות</div>
+                        <div class="summary-label">{t('hours', lang)}</div>
                     </div>
                     <div class="summary-item">
                         <div class="summary-value" style="color:#ef4444;">{avg_hr}</div>
-                        <div class="summary-label">דופק</div>
+                        <div class="summary-label">{t('avg_hr', lang)}</div>
                     </div>
                 </div>
             </div>
             
             <div class="folders">
-                <div class="folders-title">📁 חודשים</div>
                 {months_html}
             </div>
             
