@@ -10,13 +10,15 @@ using Toybox.Time;
 using Toybox.Time.Gregorian;
 using Toybox.Communications;
 using Toybox.Lang;
+using Toybox.Position;
 
 // ╔════════════════════════════════════════════════════════════╗
-// ║  MAIN VIEW - FitBeat v4.4.0 - WORKOUT SHARING              ║
+// ║  MAIN VIEW - FitBeat v4.5.0 - GPS TRACKING ADDED!          ║
 // ║  Displays: Time, Distance, Time Goal, Heart Rate          ║
 // ║  ALL POSITIONS IN PERCENTAGES!                            ║
 // ║  SEPARATE GOALS: Distance & Time work INDEPENDENTLY!      ║
 // ║  AUTO-SEND to server when goal is completed!              ║
+// ║  GPS ROUTE tracking for map display!                      ║
 // ╚════════════════════════════════════════════════════════════╝
 
 // Server URL for workout data
@@ -50,6 +52,11 @@ class FitBeatView extends WatchUi.View {
     // ═══ SMART TIMER - Track movement for 5-minute stop detection ═══
     var mLastMovementTime = 0;      // Time of last detected movement
     var mLastStepsForMovement = 0;  // Steps count at last check
+    
+    // ═══ GPS TRACKING ═══
+    var mGpsRoute = [];
+    var mLastGpsTime = 0;
+    const GPS_INTERVAL_SEC = 5;
     
     // ═══ SEPARATE ALERTS FOR EACH GOAL! ═══
     var mDistHalfwayShown = false;
@@ -201,6 +208,49 @@ class FitBeatView extends WatchUi.View {
         Application.Storage.setValue("hrMode", mode);
     }
     
+    // ═══ GPS FUNCTIONS ═══
+    function _initGps() {
+        try {
+            Position.enableLocationEvents(Position.LOCATION_CONTINUOUS, method(:_onPosition));
+        } catch(e) {
+            System.println("GPS init failed: " + e.getErrorMessage());
+        }
+    }
+    
+    function _stopGps() {
+        try {
+            Position.enableLocationEvents(Position.LOCATION_DISABLE, method(:_onPosition));
+        } catch(e) {}
+    }
+    
+    function _onPosition(info as Position.Info) as Void {
+        if (info == null || info.position == null) {
+            return;
+        }
+        if (!mDistGoalActive && !mTimeGoalActive) {
+            return;
+        }
+        var now = System.getTimer() / 1000;
+        if (now - mLastGpsTime < GPS_INTERVAL_SEC) {
+            return;
+        }
+        mLastGpsTime = now;
+        var coords = info.position.toDegrees();
+        if (coords == null || coords.size() < 2) {
+            return;
+        }
+        var lat = coords[0];
+        var lon = coords[1];
+        if (mGpsRoute.size() < 500) {
+            mGpsRoute.add({"lat" => lat, "lon" => lon});
+        }
+    }
+    
+    function _clearGpsRoute() {
+        mGpsRoute = [];
+        mLastGpsTime = 0;
+    }
+    
     // ═══ START DISTANCE GOAL - Does NOT reset time! ═══
     function startDistanceGoal() {
         // Reset distance baseline to current values
@@ -231,6 +281,8 @@ class FitBeatView extends WatchUi.View {
         }
         
         _saveState();
+        _clearGpsRoute();
+        _initGps();
         WatchUi.requestUpdate();
     }
     
@@ -255,6 +307,8 @@ class FitBeatView extends WatchUi.View {
         Application.Storage.setValue("distGoalShown", false);
         Application.Storage.setValue("elapsedWalkSec", 0);
         
+        _stopGps();
+        _clearGpsRoute();
         WatchUi.requestUpdate();
     }
     
@@ -287,6 +341,8 @@ class FitBeatView extends WatchUi.View {
         mTimeGoalShown = false;
         _calculateHrTarget();
         _saveState();
+        _clearGpsRoute();
+        _initGps();
         WatchUi.requestUpdate();
     }
     
@@ -303,6 +359,8 @@ class FitBeatView extends WatchUi.View {
         Application.Storage.setValue("timeHalfwayShown", false);
         Application.Storage.setValue("timeGoalShown", false);
         
+        _stopGps();
+        _clearGpsRoute();
         WatchUi.requestUpdate();
     }
     
@@ -339,7 +397,8 @@ class FitBeatView extends WatchUi.View {
             "avg_hr" => avgHr,
             "max_hr" => mMaxHR,
             "steps" => steps,
-            "cadence" => null
+            "cadence" => null,
+            "route" => mGpsRoute
         };
         
         // Send to server
@@ -357,6 +416,9 @@ class FitBeatView extends WatchUi.View {
             options,
             method(:_onWorkoutSent)
         );
+        
+        _stopGps();
+        _clearGpsRoute();
     }
     
     // Callback when workout is sent
@@ -742,7 +804,7 @@ class FitBeatView extends WatchUi.View {
         var name = _getUserName();
         var nameLine = name != "" ? (name + ",") : "";
         
-        // 50% alert (🎈 balloons) - 3 lines: Name, Keep going, Halfway message
+        // 50% alert (balloons) - 3 lines: Name, Keep going, Halfway message
         if (!mDistHalfwayShown && goalCm > 0) {
             var halfway = goalCm / 2;
             if (distCm >= halfway && distCm < goalCm) {
@@ -752,7 +814,7 @@ class FitBeatView extends WatchUi.View {
             }
         }
         
-        // Goal alert (★ stars) - 3 lines: Name, Great job, Goal completed
+        // Goal alert (stars) - 3 lines: Name, Great job, Goal completed
         if (!mDistGoalShown && goalCm > 0) {
             if (distCm >= goalCm) {
                 _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang], "goal");
@@ -775,7 +837,7 @@ class FitBeatView extends WatchUi.View {
         var name = _getUserName();
         var nameLine = name != "" ? (name + ",") : "";
 
-        // 50% alert (🎈 balloons) - 3 lines: Name, Keep going, Halfway message
+        // 50% alert (balloons) - 3 lines: Name, Keep going, Halfway message
         if (!mTimeHalfwayShown) {
             var halfway = goalSec / 2;
             if (mElapsedWalkSec >= halfway && mElapsedWalkSec < goalSec) {
@@ -785,7 +847,7 @@ class FitBeatView extends WatchUi.View {
             }
         }
 
-        // Goal alert (★ stars) - 3 lines: Name, Great job, Goal completed - RESETS time after goal!
+        // Goal alert (stars) - 3 lines: Name, Great job, Goal completed - RESETS time after goal!
         if (!mTimeGoalShown) {
             if (mElapsedWalkSec >= goalSec) {
                 _showFullScreenAlert(nameLine, TR_GOAL_DONE_LINE1[lang], TR_GOAL_DONE_LINE2[lang], "goal");
@@ -956,7 +1018,6 @@ class FitBeatView extends WatchUi.View {
             timeFrac = _clamp01((mElapsedWalkSec * 1.0) / goalSec);
         } else if (mDistGoalActive) {
             // If no time goal but distance goal is active, use distance progress for both bars
-            // goalCm is already defined above at line 819
             timeFrac = goalCm > 0 ? _clamp01((mDistanceCm * 1.0) / goalCm) : 0.0;
         } else {
             timeFrac = 0.0;
