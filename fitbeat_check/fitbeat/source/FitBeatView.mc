@@ -223,7 +223,7 @@ class FitBeatView extends WatchUi.View {
         } catch(e) {}
     }
     
-    function _onPosition(info as Position.Info) as Void {
+    function _onPosition(info) {
         if (info == null || info.position == null) {
             return;
         }
