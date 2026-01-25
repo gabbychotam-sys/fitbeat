@@ -19,6 +19,72 @@ import hashlib
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
 
+# ═══════════════════════════════════════════════════════════════
+# TRANSLATIONS - 6 LANGUAGES (matching watch app)
+# 0=English, 1=Hebrew, 2=Spanish, 3=French, 4=German, 5=Chinese
+# ═══════════════════════════════════════════════════════════════
+TRANSLATIONS = {
+    "welcome_title": ["Welcome to FitBeat!", "ברוכים הבאים ל-FitBeat!", "¡Bienvenido a FitBeat!", "Bienvenue sur FitBeat!", "Willkommen bei FitBeat!", "欢迎使用FitBeat!"],
+    "your_dashboard": ["This is your personal dashboard", "זהו הדשבורד האישי שלך", "Este es tu panel personal", "Voici votre tableau de bord", "Dies ist dein persönliches Dashboard", "这是您的个人仪表板"],
+    "send_whatsapp": ["Send to myself via WhatsApp", "שלח לעצמי ב-WhatsApp", "Enviarme por WhatsApp", "M'envoyer via WhatsApp", "Per WhatsApp senden", "通过WhatsApp发送给自己"],
+    "got_it": ["Got it, thanks!", "הבנתי, תודה!", "¡Entendido, gracias!", "Compris, merci!", "Verstanden, danke!", "明白了，谢谢！"],
+    "total_summary": ["Total Summary", "סיכום כולל", "Resumen Total", "Résumé Total", "Gesamtübersicht", "总结"],
+    "yearly_summary": ["Yearly Summary", "סיכום שנתי", "Resumen Anual", "Résumé Annuel", "Jahresübersicht", "年度总结"],
+    "monthly_summary": ["Monthly Summary", "סיכום חודשי", "Resumen Mensual", "Résumé Mensuel", "Monatsübersicht", "月度总结"],
+    "workouts": ["workouts", "אימונים", "entrenamientos", "entraînements", "Trainings", "训练"],
+    "workout": ["Workout", "אימון", "Entrenamiento", "Entraînement", "Training", "训练"],
+    "km": ["km", "ק\"מ", "km", "km", "km", "公里"],
+    "km_total": ["km total", "ק\"מ סה\"כ", "km total", "km total", "km gesamt", "公里总计"],
+    "hours": ["hours", "שעות", "horas", "heures", "Stunden", "小时"],
+    "minutes": ["minutes", "דקות", "minutos", "minutes", "Minuten", "分钟"],
+    "avg_hr": ["Avg HR", "דופק ממוצע", "FC Prom", "FC Moy", "Ø HF", "平均心率"],
+    "steps": ["steps", "צעדים", "pasos", "pas", "Schritte", "步"],
+    "pace": ["pace", "קצב", "ritmo", "allure", "Tempo", "配速"],
+    "distance": ["Distance", "מרחק", "Distancia", "Distance", "Distanz", "距离"],
+    "duration": ["Duration", "משך", "Duración", "Durée", "Dauer", "时长"],
+    "share_whatsapp": ["Share on WhatsApp", "שתף ב-WhatsApp", "Compartir en WhatsApp", "Partager sur WhatsApp", "Auf WhatsApp teilen", "分享到WhatsApp"],
+    "delete_workout": ["Delete workout", "מחק אימון", "Eliminar entrenamiento", "Supprimer l'entraînement", "Training löschen", "删除训练"],
+    "delete_all": ["Delete all", "מחק הכל", "Eliminar todo", "Tout supprimer", "Alles löschen", "删除全部"],
+    "confirm_delete": ["Delete this workout?", "למחוק את האימון הזה?", "¿Eliminar este entrenamiento?", "Supprimer cet entraînement?", "Dieses Training löschen?", "删除这个训练？"],
+    "confirm_delete_all": ["Delete all workouts?", "למחוק את כל האימונים?", "¿Eliminar todos los entrenamientos?", "Supprimer tous les entraînements?", "Alle Trainings löschen?", "删除所有训练？"],
+    "no_workouts": ["No workouts yet", "אין אימונים עדיין", "Sin entrenamientos aún", "Pas encore d'entraînements", "Noch keine Trainings", "还没有训练"],
+    "finish_goal": ["Finish a goal on your watch and it will appear here!", "סיים יעד בשעון והאימון יופיע כאן!", "¡Completa una meta en tu reloj y aparecerá aquí!", "Terminez un objectif sur votre montre et il apparaîtra ici!", "Schließe ein Ziel auf deiner Uhr ab und es erscheint hier!", "在手表上完成目标，它将显示在这里！"],
+    "by_years": ["By Years", "לפי שנים", "Por Años", "Par Années", "Nach Jahren", "按年份"],
+    "all_workouts": ["All Workouts", "כל האימונים", "Todos los Entrenamientos", "Tous les Entraînements", "Alle Trainings", "所有训练"],
+    "back": ["Back", "חזור", "Volver", "Retour", "Zurück", "返回"],
+    "user_id": ["ID", "מזהה", "ID", "ID", "ID", "ID"],
+    "powered_by": ["Powered by Garmin Fenix 8 Solar", "Powered by Garmin Fenix 8 Solar", "Powered by Garmin Fenix 8 Solar", "Powered by Garmin Fenix 8 Solar", "Powered by Garmin Fenix 8 Solar", "Powered by Garmin Fenix 8 Solar"],
+    "and": ["and", "ו-", "y", "et", "und", "和"],
+    "total_time": ["Total time", "זמן כולל", "Tiempo total", "Temps total", "Gesamtzeit", "总时间"],
+    "per_workout": ["per workout", "לאימון", "por entrenamiento", "par entraînement", "pro Training", "每次训练"],
+}
+
+# Month names in 6 languages
+MONTH_NAMES = {
+    0: ["", "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+    1: ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"],
+    2: ["", "Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"],
+    3: ["", "Janvier", "Février", "Mars", "Avril", "Mai", "Juin", "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"],
+    4: ["", "Januar", "Februar", "März", "April", "Mai", "Juni", "Juli", "August", "September", "Oktober", "November", "Dezember"],
+    5: ["", "一月", "二月", "三月", "四月", "五月", "六月", "七月", "八月", "九月", "十月", "十一月", "十二月"],
+}
+
+def t(key, lang=0):
+    """Get translation for key in specified language"""
+    if key in TRANSLATIONS:
+        return TRANSLATIONS[key][lang] if lang < len(TRANSLATIONS[key]) else TRANSLATIONS[key][0]
+    return key
+
+def get_month_name(month_num, lang=0):
+    """Get month name in specified language"""
+    if lang in MONTH_NAMES and month_num < len(MONTH_NAMES[lang]):
+        return MONTH_NAMES[lang][month_num]
+    return MONTH_NAMES[0][month_num]
+
+def is_rtl(lang):
+    """Check if language is right-to-left"""
+    return lang == 1  # Hebrew
+
 # MongoDB connection
 mongo_url = os.environ['MONGO_URL']
 client = AsyncIOMotorClient(mongo_url)
