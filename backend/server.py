@@ -724,9 +724,9 @@ def generate_workout_html(workout, user_id, lang=0):
     <body>
         <div class="container">
             <header>
-                <h1>🏃‍♂️ סיכום אימון</h1>
+                <h1>🏃‍♂️ {t('workout', lang)}</h1>
                 <p class="subtitle">{timestamp[:10] if timestamp else ''}</p>
-                {'<p class="user-name">' + user_name + ' סיים אימון!</p>' if user_name else ''}
+                {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
             </header>
             
             <div class="map">
@@ -740,44 +740,32 @@ def generate_workout_html(workout, user_id, lang=0):
                 </svg>
                 <div class="map-badge">
                     <span class="value">{dist_km:.2f}</span>
-                    <span class="unit">ק"מ</span>
+                    <span class="unit">{t('km', lang)}</span>
                 </div>
             </div>
             
             <div class="stats">
                 <div class="stat">
                     <div class="icon">📍</div>
-                    <div class="label">מרחק</div>
-                    <div class="value highlight">{dist_km:.2f}<span class="unit">ק"מ</span></div>
+                    <div class="label">{t('distance', lang)}</div>
+                    <div class="value highlight">{dist_km:.2f}<span class="unit">{t('km', lang)}</span></div>
                 </div>
                 <div class="stat">
                     <div class="icon">⏱️</div>
-                    <div class="label">זמן</div>
+                    <div class="label">{t('duration', lang)}</div>
                     <div class="value">{duration_str}</div>
                 </div>
                 <div class="stat">
                     <div class="icon">⚡</div>
-                    <div class="label">קצב ממוצע</div>
-                    <div class="value">{pace_str}<span class="unit">/ק"מ</span></div>
-                </div>
-                <div class="stat">
-                    <div class="icon">🚀</div>
-                    <div class="label">קצב מקסימלי</div>
-                    <div class="value">{pace_str}<span class="unit">/ק"מ</span></div>
+                    <div class="label">{t('pace', lang)}</div>
+                    <div class="value">{pace_str}<span class="unit">/{t('km', lang)}</span></div>
                 </div>
             </div>
             
-            {'<div class="section"><div class="section-title">⛰️ פרופיל גובה</div><div class="hr-stats"><div class="hr-stat"><div class="label">עלייה</div><div class="value" style="color:#22c55e;">+' + str(int(elevation_gain)) + ' מ׳</div></div><div class="hr-stat"><div class="label">ירידה</div><div class="value" style="color:#ef4444;">-' + str(int(elevation_loss)) + ' מ׳</div></div></div></div>' if elevation_gain or elevation_loss else ''}
-            
-            {'<div class="section"><div class="section-title">❤️ דופק</div><div class="hr-stats"><div class="hr-stat"><div class="label">ממוצע</div><div class="value">' + str(avg_hr) + ' <span>BPM</span></div></div><div class="hr-stat"><div class="label">מקסימום</div><div class="value">' + str(max_hr) + ' <span>BPM</span></div></div></div></div>' if avg_hr else ''}
+            {'<div class="section"><div class="section-title">❤️ ' + t("avg_hr", lang) + '</div><div class="hr-stats"><div class="hr-stat"><div class="label">' + str(avg_hr) + '</div><div class="value">BPM</div></div></div></div>' if avg_hr else ''}
             
             <div class="section">
-                <div class="section-title">📊 נתונים נוספים</div>
-                <div class="extra-stats">
-                    {'<div class="extra-stat"><span class="label">👟 צעדים</span><span class="value">' + f'{steps:,}' + '</span></div>' if steps else ''}
-                    {'<div class="extra-stat"><span class="label">🦶 קדנס ממוצע</span><span class="value">' + str(cadence) + ' spm</span></div>' if cadence else ''}
-                </div>
-            </div>
+                {'<div class="extra-stat"><span class="label">👟 ' + t("steps", lang) + '</span><span class="value">' + f'{steps:,}' + '</span></div>' if steps else ''}
             
             <a href="https://wa.me/?text={share_text}" target="_blank" style="text-decoration: none;">
                 <button class="share-btn">
