@@ -581,6 +581,9 @@ def generate_workout_html(workout, user_id):
     # Format date
     timestamp = workout.get('timestamp', '')
     
+    # Get base URL
+    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    
     # WhatsApp share text
     share_text = f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str} /ק״מ"
     if avg_hr:
