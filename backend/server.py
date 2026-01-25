@@ -471,6 +471,208 @@ async def register_user(data: UserRegister):
     
     return {"user_id": user_id}
 
+# ═══════════════════════════════════════════════════════════════
+# HTML PAGES - Workout Summary Pages
+# ═══════════════════════════════════════════════════════════════
+
+def generate_workout_html(workout, user_id):
+    """Generate HTML page for workout summary"""
+    if not workout:
+        return f"""
+        <!DOCTYPE html>
+        <html lang="he" dir="rtl">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>FitBeat - לא נמצאו אימונים</title>
+            <style>
+                * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+                body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; display: flex; align-items: center; justify-content: center; }}
+                .container {{ text-align: center; padding: 2rem; }}
+                .icon {{ font-size: 4rem; margin-bottom: 1rem; }}
+                h1 {{ color: #00d4ff; margin-bottom: 0.5rem; }}
+                p {{ color: #888; }}
+                .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 1rem; font-size: 0.8rem; }}
+            </style>
+        </head>
+        <body>
+            <div class="container">
+                <div class="icon">🏃‍♂️</div>
+                <h1>FitBeat</h1>
+                <p>לא נמצאו אימונים עבור משתמש זה</p>
+                <p class="user-id">מזהה: {user_id}</p>
+            </div>
+        </body>
+        </html>
+        """
+    
+    dist_km = workout['distance_cm'] / 100000
+    duration_sec = workout['duration_sec']
+    hrs = duration_sec // 3600
+    mins = (duration_sec % 3600) // 60
+    secs = duration_sec % 60
+    duration_str = f"{hrs}:{mins:02d}:{secs:02d}" if hrs > 0 else f"{mins}:{secs:02d}"
+    
+    # Calculate pace
+    if dist_km > 0:
+        pace_sec = duration_sec / dist_km
+        pace_min = int(pace_sec // 60)
+        pace_s = int(pace_sec % 60)
+        pace_str = f"{pace_min}:{pace_s:02d}"
+    else:
+        pace_str = "--:--"
+    
+    user_name = workout.get('user_name', '')
+    avg_hr = workout.get('avg_hr', '')
+    max_hr = workout.get('max_hr', '')
+    elevation_gain = workout.get('elevation_gain', 0) or 0
+    elevation_loss = workout.get('elevation_loss', 0) or 0
+    steps = workout.get('steps', 0) or 0
+    cadence = workout.get('cadence', 0) or 0
+    
+    # Format date
+    timestamp = workout.get('timestamp', '')
+    
+    # WhatsApp share text
+    share_text = f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str} /ק״מ"
+    if avg_hr:
+        share_text += f"%0A❤️ דופק: {avg_hr} BPM"
+    share_text += f"%0A%0A🔗 צפה בסיכום:%0Ahttps://web-production-110fc.up.railway.app/u/{user_id}"
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - סיכום אימון</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 480px; margin: 0 auto; }}
+            header {{ text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
+            h1 {{ color: #00d4ff; font-size: 1.5rem; margin-bottom: 0.25rem; }}
+            .subtitle {{ color: #888; font-size: 0.9rem; }}
+            .user-name {{ font-size: 1.1rem; margin-top: 0.5rem; }}
+            .map {{ background: linear-gradient(135deg, #2d4a2d 0%, #1a2f1a 100%); border-radius: 1rem; height: 200px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }}
+            .map svg {{ position: absolute; inset: 0; width: 100%; height: 100%; }}
+            .map-badge {{ position: absolute; top: 0.75rem; left: 0.75rem; background: rgba(0,0,0,0.8); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.1); }}
+            .map-badge .value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
+            .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
+            .stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1.5rem; }}
+            .stat {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 0.75rem; padding: 1rem; border: 1px solid rgba(255,255,255,0.05); }}
+            .stat .icon {{ font-size: 1.25rem; margin-bottom: 0.5rem; }}
+            .stat .label {{ color: #888; font-size: 0.75rem; margin-bottom: 0.25rem; }}
+            .stat .value {{ font-size: 1.5rem; font-weight: bold; }}
+            .stat .value.highlight {{ color: #00d4ff; }}
+            .stat .unit {{ font-size: 0.8rem; color: #888; margin-right: 0.25rem; }}
+            .section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 0.75rem; padding: 1rem; margin-bottom: 1rem; border: 1px solid rgba(255,255,255,0.05); }}
+            .section-title {{ color: #888; font-size: 0.8rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }}
+            .hr-stats {{ display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; }}
+            .hr-stat {{ background: rgba(0,0,0,0.2); border-radius: 0.5rem; padding: 0.75rem; text-align: center; }}
+            .hr-stat .label {{ color: #888; font-size: 0.7rem; }}
+            .hr-stat .value {{ color: #ef4444; font-size: 1.25rem; font-weight: bold; }}
+            .hr-stat .value span {{ font-size: 0.7rem; color: #888; }}
+            .extra-stats {{ display: flex; flex-direction: column; }}
+            .extra-stat {{ display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); }}
+            .extra-stat:last-child {{ border-bottom: none; }}
+            .extra-stat .label {{ color: #888; display: flex; align-items: center; gap: 0.5rem; }}
+            .extra-stat .value {{ font-weight: bold; }}
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 2rem auto; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }}
+            .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }}
+            .share-btn svg {{ width: 1.5rem; height: 1.5rem; }}
+            .share-hint {{ text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 1rem; }}
+            footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
+            footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1rem; }}
+            footer .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 0.5rem; font-size: 0.7rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>🏃‍♂️ סיכום אימון</h1>
+                <p class="subtitle">{timestamp[:10] if timestamp else ''}</p>
+                {'<p class="user-name">' + user_name + ' סיים אימון!</p>' if user_name else ''}
+            </header>
+            
+            <div class="map">
+                <svg viewBox="0 0 400 200">
+                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff6666" stroke-width="6" stroke-linecap="round" opacity="0.3" style="filter: blur(3px);"/>
+                    <path d="M 40,160 Q 80,140 120,120 T 200,100 T 280,80 T 360,60" fill="none" stroke="#ff3333" stroke-width="3" stroke-linecap="round" style="filter: drop-shadow(0 0 4px rgba(255,50,50,0.8));"/>
+                    <circle cx="40" cy="160" r="6" fill="#22c55e"/>
+                    <circle cx="40" cy="160" r="3" fill="white"/>
+                    <circle cx="360" cy="60" r="6" fill="#ef4444" style="filter: drop-shadow(0 0 4px rgba(239,68,68,0.8));"/>
+                    <circle cx="360" cy="60" r="3" fill="white"/>
+                </svg>
+                <div class="map-badge">
+                    <span class="value">{dist_km:.2f}</span>
+                    <span class="unit">ק"מ</span>
+                </div>
+            </div>
+            
+            <div class="stats">
+                <div class="stat">
+                    <div class="icon">📍</div>
+                    <div class="label">מרחק</div>
+                    <div class="value highlight">{dist_km:.2f}<span class="unit">ק"מ</span></div>
+                </div>
+                <div class="stat">
+                    <div class="icon">⏱️</div>
+                    <div class="label">זמן</div>
+                    <div class="value">{duration_str}</div>
+                </div>
+                <div class="stat">
+                    <div class="icon">⚡</div>
+                    <div class="label">קצב ממוצע</div>
+                    <div class="value">{pace_str}<span class="unit">/ק"מ</span></div>
+                </div>
+                <div class="stat">
+                    <div class="icon">🚀</div>
+                    <div class="label">קצב מקסימלי</div>
+                    <div class="value">{pace_str}<span class="unit">/ק"מ</span></div>
+                </div>
+            </div>
+            
+            {'<div class="section"><div class="section-title">⛰️ פרופיל גובה</div><div class="hr-stats"><div class="hr-stat"><div class="label">עלייה</div><div class="value" style="color:#22c55e;">+' + str(int(elevation_gain)) + ' מ׳</div></div><div class="hr-stat"><div class="label">ירידה</div><div class="value" style="color:#ef4444;">-' + str(int(elevation_loss)) + ' מ׳</div></div></div></div>' if elevation_gain or elevation_loss else ''}
+            
+            {'<div class="section"><div class="section-title">❤️ דופק</div><div class="hr-stats"><div class="hr-stat"><div class="label">ממוצע</div><div class="value">' + str(avg_hr) + ' <span>BPM</span></div></div><div class="hr-stat"><div class="label">מקסימום</div><div class="value">' + str(max_hr) + ' <span>BPM</span></div></div></div></div>' if avg_hr else ''}
+            
+            <div class="section">
+                <div class="section-title">📊 נתונים נוספים</div>
+                <div class="extra-stats">
+                    {'<div class="extra-stat"><span class="label">👟 צעדים</span><span class="value">' + f'{steps:,}' + '</span></div>' if steps else ''}
+                    {'<div class="extra-stat"><span class="label">🦶 קדנס ממוצע</span><span class="value">' + str(cadence) + ' spm</span></div>' if cadence else ''}
+                </div>
+            </div>
+            
+            <a href="https://wa.me/?text={share_text}" target="_blank" style="text-decoration: none;">
+                <button class="share-btn">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                    שתף ב-WhatsApp
+                </button>
+            </a>
+            <p class="share-hint">📲 בחר איש קשר או שלח לעצמך</p>
+            
+            <footer>
+                <div class="brand">FitBeat</div>
+                <div>Powered by Garmin Fenix 8 Solar</div>
+                <div class="user-id">מזהה: {user_id}</div>
+            </footer>
+        </div>
+    </body>
+    </html>
+    """
+
+@app.get("/u/{user_id}", response_class=HTMLResponse)
+async def workout_page(user_id: str):
+    """Serve workout summary HTML page"""
+    workout = await db.workouts.find_one(
+        {"user_id": user_id},
+        {"_id": 0},
+        sort=[("timestamp", -1)]
+    )
+    return generate_workout_html(workout, user_id)
+
 # Include the router in the main app
 app.include_router(api_router)
 
