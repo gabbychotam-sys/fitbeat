@@ -349,7 +349,7 @@ class FitBeatView extends WatchUi.View {
     }
     
     // Callback when workout is sent
-    function _onWorkoutSent(responseCode, data) {
+    function _onWorkoutSent(responseCode as Lang.Number, data as Lang.Dictionary or Lang.String or Null) as Void {
         if (responseCode == 200 || responseCode == 201) {
             System.println("Workout sent successfully!");
         } else {
