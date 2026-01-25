@@ -701,13 +701,25 @@ def generate_workout_html(workout, user_id):
 
 @app.get("/u/{user_id}", response_class=HTMLResponse)
 async def dashboard_page(user_id: str):
-    """Serve combined dashboard with all workouts and summary"""
+    """Serve combined dashboard with all workouts grouped by month"""
     workouts = await db.workouts.find(
         {"user_id": user_id},
         {"_id": 0}
-    ).sort("timestamp", -1).to_list(100)
+    ).sort("timestamp", -1).to_list(500)
     
-    # Calculate totals
+    # Hebrew month names
+    month_names = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
+                   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
+    
+    # Group workouts by year-month
+    from collections import defaultdict
+    months_data = defaultdict(list)
+    for w in workouts:
+        ts = w.get('timestamp', '')[:7]  # "2026-01"
+        if ts:
+            months_data[ts].append(w)
+    
+    # Calculate yearly totals
     total_dist = sum(w.get('distance_cm', 0) for w in workouts) if workouts else 0
     total_time = sum(w.get('duration_sec', 0) for w in workouts) if workouts else 0
     total_steps = sum(w.get('steps', 0) or 0 for w in workouts) if workouts else 0
@@ -721,33 +733,74 @@ async def dashboard_page(user_id: str):
     
     user_name = workouts[0].get('user_name', '') if workouts else ''
     
-    # Build workout rows
-    workout_rows = ""
-    for w in workouts:
-        dist_km = w.get('distance_cm', 0) / 100000
-        dur_sec = w.get('duration_sec', 0)
-        dur_min = dur_sec // 60
-        dur_s = dur_sec % 60
-        hr = w.get('avg_hr', '--')
-        ts = w.get('timestamp', '')[:10]
-        workout_id = w.get('id', '')
+    # Build monthly sections
+    months_html = ""
+    for year_month in sorted(months_data.keys(), reverse=True):
+        month_workouts = months_data[year_month]
+        year, month = year_month.split('-')
+        month_name = month_names[int(month)]
         
-        # Calculate pace
-        if dist_km > 0:
-            pace_sec = dur_sec / dist_km
-            pace_min = int(pace_sec // 60)
-            pace_s = int(pace_sec % 60)
-            pace_str = f"{pace_min}:{pace_s:02d}"
-        else:
-            pace_str = "--:--"
+        # Calculate monthly stats
+        m_dist = sum(w.get('distance_cm', 0) for w in month_workouts) / 100000
+        m_time = sum(w.get('duration_sec', 0) for w in month_workouts)
+        m_hrs = m_time // 3600
+        m_mins = (m_time % 3600) // 60
+        m_time_str = f"{m_hrs}:{m_mins:02d}" if m_hrs > 0 else f"{m_mins} דק'"
+        m_hr_list = [w.get('avg_hr') for w in month_workouts if w.get('avg_hr')]
+        m_avg_hr = round(sum(m_hr_list) / len(m_hr_list)) if m_hr_list else 0
         
-        workout_rows += f"""
-        <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
-            <div class="workout-icon">🏃</div>
-            <div class="workout-info">
-                <div class="workout-dist">{dist_km:.2f} ק"מ</div>
-                <div class="workout-date">{ts}</div>
+        # Build workout rows for this month
+        workout_rows = ""
+        for w in month_workouts:
+            dist_km = w.get('distance_cm', 0) / 100000
+            dur_sec = w.get('duration_sec', 0)
+            dur_min = dur_sec // 60
+            dur_s = dur_sec % 60
+            hr = w.get('avg_hr', '--')
+            ts = w.get('timestamp', '')[8:10]  # Day only
+            workout_id = w.get('id', '')
+            
+            if dist_km > 0:
+                pace_sec = dur_sec / dist_km
+                pace_min = int(pace_sec // 60)
+                pace_s = int(pace_sec % 60)
+                pace_str = f"{pace_min}:{pace_s:02d}"
+            else:
+                pace_str = "--:--"
+            
+            workout_rows += f"""
+            <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
+                <div class="workout-day">{ts}</div>
+                <div class="workout-info">
+                    <div class="workout-dist">{dist_km:.2f} ק"מ</div>
+                    <div class="workout-pace">⚡ {pace_str}/ק"מ</div>
+                </div>
+                <div class="workout-middle">
+                    <div class="workout-time">{dur_min}:{dur_s:02d}</div>
+                </div>
+                <div class="workout-hr">❤️ {hr}</div>
+                <div class="workout-arrow">←</div>
+            </a>
+            """
+        
+        months_html += f"""
+        <div class="month-section">
+            <div class="month-header">
+                <div class="month-title">📅 {month_name} {year}</div>
+                <div class="month-count">{len(month_workouts)} אימונים</div>
             </div>
+            <div class="month-stats">
+                <div class="month-stat"><span class="stat-val">{m_dist:.1f}</span> ק"מ</div>
+                <div class="month-stat"><span class="stat-val">{m_time_str}</span></div>
+                <div class="month-stat">❤️ <span class="stat-val">{m_avg_hr}</span></div>
+            </div>
+            <div class="workout-list">
+                {workout_rows}
+            </div>
+        </div>
+        """
+    
+    share_text = f"📊 סיכום FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}"
             <div class="workout-middle">
                 <div class="workout-time">{dur_min}:{dur_s:02d}</div>
                 <div class="workout-pace">⚡ {pace_str}/ק"מ</div>
