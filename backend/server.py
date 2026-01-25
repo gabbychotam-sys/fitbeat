@@ -67,6 +67,18 @@ async def get_status_checks():
     
     return status_checks
 
+@api_router.get("/download/fitbeat")
+async def download_fitbeat():
+    """Download FitBeat GPS v4.5 zip file"""
+    file_path = Path("/app/fitbeat_gps_v4.5.zip")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="fitbeat_gps_v4.5.zip",
+            media_type="application/zip"
+        )
+    return {"error": "File not found"}
+
 # Include the router in the main app
 app.include_router(api_router)
 
