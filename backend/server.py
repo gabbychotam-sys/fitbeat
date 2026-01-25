@@ -630,6 +630,8 @@ def generate_workout_html(workout, user_id):
             .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }}
             .share-btn svg {{ width: 1.5rem; height: 1.5rem; }}
             .share-hint {{ text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 1rem; }}
+            .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; margin: 1rem auto; }}
+            .delete-btn:hover {{ background: #ef4444; color: white; }}
             footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
             footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1rem; }}
             footer .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 0.5rem; font-size: 0.7rem; }}
