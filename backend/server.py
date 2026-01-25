@@ -283,6 +283,19 @@ async def get_latest_workout(user_id: str):
     
     return workout
 
+@api_router.get("/workout/id/{workout_id}")
+async def get_workout_by_id(workout_id: str):
+    """Get a specific workout by ID"""
+    workout = await db.workouts.find_one(
+        {"id": workout_id},
+        {"_id": 0}
+    )
+    
+    if not workout:
+        return JSONResponse(status_code=404, content={"error": "Workout not found"})
+    
+    return workout
+
 @api_router.get("/user/{user_id}/stats")
 async def get_user_stats(user_id: str):
     """Get aggregated stats for a user"""
