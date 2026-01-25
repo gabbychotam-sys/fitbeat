@@ -585,7 +585,7 @@ def generate_workout_html(workout, user_id):
     share_text = f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str} /ק״מ"
     if avg_hr:
         share_text += f"%0A❤️ דופק: {avg_hr} BPM"
-    share_text += f"%0A%0A🔗 צפה בסיכום:%0Ahttps://web-production-110fc.up.railway.app/u/{user_id}"
+    share_text += f"%0A%0A🔗 צפה בסיכום:%0A{base_url}/api/u/{user_id}"
     
     return f"""
     <!DOCTYPE html>
@@ -1095,7 +1095,7 @@ async def month_page_view(user_id: str, year: str, month: str):
         </a>
         """
     
-    share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} אימונים%0A📍 {total_dist:.1f} ק״מ%0A⏱️ {time_str} שעות%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}/year/{year}/month/{month}"
+    share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} אימונים%0A📍 {total_dist:.1f} ק״מ%0A⏱️ {time_str} שעות%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}"
     
     return f"""
     <!DOCTYPE html>
@@ -1348,7 +1348,7 @@ async def monthly_page(user_id: str):
                 {workout_rows}
             </div>
             
-            <a href="https://wa.me/?text=📅 סיכום חודשי%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}/monthly" class="share-btn">
+            <a href="https://wa.me/?text=📅 סיכום חודשי%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 {base_url}/api/u/{user_id}/monthly" class="share-btn">
                 📤 שתף ב-WhatsApp
             </a>
             
