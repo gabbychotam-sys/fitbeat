@@ -805,15 +805,23 @@ def generate_workout_html(workout, user_id):
     """
 
 @api_router.get("/u/{user_id}", response_class=HTMLResponse)
-async def dashboard_page(user_id: str, welcome: str = None):
+async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     """Main page - shows years as folders"""
     workouts = await db.workouts.find(
         {"user_id": user_id},
         {"_id": 0}
     ).sort("timestamp", -1).to_list(500)
     
+    # Get language from parameter, or from user's latest workout, or default to English
+    if lang is None:
+        lang = workouts[0].get('lang', 0) if workouts else 0
+    
     # Check if this is first visit (show welcome banner)
     is_first_visit = welcome == "1" or (len(workouts) == 1)
+    
+    # RTL support for Hebrew
+    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
     
     # Group workouts by year
     from collections import defaultdict
@@ -829,7 +837,7 @@ async def dashboard_page(user_id: str, welcome: str = None):
     total_km = total_dist / 100000
     total_hrs = total_time // 3600
     total_mins = (total_time % 3600) // 60
-    time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
+    time_str = f"{total_hrs} {t('hours', lang)} {t('and', lang)} {total_mins} {t('minutes', lang)}" if total_hrs > 0 else f"{total_mins} {t('minutes', lang)}"
     
     user_name = workouts[0].get('user_name', '') if workouts else ''
     
