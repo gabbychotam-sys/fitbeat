@@ -701,33 +701,413 @@ def generate_workout_html(workout, user_id):
 
 @app.get("/u/{user_id}", response_class=HTMLResponse)
 async def dashboard_page(user_id: str):
-    """Serve combined dashboard with all workouts grouped by month"""
+    """Main page - shows years as folders"""
     workouts = await db.workouts.find(
         {"user_id": user_id},
         {"_id": 0}
     ).sort("timestamp", -1).to_list(500)
     
-    # Hebrew month names
+    # Group workouts by year
+    from collections import defaultdict
+    years_data = defaultdict(list)
+    for w in workouts:
+        year = w.get('timestamp', '')[:4]  # "2026"
+        if year:
+            years_data[year].append(w)
+    
+    # Calculate total summary
+    total_dist = sum(w.get('distance_cm', 0) for w in workouts) if workouts else 0
+    total_time = sum(w.get('duration_sec', 0) for w in workouts) if workouts else 0
+    total_km = total_dist / 100000
+    total_hrs = total_time // 3600
+    total_mins = (total_time % 3600) // 60
+    time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
+    
+    user_name = workouts[0].get('user_name', '') if workouts else ''
+    
+    # Build year folders
+    years_html = ""
+    for year in sorted(years_data.keys(), reverse=True):
+        year_workouts = years_data[year]
+        y_dist = sum(w.get('distance_cm', 0) for w in year_workouts) / 100000
+        y_count = len(year_workouts)
+        
+        years_html += f"""
+        <a href="/u/{user_id}/year/{year}" class="folder-row">
+            <div class="folder-icon">📁</div>
+            <div class="folder-info">
+                <div class="folder-name">{year}</div>
+                <div class="folder-meta">{y_count} אימונים</div>
+            </div>
+            <div class="folder-stats">{y_dist:.1f} ק"מ</div>
+            <div class="folder-arrow">←</div>
+        </a>
+        """
+    
+    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}"
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - {user_name or user_id}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 480px; margin: 0 auto; }}
+            header {{ text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
+            h1 {{ color: #00d4ff; font-size: 1.8rem; }}
+            .user-name {{ font-size: 1.2rem; margin-top: 0.5rem; }}
+            
+            .summary {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
+            .summary-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
+            .summary-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: center; }}
+            .summary-value {{ font-size: 2.5rem; font-weight: bold; color: #00d4ff; }}
+            .summary-value.green {{ color: #22c55e; }}
+            .summary-label {{ color: #888; font-size: 0.9rem; margin-top: 0.25rem; }}
+            
+            .folders {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
+            .folders-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
+            
+            .folder-row {{ display: flex; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: all 0.2s; }}
+            .folder-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
+            .folder-icon {{ font-size: 2rem; margin-left: 1rem; }}
+            .folder-info {{ flex: 1; }}
+            .folder-name {{ font-weight: bold; font-size: 1.2rem; }}
+            .folder-meta {{ color: #888; font-size: 0.85rem; }}
+            .folder-stats {{ color: #22c55e; font-weight: bold; font-size: 1.1rem; margin-left: 1rem; }}
+            .folder-arrow {{ color: #00d4ff; font-size: 1.5rem; }}
+            
+            .no-workouts {{ text-align: center; padding: 3rem 1rem; }}
+            .no-workouts-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
+            
+            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }}
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
+            .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
+            .delete-btn:hover {{ background: #ef4444; color: white; }}
+            
+            footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
+            footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1rem; }}
+            footer .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 0.5rem; font-size: 0.7rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <header>
+                <h1>🏃‍♂️ FitBeat</h1>
+                {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
+            </header>
+            
+            <div class="summary">
+                <div class="summary-title">📊 סיכום כולל</div>
+                <div class="summary-grid">
+                    <div>
+                        <div class="summary-value">{len(workouts)}</div>
+                        <div class="summary-label">אימונים</div>
+                    </div>
+                    <div>
+                        <div class="summary-value green">{total_km:.1f}</div>
+                        <div class="summary-label">ק"מ סה"כ</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="folders">
+                <div class="folders-title">📁 לפי שנים</div>
+                {years_html if years_html else '<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>אין אימונים עדיין</p><p style="font-size:0.8rem;margin-top:0.5rem;color:#888;">סיים יעד בשעון והאימון יופיע כאן!</p></div>'}
+            </div>
+            
+            <div class="buttons">
+                <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 שתף ב-WhatsApp</a>
+                {'<button onclick="deleteAll()" class="delete-btn">🗑️ מחק הכל</button>' if workouts else ''}
+            </div>
+            
+            <footer>
+                <div class="brand">FitBeat</div>
+                <div class="user-id">מזהה: {user_id}</div>
+            </footer>
+        </div>
+        <script>
+            async function deleteAll() {{
+                if (confirm('למחוק את כל האימונים?')) {{
+                    await fetch('/api/workout/user/{user_id}/all', {{ method: 'DELETE' }});
+                    location.reload();
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+
+@app.get("/u/{user_id}/year/{year}", response_class=HTMLResponse)
+async def year_page(user_id: str, year: str):
+    """Year page - shows months as folders"""
+    workouts = await db.workouts.find(
+        {"user_id": user_id, "timestamp": {"$regex": f"^{year}"}},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(500)
+    
     month_names = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
                    "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
     
-    # Group workouts by year-month
     from collections import defaultdict
     months_data = defaultdict(list)
     for w in workouts:
-        ts = w.get('timestamp', '')[:7]  # "2026-01"
-        if ts:
-            months_data[ts].append(w)
+        month = w.get('timestamp', '')[5:7]
+        if month:
+            months_data[month].append(w)
     
-    # Calculate yearly totals
-    total_dist = sum(w.get('distance_cm', 0) for w in workouts) if workouts else 0
-    total_time = sum(w.get('duration_sec', 0) for w in workouts) if workouts else 0
-    total_steps = sum(w.get('steps', 0) or 0 for w in workouts) if workouts else 0
+    total_dist = sum(w.get('distance_cm', 0) for w in workouts) / 100000
+    total_time = sum(w.get('duration_sec', 0) for w in workouts)
+    total_hrs = total_time // 3600
+    total_mins = (total_time % 3600) // 60
+    time_str = f"{total_hrs}:{total_mins:02d}"
     avg_hr_list = [w.get('avg_hr') for w in workouts if w.get('avg_hr')]
     avg_hr = round(sum(avg_hr_list) / len(avg_hr_list)) if avg_hr_list else 0
     
-    total_km = total_dist / 100000
+    user_name = workouts[0].get('user_name', '') if workouts else ''
+    
+    months_html = ""
+    for month in sorted(months_data.keys(), reverse=True):
+        month_workouts = months_data[month]
+        m_dist = sum(w.get('distance_cm', 0) for w in month_workouts) / 100000
+        m_count = len(month_workouts)
+        month_name = month_names[int(month)]
+        
+        months_html += f"""
+        <a href="/u/{user_id}/year/{year}/month/{month}" class="folder-row">
+            <div class="folder-icon">📁</div>
+            <div class="folder-info">
+                <div class="folder-name">{month_name}</div>
+                <div class="folder-meta">{m_count} אימונים</div>
+            </div>
+            <div class="folder-stats">{m_dist:.1f} ק"מ</div>
+            <div class="folder-arrow">←</div>
+        </a>
+        """
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - {year}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 480px; margin: 0 auto; }}
+            .back {{ display: inline-flex; align-items: center; gap: 0.5rem; color: #00d4ff; text-decoration: none; margin-bottom: 1rem; font-size: 0.9rem; }}
+            header {{ text-align: center; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
+            h1 {{ color: #00d4ff; font-size: 1.5rem; }}
+            .subtitle {{ color: #888; margin-top: 0.25rem; }}
+            
+            .summary {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
+            .summary-title {{ color: #888; font-size: 0.85rem; margin-bottom: 0.75rem; }}
+            .summary-row {{ display: flex; justify-content: space-around; text-align: center; }}
+            .summary-item {{ }}
+            .summary-value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
+            .summary-value.green {{ color: #22c55e; }}
+            .summary-label {{ color: #888; font-size: 0.75rem; }}
+            
+            .folders {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; }}
+            .folders-title {{ color: #888; font-size: 0.85rem; margin-bottom: 1rem; }}
+            
+            .folder-row {{ display: flex; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: all 0.2s; }}
+            .folder-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
+            .folder-icon {{ font-size: 1.75rem; margin-left: 0.75rem; }}
+            .folder-info {{ flex: 1; }}
+            .folder-name {{ font-weight: bold; font-size: 1.1rem; }}
+            .folder-meta {{ color: #888; font-size: 0.8rem; }}
+            .folder-stats {{ color: #22c55e; font-weight: bold; margin-left: 0.75rem; }}
+            .folder-arrow {{ color: #00d4ff; font-size: 1.25rem; }}
+            
+            footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <a href="/u/{user_id}" class="back">→ חזרה</a>
+            <header>
+                <h1>📁 {year}</h1>
+                <p class="subtitle">{len(workouts)} אימונים</p>
+            </header>
+            
+            <div class="summary">
+                <div class="summary-title">📊 סיכום {year}</div>
+                <div class="summary-row">
+                    <div class="summary-item">
+                        <div class="summary-value">{len(workouts)}</div>
+                        <div class="summary-label">אימונים</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value green">{total_dist:.1f}</div>
+                        <div class="summary-label">ק"מ</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{time_str}</div>
+                        <div class="summary-label">שעות</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color:#ef4444;">{avg_hr}</div>
+                        <div class="summary-label">דופק</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="folders">
+                <div class="folders-title">📁 חודשים</div>
+                {months_html}
+            </div>
+            
+            <footer>FitBeat</footer>
+        </div>
+    </body>
+    </html>
+    """
+
+@app.get("/u/{user_id}/year/{year}/month/{month}", response_class=HTMLResponse)
+async def month_page_view(user_id: str, year: str, month: str):
+    """Month page - shows workouts list"""
+    workouts = await db.workouts.find(
+        {"user_id": user_id, "timestamp": {"$regex": f"^{year}-{month}"}},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(100)
+    
+    month_names = ["", "ינואר", "פברואר", "מרץ", "אפריל", "מאי", "יוני", 
+                   "יולי", "אוגוסט", "ספטמבר", "אוקטובר", "נובמבר", "דצמבר"]
+    month_name = month_names[int(month)]
+    
+    total_dist = sum(w.get('distance_cm', 0) for w in workouts) / 100000
+    total_time = sum(w.get('duration_sec', 0) for w in workouts)
     total_hrs = total_time // 3600
+    total_mins = (total_time % 3600) // 60
+    time_str = f"{total_hrs}:{total_mins:02d}"
+    avg_hr_list = [w.get('avg_hr') for w in workouts if w.get('avg_hr')]
+    avg_hr = round(sum(avg_hr_list) / len(avg_hr_list)) if avg_hr_list else 0
+    total_steps = sum(w.get('steps', 0) or 0 for w in workouts)
+    
+    workouts_html = ""
+    for w in workouts:
+        dist_km = w.get('distance_cm', 0) / 100000
+        dur_sec = w.get('duration_sec', 0)
+        dur_min = dur_sec // 60
+        dur_s = dur_sec % 60
+        hr = w.get('avg_hr', '--')
+        day = w.get('timestamp', '')[8:10]
+        workout_id = w.get('id', '')
+        
+        if dist_km > 0:
+            pace_sec = dur_sec / dist_km
+            pace_str = f"{int(pace_sec//60)}:{int(pace_sec%60):02d}"
+        else:
+            pace_str = "--:--"
+        
+        workouts_html += f"""
+        <a href="/u/{user_id}/workout/{workout_id}" class="workout-row">
+            <div class="workout-day">{day}</div>
+            <div class="workout-info">
+                <div class="workout-dist">{dist_km:.2f} ק"מ</div>
+                <div class="workout-pace">⚡ {pace_str}/ק"מ</div>
+            </div>
+            <div class="workout-time">{dur_min}:{dur_s:02d}</div>
+            <div class="workout-hr">❤️ {hr}</div>
+            <div class="workout-arrow">←</div>
+        </a>
+        """
+    
+    share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} אימונים%0A📍 {total_dist:.1f} ק״מ%0A⏱️ {time_str} שעות%0A%0A🔗 https://web-production-110fc.up.railway.app/u/{user_id}/year/{year}/month/{month}"
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="he" dir="rtl">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - {month_name} {year}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 480px; margin: 0 auto; }}
+            .back {{ display: inline-flex; align-items: center; gap: 0.5rem; color: #00d4ff; text-decoration: none; margin-bottom: 1rem; font-size: 0.9rem; }}
+            header {{ text-align: center; padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
+            h1 {{ color: #00d4ff; font-size: 1.5rem; }}
+            .subtitle {{ color: #888; margin-top: 0.25rem; }}
+            
+            .summary {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
+            .summary-title {{ color: #888; font-size: 0.85rem; margin-bottom: 0.75rem; }}
+            .summary-row {{ display: flex; justify-content: space-around; text-align: center; }}
+            .summary-item {{ }}
+            .summary-value {{ font-size: 1.3rem; font-weight: bold; color: #00d4ff; }}
+            .summary-value.green {{ color: #22c55e; }}
+            .summary-label {{ color: #888; font-size: 0.7rem; }}
+            
+            .workouts {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
+            .workouts-title {{ color: #888; font-size: 0.85rem; margin-bottom: 1rem; }}
+            
+            .workout-row {{ display: flex; align-items: center; padding: 0.75rem; background: rgba(0,0,0,0.2); border-radius: 0.5rem; margin-bottom: 0.4rem; text-decoration: none; color: white; transition: all 0.2s; }}
+            .workout-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
+            .workout-day {{ background: #00d4ff; color: #1a1a2e; width: 2.25rem; height: 2.25rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; margin-left: 0.75rem; }}
+            .workout-info {{ flex: 1; }}
+            .workout-dist {{ font-weight: bold; }}
+            .workout-pace {{ color: #888; font-size: 0.75rem; }}
+            .workout-time {{ color: #00d4ff; font-weight: bold; font-size: 0.9rem; margin: 0 0.75rem; }}
+            .workout-hr {{ color: #ef4444; font-size: 0.85rem; }}
+            .workout-arrow {{ color: #00d4ff; font-size: 1rem; margin-right: 0.25rem; }}
+            
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; margin-bottom: 1.5rem; }}
+            
+            footer {{ text-align: center; padding: 1rem 0; color: #888; font-size: 0.8rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <a href="/u/{user_id}/year/{year}" class="back">→ חזרה ל-{year}</a>
+            <header>
+                <h1>📁 {month_name} {year}</h1>
+                <p class="subtitle">{len(workouts)} אימונים</p>
+            </header>
+            
+            <div class="summary">
+                <div class="summary-title">📊 סיכום {month_name}</div>
+                <div class="summary-row">
+                    <div class="summary-item">
+                        <div class="summary-value">{len(workouts)}</div>
+                        <div class="summary-label">אימונים</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value green">{total_dist:.1f}</div>
+                        <div class="summary-label">ק"מ</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{time_str}</div>
+                        <div class="summary-label">שעות</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value" style="color:#ef4444;">{avg_hr}</div>
+                        <div class="summary-label">דופק</div>
+                    </div>
+                    <div class="summary-item">
+                        <div class="summary-value">{total_steps:,}</div>
+                        <div class="summary-label">צעדים</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workouts">
+                <div class="workouts-title">🏃 אימונים</div>
+                {workouts_html}
+            </div>
+            
+            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 שתף ב-WhatsApp</a>
+            
+            <footer>FitBeat</footer>
+        </div>
+    </body>
+    </html>
+    """
     total_mins = (total_time % 3600) // 60
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
