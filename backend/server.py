@@ -888,7 +888,7 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     
     return f"""
     <!DOCTYPE html>
-    <html lang="he" dir="rtl">
+    <html lang="{lang_code}" {dir_attr}>
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
