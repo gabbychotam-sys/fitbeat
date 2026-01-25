@@ -904,6 +904,15 @@ async def dashboard_page(user_id: str, welcome: str = None):
                     location.reload();
                 }}
             }}
+            function closeWelcome() {{
+                document.getElementById('welcomeBanner').style.display = 'none';
+                localStorage.setItem('fitbeat_welcomed_{user_id}', 'true');
+            }}
+            // Auto-hide if already welcomed
+            if (localStorage.getItem('fitbeat_welcomed_{user_id}')) {{
+                const banner = document.getElementById('welcomeBanner');
+                if (banner) banner.style.display = 'none';
+            }}
         </script>
     </body>
     </html>
