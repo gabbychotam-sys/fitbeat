@@ -151,6 +151,7 @@ class WorkoutSubmit(BaseModel):
     steps: Optional[int] = None
     cadence: Optional[int] = None
     route: Optional[List[WorkoutPoint]] = None
+    lang: Optional[int] = 0  # Language: 0=EN, 1=HE, 2=ES, 3=FR, 4=DE, 5=ZH
 
 class WorkoutSummary(BaseModel):
     model_config = ConfigDict(extra="ignore")
