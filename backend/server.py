@@ -242,6 +242,19 @@ async def submit_workout(workout: WorkoutSubmit):
         "user_id": workout.user_id
     }
 
+@api_router.get("/workout/all")
+async def get_all_workouts(limit: int = 50):
+    """Get all workouts (for debugging)"""
+    workouts = await db.workouts.find(
+        {},
+        {"_id": 0}
+    ).sort("timestamp", -1).to_list(limit)
+    
+    return {
+        "workouts": workouts,
+        "count": len(workouts)
+    }
+
 @api_router.get("/workout/user/{user_id}")
 async def get_user_workouts(user_id: str, limit: int = 10):
     """Get workouts for a specific user"""
