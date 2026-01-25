@@ -67,42 +67,22 @@ async def get_status_checks():
     
     return status_checks
 
+
+
+
+
+
+
+
 @api_router.get("/download/fitbeat")
 async def download_fitbeat():
     """Download FitBeat GPS v4.5.1 zip file"""
-    file_path = Path("/app/fitbeat_gps_1769350182.zip")
+    file_path = Path("/app/fitbeat_final/fitbeat_gps_v451.zip")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="fitbeat_gps_1769350182.zip",
-            media_type="application/zip",
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
-        )
-    return {"error": "File not found"}
-
-@api_router.get("/download/fitbeat-gps")
-async def download_fitbeat_gps():
-    """Download FitBeat GPS v4.5.1 zip file - new endpoint"""
-    file_path = Path("/app/fitbeat_gps_1769350182.zip")
-    if file_path.exists():
-        return FileResponse(
-            path=file_path,
-            filename="fitbeat_gps_1769350182.zip",
-            media_type="application/zip",
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate"}
-        )
-    return {"error": "File not found"}
-
-@api_router.get("/dl/fb451")
-async def download_fitbeat_new():
-    """Download FitBeat GPS v4.5.1 - fresh endpoint"""
-    file_path = Path("/app/fitbeat_gps_1769350182.zip")
-    if file_path.exists():
-        return FileResponse(
-            path=file_path,
-            filename="fitbeat_gps_v4.5.1.zip",
-            media_type="application/zip",
-            headers={"Cache-Control": "no-cache, no-store, must-revalidate", "Pragma": "no-cache"}
+            filename="fitbeat_gps_v451.zip",
+            media_type="application/zip"
         )
     return {"error": "File not found"}
 
