@@ -807,6 +807,9 @@ async def dashboard_page(user_id: str, welcome: str = None):
         </div>
         """
     
+    # Share text for the main share button
+    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ%0A%0A🔗 {dashboard_url}"
+    
     return f"""
     <!DOCTYPE html>
     <html lang="he" dir="rtl">
