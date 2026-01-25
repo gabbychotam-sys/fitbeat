@@ -255,6 +255,16 @@ async def get_all_workouts(limit: int = 50):
         "count": len(workouts)
     }
 
+@api_router.delete("/workout/user/{user_id}/all")
+async def delete_all_user_workouts(user_id: str):
+    """Delete all workouts for a user"""
+    result = await db.workouts.delete_many({"user_id": user_id})
+    return {
+        "status": "deleted",
+        "user_id": user_id,
+        "deleted_count": result.deleted_count
+    }
+
 @api_router.get("/workout/user/{user_id}")
 async def get_user_workouts(user_id: str, limit: int = 10):
     """Get workouts for a specific user"""
