@@ -162,6 +162,7 @@ class WorkoutSubmit(BaseModel):
     route: Optional[List[WorkoutPoint]] = None
     route_json: Optional[str] = None  # NEW: JSON string from watch (Garmin array bug workaround)
     lang: Optional[int] = 0  # Language: 0=EN, 1=HE, 2=ES, 3=FR, 4=DE, 5=ZH
+    local_time: Optional[str] = None  # Local time from watch (ISO format)
 
 class WorkoutSummary(BaseModel):
     model_config = ConfigDict(extra="ignore")
@@ -207,16 +208,42 @@ async def get_status_checks():
     return status_checks
 
 # FitBeat ZIP Download
-@api_router.get("/download/fitbeat")
-async def download_fitbeat():
-    """Download FitBeat v4.6.7 - Delayed HTTP send (prevents crash!)"""
-    file_path = Path("/app/fitbeat_v467.zip")
+@api_router.get("/download/server-only")
+async def download_server_only():
+    """Download server.py only (for GitHub)"""
+    file_path = Path("/app/server_py_only.zip")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="fitbeat_v467.zip",
+            filename="server_py_only.zip",
             media_type="application/zip",
-            headers={"Content-Disposition": "attachment; filename=fitbeat_v467.zip"}
+            headers={"Content-Disposition": "attachment; filename=server_py_only.zip", "Cache-Control": "no-store"}
+        )
+    return {"error": "File not found"}
+
+@api_router.get("/download/full-package")
+async def download_full_package():
+    """Download FitBeat v4.6.9 + server.py (new endpoint)"""
+    file_path = Path("/app/fitbeat_complete.zip")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="fitbeat_v469.zip",
+            media_type="application/zip",
+            headers={"Content-Disposition": "attachment; filename=fitbeat_v469.zip", "Cache-Control": "no-store"}
+        )
+    return {"error": "File not found"}
+
+@api_router.get("/download/fitbeat")
+async def download_fitbeat():
+    """Download FitBeat v4.6.9 + server.py"""
+    file_path = Path("/app/fitbeat_complete.zip")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="fitbeat_complete.zip",
+            media_type="application/zip",
+            headers={"Content-Disposition": "attachment; filename=fitbeat_complete.zip"}
         )
     return {"error": "File not found"}
 
@@ -238,13 +265,13 @@ async def download_store_assets():
 
 @api_router.get("/download/server-py")
 async def download_server_py():
-    """Download updated server.py with Leaflet map"""
-    file_path = Path("/app/backend/server.py")
+    """Download updated server.py with local_time fix"""
+    file_path = Path("/app/backend/server_v469_final.py")
     if file_path.exists():
         return FileResponse(
             path=file_path,
             filename="server.py",
-            media_type="text/plain; charset=utf-8",
+            media_type="text/plain",
             headers={"Content-Disposition": "attachment; filename=server.py"}
         )
     return {"error": "File not found"}
@@ -266,14 +293,14 @@ async def download_summary():
 
 @api_router.get("/download/insights")
 async def download_insights():
-    """Download FitBeat insights document v4.6.7 FINAL"""
-    file_path = Path("/app/FITBEAT_INSIGHTS_FINAL.md")
+    """Download insights markdown"""
+    file_path = Path("/app/memory/server_py_content.txt")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="FitBeat_Insights_v467.md",
-            media_type="text/markdown; charset=utf-8",
-            headers={"Content-Disposition": "attachment; filename=FitBeat_Insights_v467.md"}
+            filename="server.py",
+            media_type="text/plain",
+            headers={"Content-Disposition": "attachment; filename=server.py"}
         )
     return {"error": "File not found"}
 
@@ -328,6 +355,17 @@ async def submit_workout(workout: WorkoutSubmit):
             logger.warning(f"Failed to parse route_json: {e}")
             route_data = None
     
+    # Use local time from watch if provided, otherwise use server time
+    timestamp = datetime.now(timezone.utc)
+    if workout.local_time and workout.local_time.strip():
+        try:
+            # Parse local time from watch (format: YYYY-MM-DDTHH:MM:SS)
+            timestamp = datetime.fromisoformat(workout.local_time)
+            logger.info(f"Using local time from watch: {workout.local_time}")
+        except Exception as e:
+            logger.warning(f"Failed to parse local_time '{workout.local_time}': {e}, using server time")
+            timestamp = datetime.now(timezone.utc)
+    
     workout_obj = WorkoutSummary(
         user_id=workout.user_id,
         user_name=workout.user_name,
@@ -339,14 +377,15 @@ async def submit_workout(workout: WorkoutSubmit):
         elevation_loss=workout.elevation_loss,
         steps=workout.steps if workout.steps and workout.steps > 0 else None,
         cadence=workout.cadence if workout.cadence and workout.cadence > 0 else None,
-        route=route_data
+        route=route_data,
+        timestamp=timestamp
     )
     
     doc = workout_obj.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
     await db.workouts.insert_one(doc)
     
-    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}")
+    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}, time: {doc['timestamp']}")
     
     return {
         "status": "saved",
@@ -716,7 +755,7 @@ def generate_workout_html(workout, user_id, lang=0):
             formatted_datetime = timestamp[:16] if len(timestamp) > 16 else timestamp
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
     
     # WhatsApp share text (translated)
     share_texts = {
@@ -1045,7 +1084,7 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         """
     
     # Get base URL from environment or use default
-    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
     dashboard_url = f"{base_url}/api/u/{user_id}"
     
     # Welcome message for WhatsApp (translated)
@@ -1379,7 +1418,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
         </a>
         """
     
-    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
     share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_dist:.1f} {t('km', lang)}%0A⏱️ {time_str} {t('hours', lang)}%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}?lang={lang}"
     
     return f"""
@@ -1528,7 +1567,7 @@ async def monthly_page(user_id: str):
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
     
     # Build workout rows
     workout_rows = ""
@@ -1650,6 +1689,25 @@ async def monthly_page(user_id: str):
     </body>
     </html>
     """
+
+# Raw server.py download (no cache)
+@api_router.get("/raw-server")
+async def get_raw_server():
+    from fastapi.responses import PlainTextResponse
+    file_path = Path("/app/backend/server_final.py")
+    if file_path.exists():
+        content = file_path.read_text()
+        return PlainTextResponse(content, headers={"Cache-Control": "no-store"})
+    return PlainTextResponse("File not found", status_code=404)
+
+@api_router.get("/servercode")
+async def get_server_code():
+    from fastapi.responses import PlainTextResponse
+    file_path = Path("/app/backend/server_v469_final.py")
+    if file_path.exists():
+        content = file_path.read_text()
+        return PlainTextResponse(content, headers={"Cache-Control": "no-store, max-age=0"})
+    return PlainTextResponse("File not found", status_code=404)
 
 # Include the router in the main app
 app.include_router(api_router)
