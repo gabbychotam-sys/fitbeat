@@ -209,14 +209,14 @@ async def get_status_checks():
 # FitBeat ZIP Download
 @api_router.get("/download/fitbeat")
 async def download_fitbeat():
-    """Download FitBeat v4.5.7 - GPS as JSON string"""
-    file_path = Path("/app/fitbeat_v457_gps.zip")
+    """Download FitBeat v4.6.2 - Production domain (fitbeat.it.com)"""
+    file_path = Path("/app/fitbeat_v462_production.zip")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="fitbeat_v457.zip",
+            filename="fitbeat_v462.zip",
             media_type="application/zip",
-            headers={"Content-Disposition": "attachment; filename=fitbeat_v457.zip"}
+            headers={"Content-Disposition": "attachment; filename=fitbeat_v462.zip"}
         )
     return {"error": "File not found"}
 
