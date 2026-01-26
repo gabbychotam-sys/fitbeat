@@ -209,14 +209,14 @@ async def get_status_checks():
 # FitBeat ZIP Download
 @api_router.get("/download/fitbeat")
 async def download_fitbeat():
-    """Download FitBeat v4.6.2 - Production domain (fitbeat.it.com)"""
-    file_path = Path("/app/fitbeat_v462_production.zip")
+    """Download FitBeat v4.6.7 - Delayed HTTP send (prevents crash!)"""
+    file_path = Path("/app/fitbeat_v467.zip")
     if file_path.exists():
         return FileResponse(
             path=file_path,
-            filename="fitbeat_v462.zip",
+            filename="fitbeat_v467.zip",
             media_type="application/zip",
-            headers={"Content-Disposition": "attachment; filename=fitbeat_v462.zip"}
+            headers={"Content-Disposition": "attachment; filename=fitbeat_v467.zip"}
         )
     return {"error": "File not found"}
 
@@ -246,6 +246,34 @@ async def download_server_py():
             filename="server.py",
             media_type="text/plain; charset=utf-8",
             headers={"Content-Disposition": "attachment; filename=server.py"}
+        )
+    return {"error": "File not found"}
+
+
+@api_router.get("/download/summary")
+async def download_summary():
+    """Download FitBeat full summary document"""
+    file_path = Path("/app/memory/FITBEAT_FULL_SUMMARY.md")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="FITBEAT_FULL_SUMMARY.md",
+            media_type="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=FITBEAT_FULL_SUMMARY.md"}
+        )
+    return {"error": "File not found"}
+
+
+@api_router.get("/download/insights")
+async def download_insights():
+    """Download FitBeat insights document v4.6.7 FINAL"""
+    file_path = Path("/app/FITBEAT_INSIGHTS_FINAL.md")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="FitBeat_Insights_v467.md",
+            media_type="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=FitBeat_Insights_v467.md"}
         )
     return {"error": "File not found"}
 
@@ -667,11 +695,28 @@ def generate_workout_html(workout, user_id, lang=0):
     workout_id = workout.get('id', '')
     route = workout.get('route', []) or []
     
-    # Format date
+    # Format date and time
     timestamp = workout.get('timestamp', '')
+    formatted_datetime = ''
+    if timestamp:
+        try:
+            # Parse ISO timestamp
+            if 'T' in timestamp:
+                date_part = timestamp[:10]  # 2026-01-26
+                time_part = timestamp[11:16]  # 10:06
+                # Format based on language
+                if lang == 1:  # Hebrew - DD/MM/YYYY HH:MM
+                    day, month, year = date_part[8:10], date_part[5:7], date_part[:4]
+                    formatted_datetime = f"{day}/{month}/{year} {time_part}"
+                else:  # Other languages - YYYY-MM-DD HH:MM
+                    formatted_datetime = f"{date_part} {time_part}"
+            else:
+                formatted_datetime = timestamp[:16]
+        except:
+            formatted_datetime = timestamp[:16] if len(timestamp) > 16 else timestamp
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
     
     # WhatsApp share text (translated)
     share_texts = {
@@ -838,7 +883,7 @@ def generate_workout_html(workout, user_id, lang=0):
         <div class="container">
             <header>
                 <h1>🏃‍♂️ {t('workout', lang)}</h1>
-                <p class="subtitle">{timestamp[:10] if timestamp else ''}</p>
+                <p class="subtitle">{formatted_datetime}</p>
                 {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
             </header>
             
@@ -1000,7 +1045,7 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         """
     
     # Get base URL from environment or use default
-    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
     dashboard_url = f"{base_url}/api/u/{user_id}"
     
     # Welcome message for WhatsApp (translated)
@@ -1310,7 +1355,9 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
         dur_min = dur_sec // 60
         dur_s = dur_sec % 60
         hr = w.get('avg_hr', '--')
-        day = w.get('timestamp', '')[8:10]
+        timestamp = w.get('timestamp', '')
+        day = timestamp[8:10] if len(timestamp) >= 10 else ''
+        time_of_day = timestamp[11:16] if len(timestamp) >= 16 else ''  # HH:MM
         workout_id = w.get('id', '')
         
         if dist_km > 0:
@@ -1324,7 +1371,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
             <div class="workout-day">{day}</div>
             <div class="workout-info">
                 <div class="workout-dist">{dist_km:.2f} {t('km', lang)}</div>
-                <div class="workout-pace">⚡ {pace_str}/{t('km', lang)}</div>
+                <div class="workout-pace">🕐 {time_of_day} | ⚡ {pace_str}/{t('km', lang)}</div>
             </div>
             <div class="workout-time">{dur_min}:{dur_s:02d}</div>
             <div class="workout-hr">❤️ {hr}</div>
@@ -1332,7 +1379,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
         </a>
         """
     
-    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
     share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_dist:.1f} {t('km', lang)}%0A⏱️ {time_str} {t('hours', lang)}%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}?lang={lang}"
     
     return f"""
@@ -1481,7 +1528,7 @@ async def monthly_page(user_id: str):
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat-gps.preview.emergentagent.com')
     
     # Build workout rows
     workout_rows = ""
