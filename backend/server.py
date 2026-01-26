@@ -160,6 +160,7 @@ class WorkoutSubmit(BaseModel):
     steps: Optional[int] = None
     cadence: Optional[int] = None
     route: Optional[List[WorkoutPoint]] = None
+    route_json: Optional[str] = None  # NEW: JSON string from watch (Garmin array bug workaround)
     lang: Optional[int] = 0  # Language: 0=EN, 1=HE, 2=ES, 3=FR, 4=DE, 5=ZH
 
 class WorkoutSummary(BaseModel):
@@ -186,7 +187,7 @@ def generate_user_id(device_id: str) -> str:
 
 @api_router.get("/")
 async def root():
-    return {"message": "FitBeat API v4.5.0"}
+    return {"message": "FitBeat API v4.5.7"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -208,37 +209,16 @@ async def get_status_checks():
 # FitBeat ZIP Download
 @api_router.get("/download/fitbeat")
 async def download_fitbeat():
-    """Download FitBeat source code as ZIP"""
-    fitbeat_dir = Path("/app/fitbeat")
-    
-    if not fitbeat_dir.exists():
-        return JSONResponse(status_code=404, content={"error": "FitBeat directory not found"})
-    
-    # Create ZIP in memory
-    zip_buffer = io.BytesIO()
-    
-    with zipfile.ZipFile(zip_buffer, 'w', zipfile.ZIP_DEFLATED) as zip_file:
-        for file_path in fitbeat_dir.rglob('*'):
-            if file_path.is_file():
-                # Skip unnecessary files
-                if '__pycache__' in str(file_path) or '.pyc' in str(file_path):
-                    continue
-                arcname = f"fitbeat/{file_path.relative_to(fitbeat_dir)}"
-                zip_file.write(file_path, arcname)
-    
-    zip_buffer.seek(0)
-    
-    # Save to temp file for FileResponse
-    temp_file = tempfile.NamedTemporaryFile(delete=False, suffix='.zip')
-    temp_file.write(zip_buffer.getvalue())
-    temp_file.close()
-    
-    return FileResponse(
-        temp_file.name,
-        media_type='application/zip',
-        filename='fitbeat.zip',
-        headers={"Content-Disposition": "attachment; filename=fitbeat.zip"}
-    )
+    """Download FitBeat v4.5.7 - GPS as JSON string"""
+    file_path = Path("/app/fitbeat_v457_gps.zip")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="fitbeat_v457.zip",
+            media_type="application/zip",
+            headers={"Content-Disposition": "attachment; filename=fitbeat_v457.zip"}
+        )
+    return {"error": "File not found"}
 
 # Store Assets Download
 @api_router.get("/download/store-assets")
@@ -306,25 +286,39 @@ async def reset_fitbeat_state():
 @api_router.post("/workout")
 async def submit_workout(workout: WorkoutSubmit):
     """Receive workout data from watch and save to DB"""
+    
+    # Parse route from either route array or route_json string
+    route_data = None
+    if workout.route:
+        route_data = [p.model_dump() for p in workout.route]
+    elif workout.route_json and workout.route_json.strip():
+        # Parse JSON string from watch (Garmin array bug workaround)
+        try:
+            route_data = json.loads(workout.route_json)
+            logger.info(f"Parsed route_json with {len(route_data)} points")
+        except Exception as e:
+            logger.warning(f"Failed to parse route_json: {e}")
+            route_data = None
+    
     workout_obj = WorkoutSummary(
         user_id=workout.user_id,
         user_name=workout.user_name,
         distance_cm=workout.distance_cm,
         duration_sec=workout.duration_sec,
-        avg_hr=workout.avg_hr,
-        max_hr=workout.max_hr,
+        avg_hr=workout.avg_hr if workout.avg_hr and workout.avg_hr > 0 else None,
+        max_hr=workout.max_hr if workout.max_hr and workout.max_hr > 0 else None,
         elevation_gain=workout.elevation_gain,
         elevation_loss=workout.elevation_loss,
-        steps=workout.steps,
-        cadence=workout.cadence,
-        route=[p.model_dump() for p in workout.route] if workout.route else None
+        steps=workout.steps if workout.steps and workout.steps > 0 else None,
+        cadence=workout.cadence if workout.cadence and workout.cadence > 0 else None,
+        route=route_data
     )
     
     doc = workout_obj.model_dump()
     doc['timestamp'] = doc['timestamp'].isoformat()
     await db.workouts.insert_one(doc)
     
-    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s")
+    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}")
     
     return {
         "status": "saved",
@@ -677,7 +671,7 @@ def generate_workout_html(workout, user_id, lang=0):
     timestamp = workout.get('timestamp', '')
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
     
     # WhatsApp share text (translated)
     share_texts = {
@@ -1006,7 +1000,7 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         """
     
     # Get base URL from environment or use default
-    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
     dashboard_url = f"{base_url}/api/u/{user_id}"
     
     # Welcome message for WhatsApp (translated)
@@ -1338,7 +1332,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
         </a>
         """
     
-    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
     share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_dist:.1f} {t('km', lang)}%0A⏱️ {time_str} {t('hours', lang)}%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}?lang={lang}"
     
     return f"""
@@ -1487,7 +1481,7 @@ async def monthly_page(user_id: str):
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://exercise-journal-9.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://mapfit.preview.emergentagent.com')
     
     # Build workout rows
     workout_rows = ""
