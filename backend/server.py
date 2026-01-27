@@ -755,7 +755,7 @@ def generate_workout_html(workout, user_id, lang=0):
             formatted_datetime = timestamp[:16] if len(timestamp) > 16 else timestamp
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     
     # WhatsApp share text (translated)
     share_texts = {
@@ -1084,7 +1084,7 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         """
     
     # Get base URL from environment or use default
-    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     dashboard_url = f"{base_url}/api/u/{user_id}"
     
     # Welcome message for WhatsApp (translated)
@@ -1418,7 +1418,7 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
         </a>
         """
     
-    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     share_text = f"📅 {month_name} {year}%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_dist:.1f} {t('km', lang)}%0A⏱️ {time_str} {t('hours', lang)}%0A%0A🔗 {base_url}/api/u/{user_id}/year/{year}/month/{month}?lang={lang}"
     
     return f"""
@@ -1567,7 +1567,7 @@ async def monthly_page(user_id: str):
     time_str = f"{total_hrs} שעות ו-{total_mins} דקות" if total_hrs > 0 else f"{total_mins} דקות"
     
     # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://fit-tracker-378.preview.emergentagent.com')
+    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     
     # Build workout rows
     workout_rows = ""
