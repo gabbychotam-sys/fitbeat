@@ -88,10 +88,14 @@ TRANSLATIONS = {
     "step4": ["Your workout syncs automatically to this dashboard!", "האימון שלך מסתנכרן אוטומטית לדשבורד!", "Tu entrenamiento se sincroniza automaticamente!", "Votre entrainement se synchronise automatiquement!", "Dein Training wird automatisch synchronisiert!", "您的训练会自动同步到仪表板！"],
     "important_note": ["Important", "חשוב", "Importante", "Important", "Wichtig", "重要"],
     "sync_note": ["The app requires your phone with Garmin Connect to be nearby and connected via Bluetooth for workout sync.", "האפליקציה דורשת שהטלפון עם Garmin Connect יהיה בקרבת מקום ומחובר בבלוטות' לסנכרון אימונים.", "La app requiere que tu telefono con Garmin Connect este cerca y conectado por Bluetooth.", "L'app necessite que votre telephone avec Garmin Connect soit a proximite et connecte en Bluetooth.", "Die App benotigt dein Handy mit Garmin Connect in der Nahe und uber Bluetooth verbunden.", "应用需要您的手机上的Garmin Connect在附近并通过蓝牙连接。"],
-    "your_dashboard": ["Your Personal Dashboard", "הדשבורד האישי שלך", "Tu Panel Personal", "Votre Tableau de Bord", "Dein Personliches Dashboard", "您的个人仪表板"],
+    "personal_dashboard": ["Your Personal Dashboard", "הדשבורד האישי שלך", "Tu Panel Personal", "Votre Tableau de Bord", "Dein Personliches Dashboard", "您的个人仪表板"],
     "dashboard_info": ["After your first workout, your personal ID will appear on the watch. Use it to access your dashboard:", "אחרי האימון הראשון, המזהה האישי שלך יופיע בשעון. השתמש בו כדי לגשת לדשבורד:", "Despues de tu primer entrenamiento tu ID personal aparecera en el reloj. Usalo para acceder a tu panel:", "Apres votre premier entrainement votre ID personnel apparaitra sur la montre. Utilisez-le pour acceder:", "Nach deinem ersten Training erscheint deine personliche ID auf der Uhr. Nutze sie fur dein Dashboard:", "首次训练后您的个人ID将显示在手表上。使用它访问您的仪表板："],
     "dashboard_url_example": ["https://fitbeat.it.com/api/u/YOUR_ID?lang=0", "https://fitbeat.it.com/api/u/YOUR_ID?lang=1", "https://fitbeat.it.com/api/u/TU_ID?lang=2", "https://fitbeat.it.com/api/u/VOTRE_ID?lang=3", "https://fitbeat.it.com/api/u/DEINE_ID?lang=4", "https://fitbeat.it.com/api/u/YOUR_ID?lang=5"],
     "save_this_page": ["Save This Page!", "שמור את הדף הזה!", "Guarda Esta Pagina!", "Sauvegardez Cette Page!", "Speichere Diese Seite!", "保存此页面！"],
+    "colors": ["Colors", "צבעים", "Colores", "Couleurs", "Farben", "颜色"],
+    "workouts_title": ["Workouts", "אימונים", "Entrenamientos", "Entrainements", "Trainings", "训练"],
+    "total_km": ["Total km", "סה״כ ק״מ", "Total km", "Total km", "Gesamt km", "总公里"],
+    "avg_hr_alt": ["Avg HR", "דופק ממוצע", "FC Prom", "FC Moy", "Durchschn. HF", "平均心率"],
 }
 
 # Month names in 6 languages
@@ -777,7 +781,7 @@ def generate_workout_html(workout, user_id, lang=0):
                     formatted_datetime = f"{date_part} {time_part}"
             else:
                 formatted_datetime = timestamp[:16]
-        except:
+        except Exception:
             formatted_datetime = timestamp[:16] if len(timestamp) > 16 else timestamp
     
     # Get base URL
@@ -1055,14 +1059,56 @@ def generate_workout_html(workout, user_id, lang=0):
 
 @api_router.get("/welcome", response_class=HTMLResponse)
 async def welcome_page(lang: int = 0):
-    """Landing page with app info in all languages"""
+    """Landing page - clean minimal design with working dashboard link"""
     
     # RTL support for Hebrew
     dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
     lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
     
-    # Get base URL
-    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
+    # Translations for this page
+    titles = ["Welcome to FitBeat", "ברוכים הבאים ל-FitBeat", "Bienvenido a FitBeat", "Bienvenue sur FitBeat", "Willkommen bei FitBeat", "欢迎使用FitBeat"]
+    slogans = ["Your Personal Fitness Tracker", "מעקב הכושר האישי שלך", "Tu Rastreador de Fitness", "Votre Tracker Fitness", "Dein Fitness Tracker", "您的健身追踪器"]
+    
+    desc_texts = [
+        "FitBeat tracks your walks and runs on your Garmin watch, with heart rate monitoring, GPS routes, and a personal dashboard.",
+        "FitBeat עוקבת אחרי ההליכות והריצות שלך בשעון Garmin, עם ניטור דופק, מסלולי GPS ודשבורד אישי.",
+        "FitBeat rastrea tus caminatas y carreras en tu reloj Garmin, con monitoreo cardíaco, rutas GPS y panel personal.",
+        "FitBeat suit vos marches et courses sur votre montre Garmin, avec suivi cardiaque, parcours GPS et tableau de bord.",
+        "FitBeat verfolgt deine Walks und Läufe auf deiner Garmin-Uhr, mit Herzfrequenz, GPS-Routen und Dashboard.",
+        "FitBeat在您的Garmin手表上追踪步行和跑步，包括心率监测、GPS路线和个人仪表板。"
+    ]
+    
+    dashboard_titles = ["Your Dashboard", "הדשבורד שלך", "Tu Panel", "Votre Tableau", "Dein Dashboard", "您的仪表板"]
+    dashboard_descs = [
+        "After your first workout, your ID will appear on the watch. Access your dashboard at:",
+        "אחרי האימון הראשון, המזהה שלך יופיע בשעון. גש לדשבורד שלך בכתובת:",
+        "Después de tu primer entrenamiento, tu ID aparecerá en el reloj. Accede a tu panel en:",
+        "Après votre premier entraînement, votre ID apparaîtra sur la montre. Accédez à:",
+        "Nach deinem ersten Training erscheint deine ID auf der Uhr. Dein Dashboard:",
+        "首次训练后，您的ID将显示在手表上。访问您的仪表板："
+    ]
+    
+    bookmark_tips = [
+        "Save this link! Replace YOUR_ID with your personal ID from the watch.",
+        "שמור את הלינק הזה! החלף YOUR_ID במזהה האישי שלך מהשעון.",
+        "¡Guarda este enlace! Reemplaza YOUR_ID con tu ID personal del reloj.",
+        "Sauvegardez ce lien! Remplacez YOUR_ID par votre ID sur la montre.",
+        "Speichere diesen Link! Ersetze YOUR_ID mit deiner ID von der Uhr.",
+        "保存此链接！将YOUR_ID替换为手表上的个人ID。"
+    ]
+    
+    download_texts = ["Download from Garmin Store", "הורד מחנות Garmin", "Descargar de Garmin Store", "Télécharger sur Garmin Store", "Im Garmin Store herunterladen", "从Garmin商店下载"]
+    
+    title = titles[lang] if lang < 6 else titles[0]
+    slogan = slogans[lang] if lang < 6 else slogans[0]
+    desc = desc_texts[lang] if lang < 6 else desc_texts[0]
+    dash_title = dashboard_titles[lang] if lang < 6 else dashboard_titles[0]
+    dash_desc = dashboard_descs[lang] if lang < 6 else dashboard_descs[0]
+    bookmark_tip = bookmark_tips[lang] if lang < 6 else bookmark_tips[0]
+    download_text = download_texts[lang] if lang < 6 else download_texts[0]
+    
+    # The working dashboard URL (production)
+    dashboard_url = "https://fitbeat.it.com/api/u/YOUR_ID"
     
     return f"""
     <!DOCTYPE html>
@@ -1070,138 +1116,164 @@ async def welcome_page(lang: int = 0):
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>FitBeat - {t('welcome_page_title', lang)}</title>
+        <title>FitBeat - {title}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
-            .container {{ max-width: 600px; margin: 0 auto; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                background: #0d0d14;
+                min-height: 100vh; 
+                color: #e0e0e0; 
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                padding: 2rem 1.5rem;
+            }}
             
-            .lang-bar {{ display: flex; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }}
-            .lang-btn {{ background: rgba(255,255,255,0.1); color: #888; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.9rem; cursor: pointer; text-decoration: none; transition: all 0.2s; }}
-            .lang-btn:hover {{ background: rgba(0,212,255,0.2); color: white; }}
-            .lang-btn.active {{ background: #00d4ff; color: #1a1a2e; font-weight: bold; }}
+            .container {{ 
+                max-width: 400px; 
+                width: 100%;
+                text-align: center;
+            }}
             
-            header {{ text-align: center; padding: 2rem 0; }}
-            h1 {{ color: #00d4ff; font-size: 2.5rem; margin-bottom: 0.5rem; }}
-            .subtitle {{ color: #888; font-size: 1.1rem; }}
+            /* Logo */
+            .logo {{ 
+                font-size: 4rem; 
+                margin-bottom: 0.5rem;
+            }}
             
-            .section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
-            .section-title {{ color: #00d4ff; font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }}
-            .section-text {{ color: #ccc; line-height: 1.7; margin-bottom: 1rem; }}
+            /* Title */
+            h1 {{ 
+                color: #00d4ff; 
+                font-size: 2rem; 
+                font-weight: 700;
+                margin-bottom: 0.25rem;
+            }}
             
-            .features-list {{ list-style: none; }}
-            .features-list li {{ padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; }}
-            .features-list li:last-child {{ border-bottom: none; }}
-            .feature-icon {{ font-size: 1.5rem; }}
+            .slogan {{ 
+                color: #666; 
+                font-size: 0.95rem;
+                margin-bottom: 2rem;
+            }}
             
-            .steps-list {{ list-style: none; counter-reset: steps; }}
-            .steps-list li {{ padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: flex-start; gap: 1rem; }}
-            .steps-list li:last-child {{ border-bottom: none; }}
-            .step-num {{ background: #00d4ff; color: #1a1a2e; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }}
+            /* Description */
+            .desc {{ 
+                color: #888; 
+                font-size: 0.9rem;
+                line-height: 1.6;
+                margin-bottom: 2.5rem;
+                padding: 0 0.5rem;
+            }}
             
-            .important-box {{ background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 0.75rem; padding: 1rem; margin: 1rem 0; }}
-            .important-box .title {{ color: #ffc107; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }}
-            .important-box .text {{ color: #ccc; font-size: 0.9rem; }}
+            /* Dashboard Section */
+            .dashboard-section {{
+                background: linear-gradient(145deg, #151520 0%, #0f0f18 100%);
+                border: 1px solid #1a1a2a;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }}
             
-            .url-box {{ background: rgba(0,212,255,0.1); border-radius: 0.5rem; padding: 1rem; text-align: center; font-family: monospace; color: #00d4ff; word-break: break-all; margin: 1rem 0; }}
+            .dash-title {{
+                color: #00d4ff;
+                font-size: 1.1rem;
+                font-weight: 600;
+                margin-bottom: 0.75rem;
+            }}
             
-            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }}
-            .btn-primary {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%); color: #1a1a2e; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
-            .btn-secondary {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; padding: 0.85rem 2rem; border-radius: 9999px; font-size: 1rem; cursor: pointer; text-decoration: none; }}
-            .btn-secondary:hover {{ background: rgba(0,212,255,0.1); }}
+            .dash-desc {{
+                color: #777;
+                font-size: 0.85rem;
+                margin-bottom: 1rem;
+                line-height: 1.5;
+            }}
             
-            footer {{ text-align: center; padding: 2rem 0; color: #888; font-size: 0.9rem; }}
-            footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; }}
+            /* URL Box */
+            .url-box {{
+                background: #0a0a10;
+                border: 1px solid #00d4ff40;
+                border-radius: 0.5rem;
+                padding: 1rem;
+                margin-bottom: 1rem;
+            }}
+            
+            .url-link {{
+                font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+                color: #00d4ff;
+                font-size: 0.8rem;
+                word-break: break-all;
+                display: block;
+                text-decoration: none;
+            }}
+            
+            .url-link:hover {{
+                text-decoration: underline;
+            }}
+            
+            /* Tip */
+            .tip {{
+                color: #999;
+                font-size: 0.8rem;
+                font-style: italic;
+            }}
+            
+            /* Download Button */
+            .btn-download {{
+                display: block;
+                background: linear-gradient(135deg, #00d4ff 0%, #0099bb 100%);
+                color: #000;
+                font-weight: 700;
+                font-size: 1rem;
+                padding: 1rem 2rem;
+                border-radius: 2rem;
+                text-decoration: none;
+                margin-bottom: 1rem;
+                transition: transform 0.2s, box-shadow 0.2s;
+            }}
+            
+            .btn-download:hover {{
+                transform: translateY(-2px);
+                box-shadow: 0 8px 25px rgba(0, 212, 255, 0.3);
+            }}
+            
+            /* Footer */
+            .footer {{
+                margin-top: 2rem;
+                color: #333;
+                font-size: 0.75rem;
+            }}
         </style>
     </head>
     <body>
         <div class="container">
-            <div class="lang-bar">
-                <a href="/api/welcome?lang=0" class="lang-btn {'active' if lang == 0 else ''}">English</a>
-                <a href="/api/welcome?lang=1" class="lang-btn {'active' if lang == 1 else ''}">עברית</a>
-                <a href="/api/welcome?lang=2" class="lang-btn {'active' if lang == 2 else ''}">Español</a>
-                <a href="/api/welcome?lang=3" class="lang-btn {'active' if lang == 3 else ''}">Français</a>
-                <a href="/api/welcome?lang=4" class="lang-btn {'active' if lang == 4 else ''}">Deutsch</a>
-                <a href="/api/welcome?lang=5" class="lang-btn {'active' if lang == 5 else ''}">中文</a>
-            </div>
+            <div class="logo">🏃‍♂️</div>
+            <h1>FitBeat</h1>
+            <p class="slogan">{slogan}</p>
             
-            <header>
-                <h1>🏃‍♂️ FitBeat</h1>
-                <p class="subtitle">{t('welcome_page_title', lang)}</p>
-            </header>
+            <p class="desc">{desc}</p>
             
-            <div class="section">
-                <div class="section-title">❓ {t('what_is_fitbeat', lang)}</div>
-                <p class="section-text">{t('fitbeat_desc', lang)}</p>
-            </div>
-            
-            <div class="section">
-                <div class="section-title">⭐ {t('key_features', lang)}</div>
-                <ul class="features-list">
-                    <li><span class="feature-icon">💓</span> {t('feature_hr', lang)}</li>
-                    <li><span class="feature-icon">📍</span> {t('feature_gps', lang)}</li>
-                    <li><span class="feature-icon">🎯</span> {t('feature_goals', lang)}</li>
-                    <li><span class="feature-icon">📊</span> {t('feature_dashboard', lang)}</li>
-                    <li><span class="feature-icon">📤</span> {t('feature_share', lang)}</li>
-                </ul>
-            </div>
-            
-            <div class="section">
-                <div class="section-title">🔧 {t('how_it_works', lang)}</div>
-                <ol class="steps-list">
-                    <li><span class="step-num">1</span> {t('step1', lang)}</li>
-                    <li><span class="step-num">2</span> {t('step2', lang)}</li>
-                    <li><span class="step-num">3</span> {t('step3', lang)}</li>
-                    <li><span class="step-num">4</span> {t('step4', lang)}</li>
-                </ol>
-                
-                <div class="important-box">
-                    <div class="title">⚠️ {t('important_note', lang)}</div>
-                    <div class="text">{t('sync_note', lang)}</div>
+            <div class="dashboard-section">
+                <div class="dash-title">📊 {dash_title}</div>
+                <p class="dash-desc">{dash_desc}</p>
+                <div class="url-box">
+                    <a href="{dashboard_url}" class="url-link" target="_blank">{dashboard_url}</a>
                 </div>
+                <p class="tip">💡 {bookmark_tip}</p>
             </div>
             
-            <div class="section">
-                <div class="section-title">📊 {t('your_dashboard', lang)}</div>
-                <p class="section-text">{t('dashboard_info', lang)}</p>
-                <div class="url-box">{t('dashboard_url_example', lang)}</div>
-                <p class="section-text" style="font-size: 0.9rem; color: #888;">{t('bookmark_tip', lang)}</p>
-            </div>
+            <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="btn-download">
+                ⬇️ {download_text}
+            </a>
             
-            <div class="buttons">
-                <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="btn-primary">⬇️ {t('download_app', lang)}</a>
-                <button onclick="bookmarkPage()" class="btn-secondary">⭐ {t('save_bookmark', lang)}</button>
-            </div>
-            
-            <footer>
-                <div class="brand">FitBeat</div>
-                <p>Train Smart, Not Hard!</p>
-            </footer>
+            <div class="footer">FitBeat © 2026</div>
         </div>
-        
-        <script>
-            function bookmarkPage() {{
-                const url = window.location.href;
-                const title = 'FitBeat';
-                if (navigator.share) {{
-                    navigator.share({{
-                        title: title,
-                        url: url
-                    }}).catch(() => {{
-                        alert('iOS: Tap the Share button then "Add to Home Screen" or "Add Bookmark"\\n\\nAndroid: Tap the menu then "Add to Home screen"');
-                    }});
-                }} else {{
-                    alert('Press Ctrl+D (Windows) or Cmd+D (Mac) to bookmark this page!');
-                }}
-            }}
-        </script>
     </body>
     </html>
     """
 
 @api_router.get("/u/{user_id}", response_class=HTMLResponse)
 async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
-    """Main page - shows years as folders"""
+    """Main dashboard - 50/50 layout: workout data on one side, app info on other"""
     workouts = await db.workouts.find(
         {"user_id": user_id},
         {"_id": 0}
@@ -1211,29 +1283,22 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     if lang is None:
         lang = workouts[0].get('lang', 0) if workouts else 0
     
-    # Check if this is first visit (show welcome banner)
-    is_first_visit = welcome == "1" or (len(workouts) == 1)
-    
     # RTL support for Hebrew
-    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    is_rtl_lang = is_rtl(lang)
+    dir_attr = 'dir="rtl"' if is_rtl_lang else 'dir="ltr"'
     lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
     
     # Group workouts by year
     from collections import defaultdict
     years_data = defaultdict(list)
     for w in workouts:
-        year = w.get('timestamp', '')[:4]  # "2026"
+        year = w.get('timestamp', '')[:4]
         if year:
             years_data[year].append(w)
     
     # Calculate total summary
     total_dist = sum(w.get('distance_cm', 0) for w in workouts) if workouts else 0
-    total_time = sum(w.get('duration_sec', 0) for w in workouts) if workouts else 0
     total_km = total_dist / 100000
-    total_hrs = total_time // 3600
-    total_mins = (total_time % 3600) // 60
-    time_str = f"{total_hrs} {t('hours', lang)} {t('and', lang)} {total_mins} {t('minutes', lang)}" if total_hrs > 0 else f"{total_mins} {t('minutes', lang)}"
-    
     user_name = workouts[0].get('user_name', '') if workouts else ''
     
     # Build year folders
@@ -1242,7 +1307,6 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         year_workouts = years_data[year]
         y_dist = sum(w.get('distance_cm', 0) for w in year_workouts) / 100000
         y_count = len(year_workouts)
-        
         years_html += f"""
         <a href="/api/u/{user_id}/year/{year}?lang={lang}" class="folder-row">
             <div class="folder-icon">📁</div>
@@ -1251,43 +1315,168 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
                 <div class="folder-meta">{y_count} {t('workouts', lang)}</div>
             </div>
             <div class="folder-stats">{y_dist:.1f} {t('km', lang)}</div>
-            <div class="folder-arrow">{'←' if is_rtl(lang) else '→'}</div>
+            <div class="folder-arrow">{'←' if is_rtl_lang else '→'}</div>
         </a>
         """
     
-    # Get base URL from environment or use default
+    # Get base URL
     base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
-    dashboard_url = f"{base_url}/api/u/{user_id}"
+    dashboard_url = f"{base_url}/api/u/{user_id}?lang={lang}"
+    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_km:.1f} {t('km', lang)}%0A🔗 {dashboard_url}"
     
-    # Welcome message for WhatsApp (translated)
-    welcome_wa_text = {
-        0: f"🎉 Welcome! My FitBeat dashboard:%0A%0A🔗 {dashboard_url}%0A%0A💾 Save this link!",
-        1: f"🎉 שלום! הדשבורד האישי שלי ב-FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 שמור את הלינק הזה!",
-        2: f"🎉 ¡Hola! Mi panel FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 ¡Guarda este enlace!",
-        3: f"🎉 Bonjour! Mon tableau FitBeat:%0A%0A🔗 {dashboard_url}%0A%0A💾 Sauvegardez ce lien!",
-        4: f"🎉 Hallo! Mein FitBeat Dashboard:%0A%0A🔗 {dashboard_url}%0A%0A💾 Speichere diesen Link!",
-        5: f"🎉 你好！我的FitBeat仪表板:%0A%0A🔗 {dashboard_url}%0A%0A💾 保存此链接!",
+    # Detailed app descriptions per language
+    app_descriptions = {
+        0: """<b>How to use FitBeat:</b>
+
+<b>Main Screen:</b>
+• Tap the <b>TIME</b> (top) → Opens Settings (language, name, 10 colors)
+• Tap the <b>DISTANCE</b> → Set distance goal (1-20 km/mi)
+• Tap the <b>TIMER</b> → Set time goal (10-120 minutes)
+• Tap the <b>HEART</b> (bottom) → Heart rate monitoring settings
+
+<b>Smart Heart Rate:</b>
+• Choose "Auto" - measures your current HR and sets target +15 BPM
+• Or select a percentage (50%-90%) of your max heart rate
+• Get alerts when you exceed your target!
+• Get notified when you're back in the safe zone
+
+<b>Features:</b>
+• GPS route tracking with map display
+• Halfway & goal completion alerts with celebration animation
+• 10 customizable colors
+• 6 languages supported
+• Auto-sync to this dashboard
+
+<b>Important:</b> Garmin Connect app must be open on your phone for sync to work.""",
+
+        1: """<b>איך להשתמש ב-FitBeat:</b>
+
+<b>מסך ראשי:</b>
+• לחץ על <b>השעה</b> (למעלה) ← הגדרות (שפה, שם, 10 צבעים)
+• לחץ על <b>המרחק</b> ← בחר יעד מרחק (1-20 ק"מ)
+• לחץ על <b>הטיימר</b> ← בחר יעד זמן (10-120 דקות)
+• לחץ על <b>הלב</b> (למטה) ← הגדרות ניטור דופק
+
+<b>ניטור דופק חכם:</b>
+• בחר "אוטו" - מודד את הדופק הנוכחי ומגדיר יעד +15 פעימות
+• או בחר אחוז (50%-90%) מהדופק המקסימלי שלך
+• מקבל התראה כשעוברים את היעד!
+• מקבל הודעה כשחוזרים לטווח הבטוח
+
+<b>פיצ'רים:</b>
+• מעקב GPS עם תצוגת מפה
+• התראות בחצי הדרך ובסיום היעד עם אנימציה
+• 10 צבעים לבחירה
+• 6 שפות נתמכות
+• סנכרון אוטומטי לדשבורד
+
+<b>חשוב:</b> אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון.""",
+
+        2: """<b>Cómo usar FitBeat:</b>
+
+<b>Pantalla principal:</b>
+• Toca la <b>HORA</b> (arriba) → Ajustes (idioma, nombre, 10 colores)
+• Toca la <b>DISTANCIA</b> → Establecer meta de distancia (1-20 km)
+• Toca el <b>TEMPORIZADOR</b> → Establecer meta de tiempo (10-120 min)
+• Toca el <b>CORAZÓN</b> (abajo) → Ajustes de frecuencia cardíaca
+
+<b>Monitoreo cardíaco inteligente:</b>
+• Elige "Auto" - mide tu FC actual y establece objetivo +15 LPM
+• O selecciona un porcentaje (50%-90%) de tu FC máxima
+• ¡Recibe alertas cuando superas tu objetivo!
+• Te avisa cuando vuelves a la zona segura
+
+<b>Características:</b>
+• Seguimiento GPS con visualización de mapa
+• Alertas a mitad de camino y al completar meta
+• 10 colores personalizables
+• 6 idiomas soportados
+• Sincronización automática
+
+<b>Importante:</b> Garmin Connect debe estar abierta en tu teléfono.""",
+
+        3: """<b>Comment utiliser FitBeat:</b>
+
+<b>Écran principal:</b>
+• Touchez l'<b>HEURE</b> (haut) → Paramètres (langue, nom, 10 couleurs)
+• Touchez la <b>DISTANCE</b> → Définir objectif distance (1-20 km)
+• Touchez le <b>CHRONO</b> → Définir objectif temps (10-120 min)
+• Touchez le <b>CŒUR</b> (bas) → Paramètres fréquence cardiaque
+
+<b>Suivi cardiaque intelligent:</b>
+• Choisissez "Auto" - mesure votre FC et définit objectif +15 BPM
+• Ou sélectionnez un pourcentage (50%-90%) de votre FC max
+• Alertes quand vous dépassez votre objectif!
+• Notification quand vous revenez dans la zone sûre
+
+<b>Fonctionnalités:</b>
+• Suivi GPS avec affichage carte
+• Alertes mi-parcours et fin d'objectif avec animation
+• 10 couleurs personnalisables
+• 6 langues supportées
+• Synchronisation automatique
+
+<b>Important:</b> Garmin Connect doit être ouverte sur votre téléphone.""",
+
+        4: """<b>So verwendest du FitBeat:</b>
+
+<b>Hauptbildschirm:</b>
+• Tippe auf die <b>UHRZEIT</b> (oben) → Einstellungen (Sprache, Name, 10 Farben)
+• Tippe auf die <b>DISTANZ</b> → Distanzziel setzen (1-20 km)
+• Tippe auf den <b>TIMER</b> → Zeitziel setzen (10-120 min)
+• Tippe auf das <b>HERZ</b> (unten) → Herzfrequenz-Einstellungen
+
+<b>Intelligente Herzüberwachung:</b>
+• Wähle "Auto" - misst deine aktuelle HF und setzt Ziel +15 SPM
+• Oder wähle einen Prozentsatz (50%-90%) deiner max. HF
+• Alarm wenn du dein Ziel überschreitest!
+• Benachrichtigung wenn du wieder im sicheren Bereich bist
+
+<b>Funktionen:</b>
+• GPS-Tracking mit Kartenanzeige
+• Halbzeit- und Zielalarme mit Animation
+• 10 anpassbare Farben
+• 6 Sprachen unterstützt
+• Automatische Synchronisation
+
+<b>Wichtig:</b> Garmin Connect muss auf deinem Handy geöffnet sein.""",
+
+        5: """<b>如何使用FitBeat：</b>
+
+<b>主屏幕：</b>
+• 点击<b>时间</b>（顶部）→ 设置（语言、名称、10种颜色）
+• 点击<b>距离</b> → 设置距离目标（1-20公里）
+• 点击<b>计时器</b> → 设置时间目标（10-120分钟）
+• 点击<b>心脏</b>（底部）→ 心率监测设置
+
+<b>智能心率监测：</b>
+• 选择"自动" - 测量当前心率并设置目标+15次/分
+• 或选择最大心率的百分比（50%-90%）
+• 超过目标时收到警报！
+• 回到安全区域时收到通知
+
+<b>功能：</b>
+• GPS路线追踪与地图显示
+• 半程和目标完成提醒带动画
+• 10种可自定义颜色
+• 支持6种语言
+• 自动同步到仪表板
+
+<b>重要：</b>手机上的Garmin Connect必须打开才能同步。"""
     }
-    welcome_text = welcome_wa_text.get(lang, welcome_wa_text[0])
     
-    # Welcome banner HTML (shown on first visit)
-    welcome_banner = ""
-    if is_first_visit and workouts:
-        welcome_banner = f"""
-        <div class="welcome-banner" id="welcomeBanner">
-            <div class="welcome-icon">🎉</div>
-            <h2>{t('welcome_title', lang)}</h2>
-            <p>{t('your_dashboard', lang)}</p>
-            <p class="welcome-link">{dashboard_url}</p>
-            <a href="https://wa.me/?text={welcome_text}" target="_blank" class="welcome-btn">
-                📲 {t('send_whatsapp', lang)}
-            </a>
-            <button onclick="closeWelcome()" class="welcome-close">{t('got_it', lang)}</button>
-        </div>
-        """
+    app_desc = app_descriptions.get(lang, app_descriptions[0])
     
-    # Share text for the main share button
-    share_text = f"📊 FitBeat%0A🏃 {len(workouts)} {t('workouts', lang)}%0A📍 {total_km:.1f} {t('km', lang)}%0A%0A🔗 {dashboard_url}"
+    # Bookmark instructions per language
+    bookmark_instructions = {
+        0: "iOS: Tap Share → Add to Home Screen\\nAndroid: Tap ⋮ → Add to Home screen\\nDesktop: Press Ctrl+D or Cmd+D",
+        1: "iOS: לחץ שיתוף ← הוסף למסך הבית\\nAndroid: לחץ ⋮ ← הוסף למסך הבית\\nמחשב: לחץ Ctrl+D או Cmd+D",
+        2: "iOS: Toca Compartir → Añadir a inicio\\nAndroid: Toca ⋮ → Añadir a inicio\\nPC: Ctrl+D o Cmd+D",
+        3: "iOS: Appuyez Partager → Ajouter à l'écran\\nAndroid: Appuyez ⋮ → Ajouter à l'écran\\nPC: Ctrl+D ou Cmd+D",
+        4: "iOS: Teilen → Zum Home-Bildschirm\\nAndroid: ⋮ → Zum Startbildschirm\\nPC: Strg+D oder Cmd+D",
+        5: "iOS: 点击分享 → 添加到主屏幕\\nAndroid: 点击 ⋮ → 添加到主屏幕\\n电脑: Ctrl+D 或 Cmd+D",
+    }
+    bookmark_alert = bookmark_instructions.get(lang, bookmark_instructions[0])
     
     return f"""
     <!DOCTYPE html>
@@ -1298,150 +1487,272 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         <title>FitBeat - {user_name or user_id}</title>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
-            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
-            .container {{ max-width: 480px; margin: 0 auto; }}
-            header {{ text-align: center; padding: 1.5rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); margin-bottom: 1.5rem; }}
-            h1 {{ color: #00d4ff; font-size: 1.8rem; }}
-            .user-name {{ font-size: 1.2rem; margin-top: 0.5rem; }}
+            body {{ 
+                font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; 
+                background: #0a0a12;
+                min-height: 100vh; 
+                color: #e0e0e0; 
+            }}
             
-            .summary {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
-            .summary-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
-            .summary-grid {{ display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; text-align: center; }}
-            .summary-value {{ font-size: 2.5rem; font-weight: bold; color: #00d4ff; }}
+            /* 50/50 Two column layout */
+            .page-container {{
+                display: flex;
+                flex-direction: {'row-reverse' if is_rtl_lang else 'row'};
+                min-height: 100vh;
+            }}
+            
+            /* Left side - Workout data (50%) */
+            .data-section {{
+                flex: 1;
+                padding: 2rem;
+                border-{'left' if is_rtl_lang else 'right'}: 1px solid #1a1a2a;
+                overflow-y: auto;
+            }}
+            
+            /* Right side - App info (50%) */
+            .info-section {{
+                flex: 1;
+                padding: 2rem;
+                background: linear-gradient(180deg, #0d0d18 0%, #0a0a12 100%);
+                overflow-y: auto;
+            }}
+            
+            /* Mobile: stack vertically */
+            @media (max-width: 900px) {{
+                .page-container {{
+                    flex-direction: column;
+                }}
+                .data-section {{
+                    border: none;
+                    border-bottom: 1px solid #1a1a2a;
+                }}
+            }}
+            
+            /* Header */
+            .section-header {{
+                text-align: center;
+                padding-bottom: 1.5rem;
+                margin-bottom: 1.5rem;
+                border-bottom: 1px solid #1a1a2a;
+            }}
+            .section-header h1 {{ color: #00d4ff; font-size: 1.8rem; }}
+            .section-header .subtitle {{ color: #666; font-size: 0.9rem; margin-top: 0.5rem; }}
+            .user-name {{ color: #888; font-size: 1rem; margin-top: 0.25rem; }}
+            
+            /* Summary card */
+            .summary {{
+                background: linear-gradient(145deg, #12121c 0%, #0d0d14 100%);
+                border: 1px solid #1a1a2a;
+                border-radius: 1rem;
+                padding: 1.25rem;
+                margin-bottom: 1.5rem;
+            }}
+            .summary-title {{ color: #555; font-size: 0.85rem; margin-bottom: 1rem; }}
+            .summary-grid {{
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 1rem;
+                text-align: center;
+            }}
+            .summary-value {{ font-size: 2.2rem; font-weight: bold; color: #00d4ff; }}
             .summary-value.green {{ color: #22c55e; }}
-            .summary-label {{ color: #888; font-size: 0.9rem; margin-top: 0.25rem; }}
+            .summary-label {{ color: #555; font-size: 0.8rem; margin-top: 0.25rem; }}
             
-            .folders {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1rem; margin-bottom: 1.5rem; }}
-            .folders-title {{ color: #888; font-size: 0.9rem; margin-bottom: 1rem; }}
+            /* Folders */
+            .folders {{
+                background: linear-gradient(145deg, #12121c 0%, #0d0d14 100%);
+                border: 1px solid #1a1a2a;
+                border-radius: 1rem;
+                padding: 1rem;
+                margin-bottom: 1.5rem;
+            }}
+            .folders-title {{ color: #555; font-size: 0.85rem; margin-bottom: 1rem; }}
             
-            .folder-row {{ display: flex; align-items: center; padding: 1rem; background: rgba(0,0,0,0.2); border-radius: 0.75rem; margin-bottom: 0.5rem; text-decoration: none; color: white; transition: all 0.2s; }}
-            .folder-row:hover {{ background: rgba(0,212,255,0.1); transform: translateX(-4px); }}
-            .folder-icon {{ font-size: 2rem; margin-left: 1rem; }}
+            .folder-row {{
+                display: flex;
+                align-items: center;
+                padding: 0.875rem;
+                background: rgba(0,0,0,0.3);
+                border-radius: 0.75rem;
+                margin-bottom: 0.5rem;
+                text-decoration: none;
+                color: white;
+                transition: background 0.2s;
+            }}
+            .folder-row:hover {{ background: rgba(0,212,255,0.1); }}
+            .folder-icon {{ font-size: 1.5rem; margin-{'left' if is_rtl_lang else 'right'}: 0.75rem; }}
             .folder-info {{ flex: 1; }}
-            .folder-name {{ font-weight: bold; font-size: 1.2rem; }}
-            .folder-meta {{ color: #888; font-size: 0.85rem; }}
-            .folder-stats {{ color: #22c55e; font-weight: bold; font-size: 1.1rem; margin-left: 1rem; }}
-            .folder-arrow {{ color: #00d4ff; font-size: 1.5rem; }}
+            .folder-name {{ font-weight: bold; font-size: 1.1rem; }}
+            .folder-meta {{ color: #555; font-size: 0.8rem; }}
+            .folder-stats {{ color: #22c55e; font-weight: bold; margin-{'right' if is_rtl_lang else 'left'}: 0.75rem; }}
+            .folder-arrow {{ color: #00d4ff; font-size: 1.2rem; }}
             
-            .no-workouts {{ text-align: center; padding: 3rem 1rem; }}
-            .no-workouts-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
+            .no-workouts {{ text-align: center; padding: 2rem 1rem; color: #555; }}
+            .no-workouts-icon {{ font-size: 3rem; margin-bottom: 0.75rem; }}
             
-            .welcome-banner {{ position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 1000; padding: 2rem; text-align: center; }}
-            .welcome-icon {{ font-size: 4rem; margin-bottom: 1rem; }}
-            .welcome-banner h2 {{ color: #00d4ff; font-size: 1.8rem; margin-bottom: 0.5rem; }}
-            .welcome-banner p {{ color: #888; margin-bottom: 0.5rem; }}
-            .welcome-link {{ font-family: monospace; color: #00d4ff; font-size: 0.8rem; background: rgba(0,212,255,0.1); padding: 0.5rem 1rem; border-radius: 0.5rem; margin: 1rem 0; word-break: break-all; }}
-            .welcome-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; text-decoration: none; margin: 1rem 0; }}
-            .welcome-close {{ background: transparent; color: #888; border: 1px solid #888; padding: 0.5rem 1.5rem; border-radius: 9999px; cursor: pointer; margin-top: 1rem; }}
-            .welcome-close:hover {{ color: white; border-color: white; }}
+            /* Buttons */
+            .share-btn {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: linear-gradient(90deg, #25D366 0%, #128C7E 100%);
+                color: white;
+                padding: 0.875rem 1.5rem;
+                border-radius: 2rem;
+                font-weight: 600;
+                text-decoration: none;
+                margin-bottom: 0.75rem;
+            }}
             
-            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin: 1.5rem 0; }}
-            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
-            .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
+            .delete-btn {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: transparent;
+                color: #ef4444;
+                border: 1px solid #ef4444;
+                padding: 0.6rem 1.25rem;
+                border-radius: 2rem;
+                font-size: 0.85rem;
+                cursor: pointer;
+            }}
             .delete-btn:hover {{ background: #ef4444; color: white; }}
             
-            footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
-            footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1rem; }}
-            footer .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 0.5rem; font-size: 0.7rem; }}
+            /* Info section styles */
+            .info-header {{
+                text-align: center;
+                padding-bottom: 1.5rem;
+                margin-bottom: 1.5rem;
+                border-bottom: 1px solid #1a1a2a;
+            }}
+            .info-header .logo {{ font-size: 3.5rem; }}
+            .info-header h2 {{ color: #00d4ff; font-size: 2rem; margin-top: 0.5rem; }}
+            .info-header .tagline {{ color: #555; font-size: 0.9rem; margin-top: 0.25rem; }}
             
-            .lang-bar {{ display: flex; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }}
-            .lang-btn {{ background: rgba(255,255,255,0.1); color: #888; border: none; padding: 0.4rem 0.8rem; border-radius: 0.25rem; font-size: 0.8rem; cursor: pointer; text-decoration: none; }}
-            .lang-btn:hover {{ background: rgba(0,212,255,0.2); color: white; }}
-            .lang-btn.active {{ background: #00d4ff; color: #1a1a2e; font-weight: bold; }}
+            .app-description {{
+                background: linear-gradient(145deg, #12121c 0%, #0d0d14 100%);
+                border: 1px solid #1a1a2a;
+                border-radius: 1rem;
+                padding: 1.5rem;
+                margin-bottom: 1.5rem;
+            }}
+            .app-description-text {{
+                color: #aaa;
+                font-size: 0.9rem;
+                line-height: 1.7;
+                white-space: pre-line;
+            }}
+            .app-description-text b {{
+                color: #00d4ff;
+                font-weight: 600;
+            }}
             
-            .about-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
-            .about-title {{ color: #00d4ff; font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }}
-            .about-text {{ color: #aaa; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem; }}
-            .about-buttons {{ display: flex; flex-direction: column; gap: 0.5rem; }}
-            .store-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%); color: #1a1a2e; border: none; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.9rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
-            .bookmark-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #00d4ff; border: 1px solid #00d4ff; padding: 0.6rem 1.25rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
+            .info-buttons {{
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+                margin-bottom: 1.5rem;
+            }}
+            
+            .download-btn {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: linear-gradient(135deg, #00d4ff 0%, #0099bb 100%);
+                color: #000;
+                font-weight: 700;
+                padding: 1rem 1.5rem;
+                border-radius: 2rem;
+                text-decoration: none;
+                font-size: 1rem;
+            }}
+            
+            .bookmark-btn {{
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                gap: 0.5rem;
+                background: transparent;
+                color: #00d4ff;
+                border: 1px solid #00d4ff;
+                padding: 0.875rem 1.25rem;
+                border-radius: 2rem;
+                font-size: 0.95rem;
+                cursor: pointer;
+            }}
             .bookmark-btn:hover {{ background: rgba(0,212,255,0.1); }}
+            
+            .footer {{
+                text-align: center;
+                padding-top: 1rem;
+                color: #333;
+                font-size: 0.75rem;
+            }}
+            .footer .user-id {{ color: #00d4ff; opacity: 0.5; font-family: monospace; margin-top: 0.25rem; }}
         </style>
     </head>
     <body>
-        {welcome_banner}
-        <div class="container">
-            <div class="lang-bar">
-                <a href="/api/u/{user_id}?lang=0" class="lang-btn {'active' if lang == 0 else ''}">English</a>
-                <a href="/api/u/{user_id}?lang=1" class="lang-btn {'active' if lang == 1 else ''}">עברית</a>
-                <a href="/api/u/{user_id}?lang=2" class="lang-btn {'active' if lang == 2 else ''}">Español</a>
-                <a href="/api/u/{user_id}?lang=3" class="lang-btn {'active' if lang == 3 else ''}">Français</a>
-                <a href="/api/u/{user_id}?lang=4" class="lang-btn {'active' if lang == 4 else ''}">Deutsch</a>
-                <a href="/api/u/{user_id}?lang=5" class="lang-btn {'active' if lang == 5 else ''}">中文</a>
-            </div>
-            
-            <header>
-                <h1>🏃‍♂️ FitBeat</h1>
-                {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
-            </header>
-            
-            <div class="summary">
-                <div class="summary-title">📊 {t('total_summary', lang)}</div>
-                <div class="summary-grid">
-                    <div>
-                        <div class="summary-value">{len(workouts)}</div>
-                        <div class="summary-label">{t('workouts', lang)}</div>
-                    </div>
-                    <div>
-                        <div class="summary-value green">{total_km:.1f}</div>
-                        <div class="summary-label">{t('km_total', lang)}</div>
+        <div class="page-container">
+            <!-- Data Section - Workout Stats -->
+            <div class="data-section">
+                <div class="section-header">
+                    <h1>📊 {t('total_summary', lang)}</h1>
+                    {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
+                </div>
+                
+                <div class="summary">
+                    <div class="summary-grid">
+                        <div>
+                            <div class="summary-value">{len(workouts)}</div>
+                            <div class="summary-label">{t('workouts', lang)}</div>
+                        </div>
+                        <div>
+                            <div class="summary-value green">{total_km:.1f}</div>
+                            <div class="summary-label">{t('km_total', lang)}</div>
+                        </div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="folders">
-                <div class="folders-title">📁 {t('by_years', lang)}</div>
-                {years_html if years_html else f'<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>{t("no_workouts", lang)}</p><p style="font-size:0.8rem;margin-top:0.5rem;color:#888;">{t("finish_goal", lang)}</p></div>'}
-            </div>
-            
-            <div class="buttons">
+                
+                <div class="folders">
+                    <div class="folders-title">📁 {t('by_years', lang)}</div>
+                    {years_html if years_html else f'<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>{t("no_workouts", lang)}</p><p style="font-size:0.8rem;margin-top:0.5rem;">{t("finish_goal", lang)}</p></div>'}
+                </div>
+                
                 <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
                 {f'<button onclick="deleteAll()" class="delete-btn">🗑️ {t("delete_all", lang)}</button>' if workouts else ''}
             </div>
             
-            <div class="about-section">
-                <div class="about-title">ℹ️ {t('about_app', lang)}</div>
-                <div class="about-text">{t('about_text', lang)}</div>
-                <div class="about-text" style="font-size: 0.8rem; color: #888;">{t('bookmark_tip', lang)}</div>
-                <div class="about-buttons">
-                    <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="store-btn">⬇️ {t('download_app', lang)}</a>
-                    <button onclick="bookmarkPage()" class="bookmark-btn">⭐ {t('save_bookmark', lang)}</button>
+            <!-- Info Section - App Description -->
+            <div class="info-section">
+                <div class="info-header">
+                    <div class="logo">🏃‍♂️</div>
+                    <h2>FitBeat</h2>
+                    <p class="tagline">{t('about_app', lang)}</p>
+                </div>
+                
+                <div class="app-description">
+                    <div class="app-description-text">{app_desc}</div>
+                </div>
+                
+                <div class="info-buttons">
+                    <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="download-btn">⬇️ {t('download_app', lang)}</a>
+                </div>
+                
+                <div class="footer">
+                    <div>FitBeat © 2026</div>
+                    <div class="user-id">{t('user_id', lang)}: {user_id}</div>
                 </div>
             </div>
-            
-            <footer>
-                <div class="brand">FitBeat</div>
-                <div class="user-id">{t('user_id', lang)}: {user_id}</div>
-            </footer>
         </div>
+        
         <script>
             async function deleteAll() {{
                 if (confirm('{t("confirm_delete_all", lang)}')) {{
                     await fetch('/api/workout/user/{user_id}/all', {{ method: 'DELETE' }});
                     location.reload();
-                }}
-            }}
-            function closeWelcome() {{
-                document.getElementById('welcomeBanner').style.display = 'none';
-                localStorage.setItem('fitbeat_welcomed_{user_id}', 'true');
-            }}
-            // Auto-hide if already welcomed
-            if (localStorage.getItem('fitbeat_welcomed_{user_id}')) {{
-                const banner = document.getElementById('welcomeBanner');
-                if (banner) banner.style.display = 'none';
-            }}
-            function bookmarkPage() {{
-                const url = window.location.href;
-                const title = 'FitBeat - {user_name or user_id}';
-                if (navigator.share) {{
-                    navigator.share({{
-                        title: title,
-                        url: url
-                    }}).catch(() => {{
-                        alert('iOS: Tap the Share button (box with arrow) then "Add to Home Screen" or "Add Bookmark"\\n\\nAndroid: Tap the menu (3 dots) then "Add to Home screen" or "Bookmark"');
-                    }});
-                }} else {{
-                    alert('Press Ctrl+D (Windows) or Cmd+D (Mac) to bookmark this page!\\n\\nOr use the browser menu to add to bookmarks.');
                 }}
             }}
         </script>
