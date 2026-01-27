@@ -48,6 +48,11 @@ TRANSLATIONS = {
     "distance": ["Distance", "מרחק", "Distancia", "Distance", "Distanz", "距离"],
     "duration": ["Duration", "משך", "Duración", "Durée", "Dauer", "时长"],
     "share_whatsapp": ["Share on WhatsApp", "שתף ב-WhatsApp", "Compartir en WhatsApp", "Partager sur WhatsApp", "Auf WhatsApp teilen", "分享到WhatsApp"],
+    "show_my_link": ["📋 Show my personal link", "📋 הצג את הלינק האישי שלי", "📋 Mostrar mi enlace personal", "📋 Afficher mon lien personnel", "📋 Meinen persönlichen Link anzeigen", "📋 显示我的个人链接"],
+    "copy_link": ["Copy link", "העתק לינק", "Copiar enlace", "Copier le lien", "Link kopieren", "复制链接"],
+    "link_copied": ["Link copied!", "הלינק הועתק!", "¡Enlace copiado!", "Lien copié!", "Link kopiert!", "链接已复制！"],
+    "your_personal_link": ["Your personal dashboard link:", "הלינק האישי שלך לדשבורד:", "Tu enlace personal al panel:", "Votre lien personnel:", "Dein persönlicher Dashboard-Link:", "您的个人仪表板链接："],
+    "save_this_link": ["Save this link to access your workouts anytime!", "שמור את הלינק הזה כדי לגשת לאימונים שלך בכל עת!", "¡Guarda este enlace para acceder a tus entrenamientos!", "Sauvegardez ce lien pour accéder à vos entraînements!", "Speichere diesen Link um jederzeit auf deine Trainings zuzugreifen!", "保存此链接以随时查看您的训练！"],
     "delete_workout": ["Delete workout", "מחק אימון", "Eliminar entrenamiento", "Supprimer l'entraînement", "Training löschen", "删除训练"],
     "delete_all": ["Delete all", "מחק הכל", "Eliminar todo", "Tout supprimer", "Alles löschen", "删除全部"],
     "confirm_delete": ["Delete this workout?", "למחוק את האימון הזה?", "¿Eliminar este entrenamiento?", "Supprimer cet entraînement?", "Dieses Training löschen?", "删除这个训练？"],
@@ -236,6 +241,12 @@ async def get_status_checks():
         if isinstance(check['timestamp'], str):
             check['timestamp'] = datetime.fromisoformat(check['timestamp'])
     return status_checks
+
+@api_router.get("/workouts/recent")
+async def get_recent_workouts():
+    """Get all recent workouts (for debugging)"""
+    workouts = await db.workouts.find({}, {"_id": 0}).sort("timestamp", -1).to_list(20)
+    return workouts
 
 # FitBeat ZIP Download
 @api_router.get("/download/server-only")
@@ -1347,7 +1358,12 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 6 languages supported
 • Auto-sync to this dashboard
 
-<b>Important:</b> Garmin Connect app must be open on your phone for sync to work.""",
+<b>After your first workout:</b>
+• A WhatsApp share button will appear - tap it to send yourself the link to your personal dashboard. Save this link!
+
+<b>Important:</b>
+• Garmin Connect app must be open on your phone for sync
+• Turn OFF Focus/DND mode on your watch for vibration alerts""",
 
         1: """<b>איך להשתמש ב-FitBeat:</b>
 
@@ -1370,7 +1386,12 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 6 שפות נתמכות
 • סנכרון אוטומטי לדשבורד
 
-<b>חשוב:</b> אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון.""",
+<b>אחרי האימון הראשון:</b>
+• יופיע כפתור שיתוף ל-WhatsApp - לחץ עליו כדי לשלוח לעצמך את הלינק לדשבורד האישי שלך. שמור את הלינק הזה!
+
+<b>חשוב:</b>
+• אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון
+• כבה מצב מיקוד (DND) בשעון כדי לקבל רטטים והתראות""",
 
         2: """<b>Cómo usar FitBeat:</b>
 
@@ -1393,7 +1414,11 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 6 idiomas soportados
 • Sincronización automática
 
-<b>Importante:</b> Garmin Connect debe estar abierta en tu teléfono.""",
+<b>Después de tu primer entrenamiento:</b>
+• Aparecerá tu enlace personal. ¡Guárdalo!
+
+<b>Importante:</b> Garmin Connect debe estar abierta en tu teléfono.
+• Desactiva el modo No Molestar para recibir vibraciones.""",
 
         3: """<b>Comment utiliser FitBeat:</b>
 
@@ -1416,7 +1441,12 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 6 langues supportées
 • Synchronisation automatique
 
-<b>Important:</b> Garmin Connect doit être ouverte sur votre téléphone.""",
+<b>Après votre premier entraînement:</b>
+• Un bouton apparaîtra pour voir votre lien personnel. Sauvegardez-le!
+
+<b>Important:</b>
+• Garmin Connect doit être ouverte sur votre téléphone
+• Désactivez le mode Ne Pas Déranger pour les vibrations""",
 
         4: """<b>So verwendest du FitBeat:</b>
 
@@ -1439,7 +1469,12 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 6 Sprachen unterstützt
 • Automatische Synchronisation
 
-<b>Wichtig:</b> Garmin Connect muss auf deinem Handy geöffnet sein.""",
+<b>Nach deinem ersten Training:</b>
+• Dein persönlicher Link wird angezeigt. Speichere ihn!
+
+<b>Wichtig:</b>
+• Garmin Connect muss auf deinem Handy geöffnet sein
+• Deaktiviere den Nicht-Stören-Modus für Vibrationen""",
 
         5: """<b>如何使用FitBeat：</b>
 
@@ -1462,7 +1497,12 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 • 支持6种语言
 • 自动同步到仪表板
 
-<b>重要：</b>手机上的Garmin Connect必须打开才能同步。"""
+<b>首次训练后：</b>
+• 会显示您的个人链接，请保存它！
+
+<b>重要：</b>
+• 手机上的Garmin Connect必须打开
+• 关闭勿扰模式以接收振动提醒"""
     }
     
     app_desc = app_descriptions.get(lang, app_descriptions[0])
@@ -1670,20 +1710,47 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
                 font-size: 1rem;
             }}
             
-            .bookmark-btn {{
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                gap: 0.5rem;
-                background: transparent;
-                color: #00d4ff;
-                border: 1px solid #00d4ff;
-                padding: 0.875rem 1.25rem;
-                border-radius: 2rem;
-                font-size: 0.95rem;
-                cursor: pointer;
+            /* Personal Link Box */
+            .personal-link-box {{
+                background: linear-gradient(145deg, #12121c 0%, #0d0d14 100%);
+                border: 1px solid #00d4ff40;
+                border-radius: 1rem;
+                padding: 1.25rem;
+                margin-bottom: 1rem;
+                text-align: center;
             }}
-            .bookmark-btn:hover {{ background: rgba(0,212,255,0.1); }}
+            .link-title {{
+                color: #00d4ff;
+                font-size: 0.9rem;
+                margin-bottom: 0.75rem;
+            }}
+            .link-url {{
+                background: #0a0a10;
+                border: 1px solid #1a1a2a;
+                border-radius: 0.5rem;
+                padding: 0.75rem;
+                font-family: monospace;
+                font-size: 0.75rem;
+                color: #00d4ff;
+                word-break: break-all;
+                margin-bottom: 0.75rem;
+            }}
+            .copy-btn {{
+                background: linear-gradient(135deg, #00d4ff 0%, #0099bb 100%);
+                color: #000;
+                border: none;
+                padding: 0.6rem 1.5rem;
+                border-radius: 2rem;
+                font-weight: 600;
+                cursor: pointer;
+                font-size: 0.9rem;
+            }}
+            .copy-btn:hover {{ opacity: 0.9; }}
+            .link-tip {{
+                color: #666;
+                font-size: 0.75rem;
+                margin-top: 0.75rem;
+            }}
             
             .footer {{
                 text-align: center;
@@ -1721,7 +1788,14 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
                     {years_html if years_html else f'<div class="no-workouts"><div class="no-workouts-icon">🏃‍♂️</div><p>{t("no_workouts", lang)}</p><p style="font-size:0.8rem;margin-top:0.5rem;">{t("finish_goal", lang)}</p></div>'}
                 </div>
                 
-                <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
+                <!-- Personal Link Box -->
+                <div class="personal-link-box">
+                    <div class="link-title">{t('your_personal_link', lang)}</div>
+                    <div class="link-url" id="dashboardUrl">{dashboard_url}</div>
+                    <button onclick="copyLink()" class="copy-btn">{t('copy_link', lang)}</button>
+                    <div class="link-tip">{t('save_this_link', lang)}</div>
+                </div>
+                
                 {f'<button onclick="deleteAll()" class="delete-btn">🗑️ {t("delete_all", lang)}</button>' if workouts else ''}
             </div>
             
@@ -1754,6 +1828,19 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
                     await fetch('/api/workout/user/{user_id}/all', {{ method: 'DELETE' }});
                     location.reload();
                 }}
+            }}
+            
+            function copyLink() {{
+                var linkText = document.getElementById('dashboardUrl').innerText;
+                navigator.clipboard.writeText(linkText).then(function() {{
+                    var btn = document.querySelector('.copy-btn');
+                    btn.innerText = '{t("link_copied", lang)}';
+                    btn.style.background = '#22c55e';
+                    setTimeout(function() {{
+                        btn.innerText = '{t("copy_link", lang)}';
+                        btn.style.background = '';
+                    }}, 2000);
+                }});
             }}
         </script>
     </body>
