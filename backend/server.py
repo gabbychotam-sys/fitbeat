@@ -66,6 +66,32 @@ TRANSLATIONS = {
     "no_route": ["No GPS data", "אין נתוני GPS", "Sin datos GPS", "Pas de données GPS", "Keine GPS-Daten", "无GPS数据"],
     "meters": ["m", "מ'", "m", "m", "m", "米"],
     "spm": ["spm", "צ'/דק'", "ppm", "ppm", "spm", "步/分"],
+    "about_app": ["About the App", "אודות האפליקציה", "Acerca de la App", "À propos de l'App", "Über die App", "关于应用"],
+    "about_text": ["FitBeat helps you exercise safely with real-time heart rate monitoring, GPS tracking, and personalized goals.", "FitBeat עוזרת לך להתאמן בבטחה עם ניטור דופק בזמן אמת, מעקב GPS ויעדים מותאמים אישית.", "FitBeat te ayuda a ejercitarte de forma segura con monitoreo de frecuencia cardiaca, GPS y metas personalizadas.", "FitBeat vous aide à vous exercer en sécurité avec surveillance cardiaque, GPS et objectifs personnalisés.", "FitBeat hilft dir sicher zu trainieren mit Herzfrequenzüberwachung, GPS und personalisierten Zielen.", "FitBeat通过实时心率监测、GPS追踪和个性化目标帮助您安全锻炼。"],
+    "download_app": ["Download App", "הורד את האפליקציה", "Descargar App", "Télécharger l'App", "App herunterladen", "下载应用"],
+    "save_bookmark": ["Save to Bookmarks", "שמור בסימניות", "Guardar en Favoritos", "Ajouter aux Favoris", "Als Lesezeichen speichern", "添加到书签"],
+    "bookmark_tip": ["Tip: Add this page to your bookmarks to access your workouts anytime!", "טיפ: הוסף את הדף לסימניות כדי לגשת לאימונים שלך בכל עת!", "Tip: Añade esta página a favoritos para acceder a tus entrenamientos!", "Conseil: Ajoutez cette page aux favoris pour accéder à vos entraînements!", "Tipp: Füge diese Seite zu Lesezeichen hinzu, um jederzeit auf deine Trainings zuzugreifen!", "提示：将此页面添加到书签，随时查看您的训练！"],
+    "welcome_page_title": ["Welcome to FitBeat", "ברוכים הבאים ל-FitBeat", "Bienvenido a FitBeat", "Bienvenue sur FitBeat", "Willkommen bei FitBeat", "欢迎使用FitBeat"],
+    "select_language": ["Select your language", "בחר את השפה שלך", "Selecciona tu idioma", "Choisissez votre langue", "Wahle deine Sprache", "选择您的语言"],
+    "what_is_fitbeat": ["What is FitBeat?", "מה זה FitBeat?", "Que es FitBeat?", "Qu'est-ce que FitBeat?", "Was ist FitBeat?", "什么是FitBeat？"],
+    "fitbeat_desc": ["FitBeat is a smart fitness app for Garmin watches that helps you exercise safely and effectively.", "FitBeat היא אפליקציית כושר חכמה לשעוני Garmin שעוזרת לך להתאמן בבטחה וביעילות.", "FitBeat es una aplicacion inteligente para relojes Garmin que te ayuda a ejercitarte de forma segura.", "FitBeat est une application fitness intelligente pour montres Garmin qui vous aide a vous exercer en securite.", "FitBeat ist eine intelligente Fitness-App fur Garmin-Uhren die dir hilft sicher zu trainieren.", "FitBeat是一款适用于Garmin手表的智能健身应用，帮助您安全有效地锻炼。"],
+    "key_features": ["Key Features", "תכונות עיקריות", "Caracteristicas Principales", "Fonctionnalites Principales", "Hauptfunktionen", "主要功能"],
+    "feature_hr": ["Real-time heart rate monitoring with alerts", "ניטור דופק בזמן אמת עם התראות", "Monitoreo de frecuencia cardiaca en tiempo real", "Surveillance cardiaque en temps reel avec alertes", "Echtzeit-Herzfrequenzuberwachung mit Benachrichtigungen", "实时心率监测和警报"],
+    "feature_gps": ["GPS route tracking", "מעקב מסלול GPS", "Seguimiento de ruta GPS", "Suivi GPS du parcours", "GPS-Streckenverfolgung", "GPS路线追踪"],
+    "feature_goals": ["Distance and time goals", "יעדי מרחק וזמן", "Metas de distancia y tiempo", "Objectifs de distance et temps", "Distanz- und Zeitziele", "距离和时间目标"],
+    "feature_dashboard": ["Personal web dashboard to view all workouts", "דשבורד אישי לצפייה בכל האימונים", "Panel web personal para ver todos los entrenamientos", "Tableau de bord web pour voir tous les entrainements", "Personliches Web-Dashboard fur alle Trainings", "个人网页仪表板查看所有训练"],
+    "feature_share": ["Share achievements on WhatsApp", "שיתוף הישגים ב-WhatsApp", "Compartir logros en WhatsApp", "Partager les reussites sur WhatsApp", "Erfolge auf WhatsApp teilen", "在WhatsApp上分享成就"],
+    "how_it_works": ["How Does It Work?", "איך זה עובד?", "Como Funciona?", "Comment ca Marche?", "Wie Funktioniert Es?", "如何使用？"],
+    "step1": ["Download FitBeat from the Garmin Connect IQ Store", "הורד את FitBeat מחנות Garmin Connect IQ", "Descarga FitBeat desde la tienda Garmin Connect IQ", "Telechargez FitBeat depuis le store Garmin Connect IQ", "Lade FitBeat aus dem Garmin Connect IQ Store herunter", "从Garmin Connect IQ商店下载FitBeat"],
+    "step2": ["Make sure Garmin Connect app is open on your phone", "ודא שאפליקציית Garmin Connect פתוחה בטלפון", "Asegurate de que la app Garmin Connect este abierta en tu telefono", "Assurez-vous que l'app Garmin Connect est ouverte sur votre telephone", "Stelle sicher dass die Garmin Connect App auf deinem Handy offen ist", "确保手机上的Garmin Connect应用已打开"],
+    "step3": ["Complete a workout goal on your watch", "סיים יעד אימון בשעון שלך", "Completa una meta de entrenamiento en tu reloj", "Terminez un objectif d'entrainement sur votre montre", "Schliesse ein Trainingsziel auf deiner Uhr ab", "在手表上完成训练目标"],
+    "step4": ["Your workout syncs automatically to this dashboard!", "האימון שלך מסתנכרן אוטומטית לדשבורד!", "Tu entrenamiento se sincroniza automaticamente!", "Votre entrainement se synchronise automatiquement!", "Dein Training wird automatisch synchronisiert!", "您的训练会自动同步到仪表板！"],
+    "important_note": ["Important", "חשוב", "Importante", "Important", "Wichtig", "重要"],
+    "sync_note": ["The app requires your phone with Garmin Connect to be nearby and connected via Bluetooth for workout sync.", "האפליקציה דורשת שהטלפון עם Garmin Connect יהיה בקרבת מקום ומחובר בבלוטות' לסנכרון אימונים.", "La app requiere que tu telefono con Garmin Connect este cerca y conectado por Bluetooth.", "L'app necessite que votre telephone avec Garmin Connect soit a proximite et connecte en Bluetooth.", "Die App benotigt dein Handy mit Garmin Connect in der Nahe und uber Bluetooth verbunden.", "应用需要您的手机上的Garmin Connect在附近并通过蓝牙连接。"],
+    "your_dashboard": ["Your Personal Dashboard", "הדשבורד האישי שלך", "Tu Panel Personal", "Votre Tableau de Bord", "Dein Personliches Dashboard", "您的个人仪表板"],
+    "dashboard_info": ["After your first workout, your personal ID will appear on the watch. Use it to access your dashboard:", "אחרי האימון הראשון, המזהה האישי שלך יופיע בשעון. השתמש בו כדי לגשת לדשבורד:", "Despues de tu primer entrenamiento tu ID personal aparecera en el reloj. Usalo para acceder a tu panel:", "Apres votre premier entrainement votre ID personnel apparaitra sur la montre. Utilisez-le pour acceder:", "Nach deinem ersten Training erscheint deine personliche ID auf der Uhr. Nutze sie fur dein Dashboard:", "首次训练后您的个人ID将显示在手表上。使用它访问您的仪表板："],
+    "dashboard_url_example": ["https://fitbeat.it.com/api/u/YOUR_ID", "https://fitbeat.it.com/api/u/YOUR_ID", "https://fitbeat.it.com/api/u/TU_ID", "https://fitbeat.it.com/api/u/VOTRE_ID", "https://fitbeat.it.com/api/u/DEINE_ID", "https://fitbeat.it.com/api/u/YOUR_ID"],
+    "save_this_page": ["Save This Page!", "שמור את הדף הזה!", "Guarda Esta Pagina!", "Sauvegardez Cette Page!", "Speichere Diese Seite!", "保存此页面！"],
 }
 
 # Month names in 6 languages
@@ -1027,6 +1053,152 @@ def generate_workout_html(workout, user_id, lang=0):
     </html>
     """
 
+@api_router.get("/welcome", response_class=HTMLResponse)
+async def welcome_page(lang: int = 0):
+    """Landing page with app info in all languages"""
+    
+    # RTL support for Hebrew
+    dir_attr = 'dir="rtl"' if is_rtl(lang) else 'dir="ltr"'
+    lang_code = ["en", "he", "es", "fr", "de", "zh"][lang] if lang < 6 else "en"
+    
+    # Get base URL
+    base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
+    
+    return f"""
+    <!DOCTYPE html>
+    <html lang="{lang_code}" {dir_attr}>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>FitBeat - {t('welcome_page_title', lang)}</title>
+        <style>
+            * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+            body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
+            .container {{ max-width: 600px; margin: 0 auto; }}
+            
+            .lang-bar {{ display: flex; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }}
+            .lang-btn {{ background: rgba(255,255,255,0.1); color: #888; border: none; padding: 0.5rem 1rem; border-radius: 0.25rem; font-size: 0.9rem; cursor: pointer; text-decoration: none; transition: all 0.2s; }}
+            .lang-btn:hover {{ background: rgba(0,212,255,0.2); color: white; }}
+            .lang-btn.active {{ background: #00d4ff; color: #1a1a2e; font-weight: bold; }}
+            
+            header {{ text-align: center; padding: 2rem 0; }}
+            h1 {{ color: #00d4ff; font-size: 2.5rem; margin-bottom: 0.5rem; }}
+            .subtitle {{ color: #888; font-size: 1.1rem; }}
+            
+            .section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.5rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
+            .section-title {{ color: #00d4ff; font-size: 1.2rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem; }}
+            .section-text {{ color: #ccc; line-height: 1.7; margin-bottom: 1rem; }}
+            
+            .features-list {{ list-style: none; }}
+            .features-list li {{ padding: 0.75rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 0.75rem; }}
+            .features-list li:last-child {{ border-bottom: none; }}
+            .feature-icon {{ font-size: 1.5rem; }}
+            
+            .steps-list {{ list-style: none; counter-reset: steps; }}
+            .steps-list li {{ padding: 1rem 0; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: flex-start; gap: 1rem; }}
+            .steps-list li:last-child {{ border-bottom: none; }}
+            .step-num {{ background: #00d4ff; color: #1a1a2e; width: 2rem; height: 2rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; flex-shrink: 0; }}
+            
+            .important-box {{ background: rgba(255,193,7,0.1); border: 1px solid rgba(255,193,7,0.3); border-radius: 0.75rem; padding: 1rem; margin: 1rem 0; }}
+            .important-box .title {{ color: #ffc107; font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem; }}
+            .important-box .text {{ color: #ccc; font-size: 0.9rem; }}
+            
+            .url-box {{ background: rgba(0,212,255,0.1); border-radius: 0.5rem; padding: 1rem; text-align: center; font-family: monospace; color: #00d4ff; word-break: break-all; margin: 1rem 0; }}
+            
+            .buttons {{ display: flex; flex-direction: column; gap: 0.75rem; margin-top: 1.5rem; }}
+            .btn-primary {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%); color: #1a1a2e; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
+            .btn-secondary {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #00d4ff; border: 2px solid #00d4ff; padding: 0.85rem 2rem; border-radius: 9999px; font-size: 1rem; cursor: pointer; text-decoration: none; }}
+            .btn-secondary:hover {{ background: rgba(0,212,255,0.1); }}
+            
+            footer {{ text-align: center; padding: 2rem 0; color: #888; font-size: 0.9rem; }}
+            footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1.2rem; margin-bottom: 0.5rem; }}
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="lang-bar">
+                <a href="/api/welcome?lang=0" class="lang-btn {'active' if lang == 0 else ''}">English</a>
+                <a href="/api/welcome?lang=1" class="lang-btn {'active' if lang == 1 else ''}">עברית</a>
+                <a href="/api/welcome?lang=2" class="lang-btn {'active' if lang == 2 else ''}">Español</a>
+                <a href="/api/welcome?lang=3" class="lang-btn {'active' if lang == 3 else ''}">Français</a>
+                <a href="/api/welcome?lang=4" class="lang-btn {'active' if lang == 4 else ''}">Deutsch</a>
+                <a href="/api/welcome?lang=5" class="lang-btn {'active' if lang == 5 else ''}">中文</a>
+            </div>
+            
+            <header>
+                <h1>🏃‍♂️ FitBeat</h1>
+                <p class="subtitle">{t('welcome_page_title', lang)}</p>
+            </header>
+            
+            <div class="section">
+                <div class="section-title">❓ {t('what_is_fitbeat', lang)}</div>
+                <p class="section-text">{t('fitbeat_desc', lang)}</p>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">⭐ {t('key_features', lang)}</div>
+                <ul class="features-list">
+                    <li><span class="feature-icon">💓</span> {t('feature_hr', lang)}</li>
+                    <li><span class="feature-icon">📍</span> {t('feature_gps', lang)}</li>
+                    <li><span class="feature-icon">🎯</span> {t('feature_goals', lang)}</li>
+                    <li><span class="feature-icon">📊</span> {t('feature_dashboard', lang)}</li>
+                    <li><span class="feature-icon">📤</span> {t('feature_share', lang)}</li>
+                </ul>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">🔧 {t('how_it_works', lang)}</div>
+                <ol class="steps-list">
+                    <li><span class="step-num">1</span> {t('step1', lang)}</li>
+                    <li><span class="step-num">2</span> {t('step2', lang)}</li>
+                    <li><span class="step-num">3</span> {t('step3', lang)}</li>
+                    <li><span class="step-num">4</span> {t('step4', lang)}</li>
+                </ol>
+                
+                <div class="important-box">
+                    <div class="title">⚠️ {t('important_note', lang)}</div>
+                    <div class="text">{t('sync_note', lang)}</div>
+                </div>
+            </div>
+            
+            <div class="section">
+                <div class="section-title">📊 {t('your_dashboard', lang)}</div>
+                <p class="section-text">{t('dashboard_info', lang)}</p>
+                <div class="url-box">{t('dashboard_url_example', lang)}</div>
+                <p class="section-text" style="font-size: 0.9rem; color: #888;">{t('bookmark_tip', lang)}</p>
+            </div>
+            
+            <div class="buttons">
+                <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="btn-primary">⬇️ {t('download_app', lang)}</a>
+                <button onclick="bookmarkPage()" class="btn-secondary">⭐ {t('save_bookmark', lang)}</button>
+            </div>
+            
+            <footer>
+                <div class="brand">FitBeat</div>
+                <p>Train Smart, Not Hard!</p>
+            </footer>
+        </div>
+        
+        <script>
+            function bookmarkPage() {{
+                const url = window.location.href;
+                const title = 'FitBeat';
+                if (navigator.share) {{
+                    navigator.share({{
+                        title: title,
+                        url: url
+                    }}).catch(() => {{
+                        alert('iOS: Tap the Share button then "Add to Home Screen" or "Add Bookmark"\\n\\nAndroid: Tap the menu then "Add to Home screen"');
+                    }});
+                }} else {{
+                    alert('Press Ctrl+D (Windows) or Cmd+D (Mac) to bookmark this page!');
+                }}
+            }}
+        </script>
+    </body>
+    </html>
+    """
+
 @api_router.get("/u/{user_id}", response_class=HTMLResponse)
 async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
     """Main page - shows years as folders"""
@@ -1171,11 +1343,33 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
             footer {{ text-align: center; padding: 1.5rem 0; color: #888; font-size: 0.8rem; }}
             footer .brand {{ color: #00d4ff; font-weight: bold; font-size: 1rem; }}
             footer .user-id {{ font-family: monospace; color: #00d4ff; opacity: 0.6; margin-top: 0.5rem; font-size: 0.7rem; }}
+            
+            .lang-bar {{ display: flex; justify-content: center; gap: 0.5rem; padding: 0.75rem; background: rgba(0,0,0,0.3); border-radius: 0.5rem; margin-bottom: 1rem; flex-wrap: wrap; }}
+            .lang-btn {{ background: rgba(255,255,255,0.1); color: #888; border: none; padding: 0.4rem 0.8rem; border-radius: 0.25rem; font-size: 0.8rem; cursor: pointer; text-decoration: none; }}
+            .lang-btn:hover {{ background: rgba(0,212,255,0.2); color: white; }}
+            .lang-btn.active {{ background: #00d4ff; color: #1a1a2e; font-weight: bold; }}
+            
+            .about-section {{ background: linear-gradient(135deg, #1e1e3f 0%, #151530 100%); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1.5rem; border: 1px solid rgba(0,212,255,0.2); }}
+            .about-title {{ color: #00d4ff; font-size: 1rem; margin-bottom: 0.75rem; display: flex; align-items: center; gap: 0.5rem; }}
+            .about-text {{ color: #aaa; font-size: 0.85rem; line-height: 1.5; margin-bottom: 1rem; }}
+            .about-buttons {{ display: flex; flex-direction: column; gap: 0.5rem; }}
+            .store-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%); color: #1a1a2e; border: none; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.9rem; font-weight: bold; cursor: pointer; text-decoration: none; }}
+            .bookmark-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #00d4ff; border: 1px solid #00d4ff; padding: 0.6rem 1.25rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; }}
+            .bookmark-btn:hover {{ background: rgba(0,212,255,0.1); }}
         </style>
     </head>
     <body>
         {welcome_banner}
         <div class="container">
+            <div class="lang-bar">
+                <a href="/api/u/{user_id}?lang=0" class="lang-btn {'active' if lang == 0 else ''}">English</a>
+                <a href="/api/u/{user_id}?lang=1" class="lang-btn {'active' if lang == 1 else ''}">עברית</a>
+                <a href="/api/u/{user_id}?lang=2" class="lang-btn {'active' if lang == 2 else ''}">Español</a>
+                <a href="/api/u/{user_id}?lang=3" class="lang-btn {'active' if lang == 3 else ''}">Français</a>
+                <a href="/api/u/{user_id}?lang=4" class="lang-btn {'active' if lang == 4 else ''}">Deutsch</a>
+                <a href="/api/u/{user_id}?lang=5" class="lang-btn {'active' if lang == 5 else ''}">中文</a>
+            </div>
+            
             <header>
                 <h1>🏃‍♂️ FitBeat</h1>
                 {'<p class="user-name">' + user_name + '</p>' if user_name else ''}
@@ -1205,6 +1399,16 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
                 {f'<button onclick="deleteAll()" class="delete-btn">🗑️ {t("delete_all", lang)}</button>' if workouts else ''}
             </div>
             
+            <div class="about-section">
+                <div class="about-title">ℹ️ {t('about_app', lang)}</div>
+                <div class="about-text">{t('about_text', lang)}</div>
+                <div class="about-text" style="font-size: 0.8rem; color: #888;">{t('bookmark_tip', lang)}</div>
+                <div class="about-buttons">
+                    <a href="https://apps.garmin.com/apps/c303ee47-1ecf-4487-91c9-3de4ca1a74d5" target="_blank" class="store-btn">⬇️ {t('download_app', lang)}</a>
+                    <button onclick="bookmarkPage()" class="bookmark-btn">⭐ {t('save_bookmark', lang)}</button>
+                </div>
+            </div>
+            
             <footer>
                 <div class="brand">FitBeat</div>
                 <div class="user-id">{t('user_id', lang)}: {user_id}</div>
@@ -1225,6 +1429,20 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
             if (localStorage.getItem('fitbeat_welcomed_{user_id}')) {{
                 const banner = document.getElementById('welcomeBanner');
                 if (banner) banner.style.display = 'none';
+            }}
+            function bookmarkPage() {{
+                const url = window.location.href;
+                const title = 'FitBeat - {user_name or user_id}';
+                if (navigator.share) {{
+                    navigator.share({{
+                        title: title,
+                        url: url
+                    }}).catch(() => {{
+                        alert('iOS: Tap the Share button (box with arrow) then "Add to Home Screen" or "Add Bookmark"\\n\\nAndroid: Tap the menu (3 dots) then "Add to Home screen" or "Bookmark"');
+                    }});
+                }} else {{
+                    alert('Press Ctrl+D (Windows) or Cmd+D (Mac) to bookmark this page!\\n\\nOr use the browser menu to add to bookmarks.');
+                }}
             }}
         </script>
     </body>
