@@ -482,6 +482,16 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
         // If already active, continue from current distance; otherwise start fresh
         if (startZone != null && tapY >= startZone[0] && tapY <= startZone[1] && tapX >= startZone[2] && tapX <= startZone[3]) {
             var goal = picker.getGoal();
+            
+            // ═══ CHECK FOR CONFLICT - Time goal active? ═══
+            if (mMainView != null && mMainView.isTimeGoalActive()) {
+                // Show conflict message - must finish/reset time goal first!
+                var lang = getLang();
+                var alertView = new AlertView(TR_GOAL_CONFLICT_LINE1[lang], TR_GOAL_CONFLICT_TIME[lang], null, "hr");
+                WatchUi.pushView(alertView, new AlertViewDelegate(alertView), WatchUi.SLIDE_UP);
+                return true;
+            }
+            
             Application.Storage.setValue("goalDist", goal);
             if (mMainView != null) {
                 mMainView.setGoal(goal);
