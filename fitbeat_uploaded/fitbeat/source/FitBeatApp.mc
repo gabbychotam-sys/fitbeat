@@ -506,7 +506,7 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
 // ╚════════════════════════════════════════════════════════════╝
 
 class TimeGoalPickerView extends WatchUi.View {
-    var mGoalMin = 1;  // TESTING: Start with 1 minute!
+    var mGoalMin = 30;  // Default: 30 minutes
     var mUpZone = null;
     var mDownZone = null;
     var mStartZone = null;
@@ -518,16 +518,15 @@ class TimeGoalPickerView extends WatchUi.View {
         View.initialize();
         mMainView = mainView;
         
-        // TESTING: Force 1 minute, ignore storage!
-        mGoalMin = 1;
-        
-        // var v = Application.Storage.getValue("goalTimeMin");
-        // if (v != null) { mGoalMin = v; }
-        // if (mGoalMin < 10) { mGoalMin = 10; }
-        // if (mGoalMin > 120) { mGoalMin = 120; }
-        // mGoalMin = (mGoalMin / 10).toNumber() * 10;
-        // if (mGoalMin < 10) { mGoalMin = 10; }
-        // if (mGoalMin > 120) { mGoalMin = 120; }
+        // Load saved goal from storage
+        var v = Application.Storage.getValue("goalTimeMin");
+        if (v != null) { mGoalMin = v; }
+        if (mGoalMin < 10) { mGoalMin = 10; }
+        if (mGoalMin > 120) { mGoalMin = 120; }
+        // Round to nearest 10
+        mGoalMin = (mGoalMin / 10).toNumber() * 10;
+        if (mGoalMin < 10) { mGoalMin = 10; }
+        if (mGoalMin > 120) { mGoalMin = 120; }
     }
 
     function onUpdate(dc) {
