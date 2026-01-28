@@ -1,5 +1,5 @@
 from fastapi import FastAPI, APIRouter
-from fastapi.responses import FileResponse, JSONResponse, HTMLResponse, Response
+from fastapi.responses import FileResponse, JSONResponse, HTMLResponse
 from dotenv import load_dotenv
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
@@ -101,8 +101,6 @@ TRANSLATIONS = {
     "workouts_title": ["Workouts", "אימונים", "Entrenamientos", "Entrainements", "Trainings", "训练"],
     "total_km": ["Total km", "סה״כ ק״מ", "Total km", "Total km", "Gesamt km", "总公里"],
     "avg_hr_alt": ["Avg HR", "דופק ממוצע", "FC Prom", "FC Moy", "Durchschn. HF", "平均心率"],
-    "download_image": ["Download Image", "הורד תמונה", "Descargar Imagen", "Télécharger Image", "Bild herunterladen", "下载图片"],
-    "share_image_tip": ["Download the image, then share it on WhatsApp!", "הורד את התמונה ואז שתף אותה בווטסאפ!", "Descarga la imagen y compártela en WhatsApp!", "Téléchargez l'image puis partagez-la sur WhatsApp!", "Lade das Bild herunter und teile es auf WhatsApp!", "下载图片，然后在WhatsApp上分享！"],
 }
 
 # Month names in 6 languages
@@ -800,21 +798,20 @@ def generate_workout_html(workout, user_id, lang=0):
     # Get base URL
     base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     
-    # WhatsApp share text (translated) - using %0A for newlines (URL encoded)
-    workout_id = workout.get('id', '')
+    # WhatsApp share text (translated)
     share_texts = {
-        0: f"🏃 {user_name} finished a workout!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Time: {duration_str}%0A⚡ Pace: {pace_str}/km",
-        1: f"🏃 {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str}/ק״מ",
-        2: f"🏃 ¡{user_name} terminó un entrenamiento!%0A%0A📍 Distancia: {dist_km:.2f} km%0A⏱️ Tiempo: {duration_str}%0A⚡ Ritmo: {pace_str}/km",
-        3: f"🏃 {user_name} a terminé un entraînement!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Temps: {duration_str}%0A⚡ Allure: {pace_str}/km",
-        4: f"🏃 {user_name} hat ein Training beendet!%0A%0A📍 Distanz: {dist_km:.2f} km%0A⏱️ Zeit: {duration_str}%0A⚡ Tempo: {pace_str}/km",
-        5: f"🏃 {user_name}完成了训练!%0A%0A📍 距离: {dist_km:.2f} km%0A⏱️ 时间: {duration_str}%0A⚡ 配速: {pace_str}/km",
+        0: f"🏃‍♂️ {user_name} finished a workout!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Time: {duration_str}%0A⚡ Pace: {pace_str}/km",
+        1: f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str}/ק״מ",
+        2: f"🏃‍♂️ ¡{user_name} terminó un entrenamiento!%0A%0A📍 Distancia: {dist_km:.2f} km%0A⏱️ Tiempo: {duration_str}%0A⚡ Ritmo: {pace_str}/km",
+        3: f"🏃‍♂️ {user_name} a terminé un entraînement!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Temps: {duration_str}%0A⚡ Allure: {pace_str}/km",
+        4: f"🏃‍♂️ {user_name} hat ein Training beendet!%0A%0A📍 Distanz: {dist_km:.2f} km%0A⏱️ Zeit: {duration_str}%0A⚡ Tempo: {pace_str}/km",
+        5: f"🏃‍♂️ {user_name}完成了训练!%0A%0A📍 距离: {dist_km:.2f} km%0A⏱️ 时间: {duration_str}%0A⚡ 配速: {pace_str}/km",
     }
     share_text = share_texts.get(lang, share_texts[0])
     if avg_hr:
         hr_texts = {0: f"%0A❤️ HR: {avg_hr} BPM", 1: f"%0A❤️ דופק: {avg_hr} BPM", 2: f"%0A❤️ FC: {avg_hr} LPM", 3: f"%0A❤️ FC: {avg_hr} BPM", 4: f"%0A❤️ HF: {avg_hr} SPM", 5: f"%0A❤️ 心率: {avg_hr} BPM"}
         share_text += hr_texts.get(lang, hr_texts[0])
-    share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}/workout/{workout_id}?lang={lang}"
+    share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}?lang={lang}"
     
     # Convert route to JSON for JavaScript
     route_json = json.dumps([[p['lat'], p['lon']] for p in route]) if route else "[]"
@@ -993,7 +990,6 @@ def generate_workout_html(workout, user_id, lang=0):
             
             {f'<div class="section"><div class="section-title">📊 {t("workout", lang)}</div><div class="extra-stats">{extra_stats_html}</div></div>' if extra_stats_html else ''}
             
-            <!-- Share on WhatsApp Button - shares link to this workout page -->
             <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">
                 <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
                 {t('share_whatsapp', lang)}
@@ -2138,9 +2134,6 @@ async def single_workout_page(user_id: str, workout_id: str, lang: int = None):
     if lang is None:
         lang = workout.get('lang', 0) if workout else 0
     return generate_workout_html(workout, user_id, lang)
-
-# Image generation endpoint removed - Playwright not supported on Railway
-# WhatsApp sharing now uses direct link to workout page
 
 @api_router.get("/u/{user_id}/monthly", response_class=HTMLResponse)
 async def monthly_page(user_id: str):
