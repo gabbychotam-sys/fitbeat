@@ -2298,10 +2298,6 @@ async def monthly_page(user_id: str):
                 {workout_rows}
             </div>
             
-            <a href="https://wa.me/?text=📅 סיכום חודשי%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 {base_url}/api/u/{user_id}/monthly" class="share-btn">
-                📤 שתף ב-WhatsApp
-            </a>
-            
             <footer>
                 <div class="brand">FitBeat</div>
                 <div>מזהה: {user_id}</div>
