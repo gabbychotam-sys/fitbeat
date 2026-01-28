@@ -2121,8 +2121,6 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
                 {workouts_html}
             </div>
             
-            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
-            
             <footer>FitBeat</footer>
         </div>
     </body>
