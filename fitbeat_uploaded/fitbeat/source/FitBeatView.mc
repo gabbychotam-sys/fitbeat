@@ -28,7 +28,7 @@ class FitBeatView extends WatchUi.View {
     const MODE_TIME = 1;
     
     var mGoalDist = 5;
-    var mGoalTimeMin = 30;  // Default: 30 minutes
+    var mGoalTimeMin = 1;  // Default: 1 minute (for testing)
     var mHrMode = 0;
     var mHrTarget = 0;
     var mMaxHR = 190;
@@ -109,7 +109,7 @@ class FitBeatView extends WatchUi.View {
             if (v != null) { mGoalDist = v; }
             
             v = Application.Storage.getValue("goalTimeMin");
-            if (v != null && v >= 10 && v <= 120) { mGoalTimeMin = v; }
+            if (v != null && v >= 1 && v <= 120) { mGoalTimeMin = v; }
             
             v = Application.Storage.getValue("elapsedWalkSec");
             if (v != null) { mElapsedWalkSec = v; }
