@@ -2121,8 +2121,6 @@ async def month_page_view(user_id: str, year: str, month: str, lang: int = None)
                 {workouts_html}
             </div>
             
-            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">📤 {t('share_whatsapp', lang)}</a>
-            
             <footer>FitBeat</footer>
         </div>
     </body>
@@ -2299,10 +2297,6 @@ async def monthly_page(user_id: str):
                 <div class="section-title">🏃 כל האימונים</div>
                 {workout_rows}
             </div>
-            
-            <a href="https://wa.me/?text=📅 סיכום חודשי%0A🏃 {len(workouts)} אימונים%0A📍 {total_km:.1f} ק״מ סה״כ%0A⏱️ {time_str}%0A%0A🔗 {base_url}/api/u/{user_id}/monthly" class="share-btn">
-                📤 שתף ב-WhatsApp
-            </a>
             
             <footer>
                 <div class="brand">FitBeat</div>
