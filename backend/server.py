@@ -223,7 +223,7 @@ def generate_user_id(device_id: str) -> str:
 
 @api_router.get("/")
 async def root():
-    return {"message": "FitBeat API v4.5.7"}
+    return {"message": "FitBeat API v4.6.0"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
