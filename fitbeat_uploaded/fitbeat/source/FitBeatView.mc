@@ -11,6 +11,7 @@ using Toybox.Time.Gregorian;
 using Toybox.Communications;
 using Toybox.Lang;
 using Toybox.Position;
+using Toybox.Math;
 
 // ╔════════════════════════════════════════════════════════════╗
 // ║  MAIN VIEW - FitBeat v4.6.7 - DELAYED HTTP SEND FIX!       ║
