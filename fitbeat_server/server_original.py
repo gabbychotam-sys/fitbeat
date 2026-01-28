@@ -102,6 +102,8 @@ TRANSLATIONS = {
     "workouts_title": ["Workouts", "אימונים", "Entrenamientos", "Entrainements", "Trainings", "训练"],
     "total_km": ["Total km", "סה״כ ק״מ", "Total km", "Total km", "Gesamt km", "总公里"],
     "avg_hr_alt": ["Avg HR", "דופק ממוצע", "FC Prom", "FC Moy", "Durchschn. HF", "平均心率"],
+    "download_image": ["Download Image", "הורד תמונה", "Descargar Imagen", "Télécharger Image", "Bild herunterladen", "下载图片"],
+    "share_image_tip": ["Download the image, then share it on WhatsApp!", "הורד את התמונה ואז שתף אותה בווטסאפ!", "Descarga la imagen y compártela en WhatsApp!", "Téléchargez l'image puis partagez-la sur WhatsApp!", "Lade das Bild herunter und teile es auf WhatsApp!", "下载图片，然后在WhatsApp上分享！"],
 }
 
 # Month names in 6 languages
