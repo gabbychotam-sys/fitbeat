@@ -435,26 +435,27 @@ class FitBeatView extends WatchUi.View {
         var userId = _getUserId();
         var userName = _getUserName();
         
-        // Get workout data - get fresh data from ActivityMonitor
-        var distCm = mDistanceCm;
+        // Get workout data
         // v4.6.10 FIX: Use saved duration if available (time goal resets before send!)
         var durationSec = (mSavedDurationSec > 0) ? mSavedDurationSec : mElapsedWalkSec;
         var avgHr = _getHeartRate();
         var steps = _getSteps();
         
-        // Calculate distance from start (not total distance!)
-        try {
-            var info = ActivityMonitor.getInfo();
-            if (info != null && info.distance != null) {
-                // Distance = current - start baseline
-                distCm = info.distance - mStartDistCm;
-                if (distCm < 0) { distCm = 0; }
-            }
-        } catch(e) {}
+        // ═══ USE GPS DISTANCE - works in car! ═══
+        var distCm = mGpsDistanceCm;
         
-        // If still 0, use tracked distance
-        if (distCm == 0 && mDistanceCm > 0) {
+        // Fallback to step-based distance if no GPS
+        if (distCm == 0) {
             distCm = mDistanceCm;
+        }
+        if (distCm == 0) {
+            try {
+                var info = ActivityMonitor.getInfo();
+                if (info != null && info.distance != null) {
+                    distCm = info.distance - mStartDistCm;
+                    if (distCm < 0) { distCm = 0; }
+                }
+            } catch(e) {}
         }
         
         // Ensure no nulls - Garmin makeWebRequest fails with nulls!
