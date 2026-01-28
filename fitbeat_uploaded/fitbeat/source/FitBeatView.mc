@@ -345,6 +345,7 @@ class FitBeatView extends WatchUi.View {
         // ═══ SMART TIMER: If no time goal, start timer and track movement ═══
         if (!mTimeGoalActive) {
             mElapsedWalkSec = 0;
+            mDistGoalStartTime = _getCurrentTimestamp();  // Save start time (survives phone calls!)
             mLastMovementTime = System.getTimer();
             try {
                 var info = ActivityMonitor.getInfo();
