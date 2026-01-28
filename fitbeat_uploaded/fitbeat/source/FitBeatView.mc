@@ -1206,14 +1206,15 @@ class FitBeatView extends WatchUi.View {
         y += hNumbers + h / 100;
 
         // Time progress bar (staircase RTL)
+        // Priority: Distance goal active → use distance progress, else use time progress
         var goalSec = _getGoalTimeSec();
         var timeFrac;
-        if (goalSec > 0) {
-            // If time goal is set, use time progress
-            timeFrac = _clamp01((mElapsedWalkSec * 1.0) / goalSec);
-        } else if (mDistGoalActive) {
-            // If no time goal but distance goal is active, use distance progress for both bars
+        if (mDistGoalActive) {
+            // Distance goal is active → bottom bar shows distance progress (same as top bar)
             timeFrac = goalCm > 0 ? _clamp01((mDistanceCm * 1.0) / goalCm) : 0.0;
+        } else if (goalSec > 0) {
+            // Time goal is set → bottom bar shows time progress
+            timeFrac = _clamp01((mElapsedWalkSec * 1.0) / goalSec);
         } else {
             timeFrac = 0.0;
         }
