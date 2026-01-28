@@ -2140,6 +2140,61 @@ async def single_workout_page(user_id: str, workout_id: str, lang: int = None):
         lang = workout.get('lang', 0) if workout else 0
     return generate_workout_html(workout, user_id, lang)
 
+@api_router.get("/u/{user_id}/workout/{workout_id}/image")
+async def generate_workout_image(user_id: str, workout_id: str, lang: int = 0):
+    """Generate PNG screenshot of workout for WhatsApp sharing"""
+    
+    # Get workout data
+    workout = await db.workouts.find_one(
+        {"id": workout_id, "user_id": user_id},
+        {"_id": 0}
+    )
+    
+    if not workout:
+        return JSONResponse(status_code=404, content={"error": "Workout not found"})
+    
+    # Get language from workout if not specified
+    if lang == 0 and workout.get('lang'):
+        lang = workout.get('lang', 0)
+    
+    # Generate the HTML
+    html_content = generate_workout_html(workout, user_id, lang)
+    
+    # Take screenshot using Playwright
+    try:
+        async with async_playwright() as p:
+            browser = await p.chromium.launch(
+                headless=True,
+                args=['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
+            )
+            page = await browser.new_page(viewport={'width': 480, 'height': 850})
+            
+            # Load HTML content
+            await page.set_content(html_content, wait_until='networkidle')
+            
+            # Wait for map tiles to load
+            await page.wait_for_timeout(3000)
+            
+            # Take screenshot
+            screenshot = await page.screenshot(
+                type='png',
+                full_page=False
+            )
+            
+            await browser.close()
+            
+            return Response(
+                content=screenshot,
+                media_type="image/png",
+                headers={
+                    "Content-Disposition": f"attachment; filename=fitbeat_workout_{workout_id}.png",
+                    "Cache-Control": "no-cache"
+                }
+            )
+    except Exception as e:
+        logger.error(f"Screenshot generation error: {e}")
+        return JSONResponse(status_code=500, content={"error": f"Failed to generate image: {str(e)}"})
+
 @api_router.get("/u/{user_id}/monthly", response_class=HTMLResponse)
 async def monthly_page(user_id: str):
     """Serve monthly summary HTML page with all workouts"""
