@@ -801,23 +801,21 @@ def generate_workout_html(workout, user_id, lang=0):
     # Get base URL
     base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     
-    # WhatsApp share text (translated) - properly encoded
+    # WhatsApp share text (translated) - using %0A for newlines (URL encoded)
+    workout_id = workout.get('id', '')
     share_texts = {
-        0: f"{user_name} finished a workout!\n\nDistance: {dist_km:.2f} km\nTime: {duration_str}\nPace: {pace_str}/km",
-        1: f"{user_name} סיים אימון!\n\nמרחק: {dist_km:.2f} ק״מ\nזמן: {duration_str}\nקצב: {pace_str}/ק״מ",
-        2: f"¡{user_name} terminó un entrenamiento!\n\nDistancia: {dist_km:.2f} km\nTiempo: {duration_str}\nRitmo: {pace_str}/km",
-        3: f"{user_name} a terminé un entraînement!\n\nDistance: {dist_km:.2f} km\nTemps: {duration_str}\nAllure: {pace_str}/km",
-        4: f"{user_name} hat ein Training beendet!\n\nDistanz: {dist_km:.2f} km\nZeit: {duration_str}\nTempo: {pace_str}/km",
-        5: f"{user_name}完成了训练!\n\n距离: {dist_km:.2f} km\n时间: {duration_str}\n配速: {pace_str}/km",
+        0: f"🏃 {user_name} finished a workout!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Time: {duration_str}%0A⚡ Pace: {pace_str}/km",
+        1: f"🏃 {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str}/ק״מ",
+        2: f"🏃 ¡{user_name} terminó un entrenamiento!%0A%0A📍 Distancia: {dist_km:.2f} km%0A⏱️ Tiempo: {duration_str}%0A⚡ Ritmo: {pace_str}/km",
+        3: f"🏃 {user_name} a terminé un entraînement!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Temps: {duration_str}%0A⚡ Allure: {pace_str}/km",
+        4: f"🏃 {user_name} hat ein Training beendet!%0A%0A📍 Distanz: {dist_km:.2f} km%0A⏱️ Zeit: {duration_str}%0A⚡ Tempo: {pace_str}/km",
+        5: f"🏃 {user_name}完成了训练!%0A%0A📍 距离: {dist_km:.2f} km%0A⏱️ 时间: {duration_str}%0A⚡ 配速: {pace_str}/km",
     }
     share_text = share_texts.get(lang, share_texts[0])
     if avg_hr:
-        hr_texts = {0: f"\nHR: {avg_hr} BPM", 1: f"\nדופק: {avg_hr} BPM", 2: f"\nFC: {avg_hr} LPM", 3: f"\nFC: {avg_hr} BPM", 4: f"\nHF: {avg_hr} SPM", 5: f"\n心率: {avg_hr} BPM"}
+        hr_texts = {0: f"%0A❤️ HR: {avg_hr} BPM", 1: f"%0A❤️ דופק: {avg_hr} BPM", 2: f"%0A❤️ FC: {avg_hr} LPM", 3: f"%0A❤️ FC: {avg_hr} BPM", 4: f"%0A❤️ HF: {avg_hr} SPM", 5: f"%0A❤️ 心率: {avg_hr} BPM"}
         share_text += hr_texts.get(lang, hr_texts[0])
-    share_text += f"\n\n{base_url}/api/u/{user_id}/workout/{workout['id']}?lang={lang}"
-    
-    # URL encode the share text properly
-    share_text_encoded = urllib.parse.quote(share_text, safe='')
+    share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}/workout/{workout_id}?lang={lang}"
     
     # Convert route to JSON for JavaScript
     route_json = json.dumps([[p['lat'], p['lon']] for p in route]) if route else "[]"
