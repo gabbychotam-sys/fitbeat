@@ -235,32 +235,69 @@ class FitBeatView extends WatchUi.View {
         } catch(e) {}
     }
     
+    // ═══ HAVERSINE FORMULA - Calculate distance between 2 GPS points ═══
+    // Returns distance in CENTIMETERS
+    function _haversineDistanceCm(lat1, lon1, lat2, lon2) {
+        // Earth radius in cm
+        var R = 637100000.0;  // 6371 km = 637100000 cm
+        
+        // Convert to radians
+        var dLat = (lat2 - lat1) * 0.0174533;  // PI / 180 = 0.0174533
+        var dLon = (lon2 - lon1) * 0.0174533;
+        var lat1Rad = lat1 * 0.0174533;
+        var lat2Rad = lat2 * 0.0174533;
+        
+        // Haversine formula
+        var sinDLat = Math.sin(dLat / 2.0);
+        var sinDLon = Math.sin(dLon / 2.0);
+        var a = sinDLat * sinDLat + Math.cos(lat1Rad) * Math.cos(lat2Rad) * sinDLon * sinDLon;
+        var c = 2.0 * Math.atan2(Math.sqrt(a), Math.sqrt(1.0 - a));
+        
+        return (R * c).toNumber();
+    }
+    
     function _onPosition(info as Position.Info) as Void {
         if (info == null || info.position == null) {
             return;
         }
-        // v4.6.10 FIX: Keep collecting GPS even after goal completes!
-        // GPS stops only when workout is actually sent (in _prepareAndSendWorkout)
-        // Old code stopped GPS when goal ended, losing all route data!
-        var now = System.getTimer() / 1000;
-        if (now - mLastGpsTime < GPS_INTERVAL_SEC) {
-            return;
-        }
-        mLastGpsTime = now;
+        
         var coords = info.position.toDegrees();
         if (coords == null || coords.size() < 2) {
             return;
         }
+        
         var lat = coords[0];
         var lon = coords[1];
-        if (mGpsRoute.size() < 500) {
-            mGpsRoute.add({"lat" => lat, "lon" => lon});
+        
+        // ═══ CALCULATE GPS DISTANCE ═══
+        if (mLastGpsLat != null && mLastGpsLon != null) {
+            var segmentCm = _haversineDistanceCm(mLastGpsLat, mLastGpsLon, lat, lon);
+            // Filter out GPS noise - ignore movements less than 2 meters
+            if (segmentCm > 200 && segmentCm < 50000) {  // Between 2m and 500m
+                mGpsDistanceCm += segmentCm;
+            }
+        }
+        
+        // Update last position
+        mLastGpsLat = lat;
+        mLastGpsLon = lon;
+        
+        // ═══ SAVE ROUTE POINTS (every 5 seconds) ═══
+        var now = System.getTimer() / 1000;
+        if (now - mLastGpsTime >= GPS_INTERVAL_SEC) {
+            mLastGpsTime = now;
+            if (mGpsRoute.size() < 500) {
+                mGpsRoute.add({"lat" => lat, "lon" => lon});
+            }
         }
     }
     
     function _clearGpsRoute() {
         mGpsRoute = [];
         mLastGpsTime = 0;
+        mGpsDistanceCm = 0;
+        mLastGpsLat = null;
+        mLastGpsLon = null;
     }
     
     // ═══ START DISTANCE GOAL - Does NOT reset time! ═══
