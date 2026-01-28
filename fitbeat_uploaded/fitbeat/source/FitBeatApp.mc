@@ -273,10 +273,11 @@ var TR_BPM = ["BPM", "פעימות", "LPM", "BPM", "SPM", "次/分"];
 // Reset button translation
 var TR_RESET = ["RESET", "איפוס", "RESET", "RESET", "RESET", "重置"];
 
-// Conflict messages - when trying to start a goal while another is active
+// Conflict messages - when trying to start a goal while another is active (3 lines for better display)
 var TR_GOAL_CONFLICT_LINE1 = ["Goal Active", "יעד פעיל", "Meta Activa", "Objectif Actif", "Ziel Aktiv", "目标进行中"];
-var TR_GOAL_CONFLICT_TIME = ["Finish or reset time goal first", "סיים או אפס את יעד הזמן", "Termina o reinicia el objetivo de tiempo", "Termine ou réinitialise l'objectif temps", "Beende oder setze das Zeitziel zurück", "先完成或重置时间目标"];
-var TR_GOAL_CONFLICT_DIST = ["Finish or reset distance goal first", "סיים או אפס את יעד המרחק", "Termina o reinicia el objetivo de distancia", "Termine ou réinitialise l'objectif distance", "Beende oder setze das Distanzziel zurück", "先完成或重置距离目标"];
+var TR_GOAL_CONFLICT_LINE2 = ["Finish or reset", "סיים או אפס", "Termina o reinicia", "Termine ou réinitialise", "Beende oder setze zurück", "先完成或重置"];
+var TR_GOAL_CONFLICT_TIME_L3 = ["time goal first", "את יעד הזמן", "objetivo tiempo", "objectif temps", "das Zeitziel", "时间目标"];
+var TR_GOAL_CONFLICT_DIST_L3 = ["distance goal first", "את יעד המרחק", "objetivo distancia", "objectif distance", "das Distanzziel", "距离目标"];
 
 function getLang() {
     var l = Application.Storage.getValue("lang");
