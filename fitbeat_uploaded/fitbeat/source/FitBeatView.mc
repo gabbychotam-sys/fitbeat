@@ -62,6 +62,12 @@ class FitBeatView extends WatchUi.View {
     var mLastGpsTime = 0;
     const GPS_INTERVAL_SEC = 5;
     
+    // ═══ GPS DISTANCE TRACKING ═══
+    var mGpsDistanceCm = 0;         // Distance calculated from GPS
+    var mLastGpsLat = null;         // Last GPS latitude
+    var mLastGpsLon = null;         // Last GPS longitude
+    var mUseGpsDistance = true;     // Use GPS for distance (works in car!)
+    
     // ═══ SEPARATE ALERTS FOR EACH GOAL! ═══
     var mDistHalfwayShown = false;
     var mDistGoalShown = false;
