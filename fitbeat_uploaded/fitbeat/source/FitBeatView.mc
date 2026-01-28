@@ -193,6 +193,16 @@ class FitBeatView extends WatchUi.View {
     function isDistGoalActive() { return mDistGoalActive; }
     function isTimeGoalActive() { return mTimeGoalActive; }
     
+    // ═══ GET CURRENT UNIX TIMESTAMP ═══
+    function _getCurrentTimestamp() {
+        try {
+            var now = Time.now();
+            return now.value();  // Returns seconds since epoch
+        } catch(e) {
+            return 0;
+        }
+    }
+    
     function setGoal(goal) { 
         var oldGoal = mGoalDist;
         mGoalDist = goal; 
