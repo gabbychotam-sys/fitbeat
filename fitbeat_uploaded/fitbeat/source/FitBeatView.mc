@@ -438,12 +438,14 @@ class FitBeatView extends WatchUi.View {
     function resetTimeGoal() {
         mTimeGoalActive = false;
         mElapsedWalkSec = 0;
+        mTimeGoalStartTime = 0;  // Reset start timestamp!
         mTimeHalfwayShown = false;
         mTimeGoalShown = false;
         
         // Save ALL values to Storage
         Application.Storage.setValue("timeGoalActive", false);
         Application.Storage.setValue("elapsedWalkSec", 0);
+        Application.Storage.setValue("timeGoalStartTime", 0);
         Application.Storage.setValue("timeHalfwayShown", false);
         Application.Storage.setValue("timeGoalShown", false);
         
