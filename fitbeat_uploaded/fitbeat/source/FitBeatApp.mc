@@ -713,6 +713,16 @@ class TimeGoalPickerDelegate extends WatchUi.BehaviorDelegate {
         // START button - starts TIME goal ONLY, doesn't reset distance!
         if (startZone != null && tapY >= startZone[0] && tapY <= startZone[1] && tapX >= startZone[2] && tapX <= startZone[3]) {
             var goalMin = picker.getGoalMin();
+            
+            // ═══ CHECK FOR CONFLICT - Distance goal active? ═══
+            if (mMainView != null && mMainView.isDistGoalActive()) {
+                // Show conflict message - must finish/reset distance goal first!
+                var lang = getLang();
+                var alertView = new AlertView(TR_GOAL_CONFLICT_LINE1[lang], TR_GOAL_CONFLICT_DIST[lang], null, "hr");
+                WatchUi.pushView(alertView, new AlertViewDelegate(alertView), WatchUi.SLIDE_UP);
+                return true;
+            }
+            
             Application.Storage.setValue("goalTimeMin", goalMin);
             if (mMainView != null) {
                 mMainView.setTimeGoal(goalMin);
