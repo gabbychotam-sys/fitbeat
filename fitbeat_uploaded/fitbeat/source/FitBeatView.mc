@@ -785,16 +785,21 @@ class FitBeatView extends WatchUi.View {
         } catch(e) {}
 
         // Calculate distance from baseline if ANY goal is active
-        // v4.6.4 FIX: Also calculate for TIME goal, not just distance goal!
         if (mDistGoalActive || mTimeGoalActive) {
-            distCm = distCm - mStartDistCm;
             steps = steps - mStartSteps;
             if (steps < 0) { steps = 0; }
-            if (distCm < 0) { distCm = 0; }
-            mDistanceCm = distCm;
+            
+            // ═══ USE GPS DISTANCE IF AVAILABLE ═══
+            if (mUseGpsDistance && mGpsDistanceCm > 0) {
+                // GPS distance - works in car, bike, etc!
+                mDistanceCm = mGpsDistanceCm;
+            } else {
+                // Fallback to step-based distance
+                distCm = distCm - mStartDistCm;
+                if (distCm < 0) { distCm = 0; }
+                mDistanceCm = distCm;
+            }
         }
-        // When no goal is active, keep mDistanceCm as is (could be 0 after reset)
-        // Don't overwrite with ActivityMonitor value!
 
         hr = _getHeartRate();
         return [steps, mDistanceCm, hr];
