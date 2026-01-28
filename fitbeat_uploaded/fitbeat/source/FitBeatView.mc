@@ -411,6 +411,7 @@ class FitBeatView extends WatchUi.View {
     function startTimeGoal() {
         mTimeGoalActive = true;
         mElapsedWalkSec = 0;  // Reset time counter
+        mTimeGoalStartTime = _getCurrentTimestamp();  // Save start time (survives phone calls!)
         mTimeHalfwayShown = false;
         mTimeGoalShown = false;
         
