@@ -486,9 +486,9 @@ class GoalPickerDelegate extends WatchUi.BehaviorDelegate {
             
             // ═══ CHECK FOR CONFLICT - Time goal active? ═══
             if (mMainView != null && mMainView.isTimeGoalActive()) {
-                // Show conflict message - must finish/reset time goal first!
+                // Show conflict message - must finish/reset time goal first! (3 lines)
                 var lang = getLang();
-                var alertView = new AlertView(TR_GOAL_CONFLICT_LINE1[lang], TR_GOAL_CONFLICT_TIME[lang], null, "hr");
+                var alertView = new AlertView(TR_GOAL_CONFLICT_LINE1[lang], TR_GOAL_CONFLICT_LINE2[lang], TR_GOAL_CONFLICT_TIME_L3[lang], "hr");
                 WatchUi.pushView(alertView, new AlertViewDelegate(alertView), WatchUi.SLIDE_UP);
                 return true;
             }
