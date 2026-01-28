@@ -951,8 +951,8 @@ class FitBeatView extends WatchUi.View {
                     if (timeSinceMovement >= 300000) {
                         // Reset only the timer, NOT the distance!
                         mElapsedWalkSec = 0;
+                        mDistGoalStartTime = _getCurrentTimestamp();  // Reset start timestamp!
                         mLastMovementTime = currentTime;
-                        Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
                     }
                 }
             }
