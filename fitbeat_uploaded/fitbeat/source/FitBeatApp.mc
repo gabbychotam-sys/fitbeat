@@ -630,10 +630,7 @@ class TimeGoalPickerView extends WatchUi.View {
     function getGoalMin() { return mGoalMin; }
 
     function incrementGoal() {
-        // If at 1 minute (testing), jump to 10
-        if (mGoalMin == 1) {
-            mGoalMin = 10;
-        } else if (mGoalMin < 120) {
+        if (mGoalMin < 120) {
             mGoalMin += 10;
         }
         WatchUi.requestUpdate();
@@ -642,8 +639,6 @@ class TimeGoalPickerView extends WatchUi.View {
     function decrementGoal() {
         if (mGoalMin > 10) {
             mGoalMin -= 10;
-        } else if (mGoalMin == 10) {
-            mGoalMin = 1;  // Go back to 1 minute for testing
         }
         WatchUi.requestUpdate();
     }
