@@ -136,6 +136,12 @@ class FitBeatView extends WatchUi.View {
             var timeActive = Application.Storage.getValue("timeGoalActive");
             if (timeActive != null) { mTimeGoalActive = timeActive; }
             
+            // Load start times (for phone call survival!)
+            var tst = Application.Storage.getValue("timeGoalStartTime");
+            if (tst != null) { mTimeGoalStartTime = tst; }
+            var dst = Application.Storage.getValue("distGoalStartTime");
+            if (dst != null) { mDistGoalStartTime = dst; }
+            
             // Load distance baseline
             var ss = Application.Storage.getValue("startSteps");
             if (ss != null) { mStartSteps = ss; }
@@ -166,6 +172,10 @@ class FitBeatView extends WatchUi.View {
             Application.Storage.setValue("startDist", mStartDistCm);
             Application.Storage.setValue("distanceCm", mDistanceCm);
             Application.Storage.setValue("elapsedWalkSec", mElapsedWalkSec);
+            
+            // Save start times (for phone call survival!)
+            Application.Storage.setValue("timeGoalStartTime", mTimeGoalStartTime);
+            Application.Storage.setValue("distGoalStartTime", mDistGoalStartTime);
             
             // Save separate alert states
             Application.Storage.setValue("distHalfwayShown", mDistHalfwayShown);
