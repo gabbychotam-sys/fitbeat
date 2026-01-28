@@ -865,18 +865,24 @@ class FitBeatView extends WatchUi.View {
             }
         }
         
-        // Update time goal if active (count every second!)
+        // ═══ UPDATE TIME FROM TIMESTAMP (survives phone calls!) ═══
+        // Update time goal if active - calculate from start timestamp!
         if (mTimeGoalActive && !mAlertActive) {
-            mElapsedWalkSec += 1;  // Count every second!
-            // NOTE: Removed Storage.setValue here - causes IQ! crash!
-            // State will be saved in onHide() instead
+            if (mTimeGoalStartTime > 0) {
+                var now = _getCurrentTimestamp();
+                mElapsedWalkSec = now - mTimeGoalStartTime;
+                if (mElapsedWalkSec < 0) { mElapsedWalkSec = 0; }
+            }
             _checkTimeAlerts();
         }
         
         // ═══ SMART TIMER: Count time when distance goal active but NO time goal ═══
         if (mDistGoalActive && !mTimeGoalActive && !mAlertActive) {
-            mElapsedWalkSec += 1;  // Count seconds!
-            // NOTE: Removed Storage.setValue here - causes IQ! crash!
+            if (mDistGoalStartTime > 0) {
+                var now = _getCurrentTimestamp();
+                mElapsedWalkSec = now - mDistGoalStartTime;
+                if (mElapsedWalkSec < 0) { mElapsedWalkSec = 0; }
+            }
             
             // Check for movement - reset timer if stopped for 5 minutes
             _checkMovementAndReset();
