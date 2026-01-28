@@ -16,7 +16,7 @@ import tempfile
 import shutil
 import hashlib
 import json
-from playwright.async_api import async_playwright
+# Playwright removed - not needed
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
