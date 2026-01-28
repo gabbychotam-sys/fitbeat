@@ -54,6 +54,10 @@ class FitBeatView extends WatchUi.View {
     var mLastRawSteps = 0;
     var mLastRawDistCm = 0;
     
+    // ═══ TIME TRACKING - Using start timestamp (survives phone calls!) ═══
+    var mTimeGoalStartTime = 0;     // Unix timestamp when time goal started
+    var mDistGoalStartTime = 0;     // Unix timestamp when distance goal started (for smart timer)
+    
     // ═══ SMART TIMER - Track movement for 5-minute stop detection ═══
     var mLastMovementTime = 0;      // Time of last detected movement
     var mLastStepsForMovement = 0;  // Steps count at last check
