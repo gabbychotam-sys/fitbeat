@@ -16,7 +16,6 @@ import tempfile
 import shutil
 import hashlib
 import json
-import urllib.parse
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
