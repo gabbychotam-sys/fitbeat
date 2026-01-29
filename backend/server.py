@@ -1231,7 +1231,7 @@ def generate_workout_html(workout, user_id, lang=0):
                 <div class="stat">
                     <div class="icon">📍</div>
                     <div class="label">{t('distance', lang)}</div>
-                    <div class="value highlight">{dist_km:.2f}<span class="unit">{t('km', lang)}</span></div>
+                    <div class="value highlight">{dist_display}<span class="unit">{dist_unit}</span></div>
                 </div>
                 <div class="stat">
                     <div class="icon">⏱️</div>
