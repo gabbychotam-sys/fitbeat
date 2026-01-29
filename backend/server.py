@@ -1073,7 +1073,7 @@ def generate_workout_html(workout, user_id, lang=0):
             /* Leaflet Map Container */
             .map-container {{ position: relative; border-radius: 1rem; height: 280px; margin-bottom: 1.5rem; overflow: hidden; }}
             #map {{ width: 100%; height: 100%; border-radius: 1rem; z-index: 1; }}
-            .map-container .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.85); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.2); z-index: 1000; }}
+            .map-container .map-badge {{ position: absolute; top: 0.75rem; right: 0.75rem; background: rgba(0,0,0,0.85); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.2); z-index: 1000; }}
             .map-badge .value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
             .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
             
