@@ -189,13 +189,17 @@ class WorkoutSubmit(BaseModel):
     distance_cm: int
     duration_sec: int
     avg_hr: Optional[int] = None
+    min_hr: Optional[int] = None  # NEW v4.7.0: Real minimum HR
     max_hr: Optional[int] = None
-    elevation_gain: Optional[float] = None
-    elevation_loss: Optional[float] = None
+    total_ascent: Optional[int] = None  # NEW v4.7.0: Total elevation gain (meters)
+    total_descent: Optional[int] = None  # NEW v4.7.0: Total elevation loss (meters)
+    elevation_json: Optional[str] = None  # NEW v4.7.0: Elevation history for graph
+    elevation_gain: Optional[float] = None  # Legacy field
+    elevation_loss: Optional[float] = None  # Legacy field
     steps: Optional[int] = None
     cadence: Optional[int] = None
     route: Optional[List[WorkoutPoint]] = None
-    route_json: Optional[str] = None  # NEW: JSON string from watch (Garmin array bug workaround)
+    route_json: Optional[str] = None  # JSON string from watch (Garmin array bug workaround)
     lang: Optional[int] = 0  # Language: 0=EN, 1=HE, 2=ES, 3=FR, 4=DE, 5=ZH
     local_time: Optional[str] = None  # Local time from watch (ISO format)
 
@@ -207,9 +211,13 @@ class WorkoutSummary(BaseModel):
     distance_cm: int
     duration_sec: int
     avg_hr: Optional[int] = None
+    min_hr: Optional[int] = None  # NEW v4.7.0
     max_hr: Optional[int] = None
-    elevation_gain: Optional[float] = None
-    elevation_loss: Optional[float] = None
+    total_ascent: Optional[int] = None  # NEW v4.7.0
+    total_descent: Optional[int] = None  # NEW v4.7.0
+    elevation_json: Optional[str] = None  # NEW v4.7.0
+    elevation_gain: Optional[float] = None  # Legacy
+    elevation_loss: Optional[float] = None  # Legacy
     steps: Optional[int] = None
     cadence: Optional[int] = None
     route: Optional[List[dict]] = None
@@ -223,7 +231,11 @@ def generate_user_id(device_id: str) -> str:
 
 @api_router.get("/")
 async def root():
-    return {"message": "FitBeat API v4.6.0"}
+    return {"message": "FitBeat API v4.7.0"}
+
+@api_router.get("/health")
+async def health_check():
+    return {"status": "healthy"}
 
 @api_router.post("/status", response_model=StatusCheck)
 async def create_status_check(input: StatusCheckCreate):
@@ -345,6 +357,19 @@ async def download_insights():
         )
     return {"error": "File not found"}
 
+@api_router.get("/download/insights-v474")
+async def download_insights_v474():
+    """Download FitBeat v4.7.4 insights document"""
+    file_path = Path("/app/memory/FITBEAT_V474_INSIGHTS.md")
+    if file_path.exists():
+        return FileResponse(
+            path=file_path,
+            filename="FITBEAT_V474_INSIGHTS.md",
+            media_type="text/markdown; charset=utf-8",
+            headers={"Content-Disposition": "attachment; filename=FITBEAT_V474_INSIGHTS.md"}
+        )
+    return {"error": "File not found"}
+
 # FitBeat State Management
 @api_router.get("/fitbeat/state")
 async def get_fitbeat_state():
@@ -396,6 +421,26 @@ async def submit_workout(workout: WorkoutSubmit):
             logger.warning(f"Failed to parse route_json: {e}")
             route_data = None
     
+    # ═══ v4.7.5: Extract elevation from route points ═══
+    elevation_json_from_route = None
+    total_ascent_calc = 0
+    total_descent_calc = 0
+    if route_data and len(route_data) > 0:
+        # Check if route has altitude data
+        altitudes = [p.get('alt') for p in route_data if p.get('alt') is not None]
+        if altitudes and len(altitudes) > 1:
+            elevation_json_from_route = json.dumps(altitudes)
+            logger.info(f"Extracted {len(altitudes)} altitude points from route")
+            
+            # Calculate ascent/descent from altitude data
+            for i in range(1, len(altitudes)):
+                diff = altitudes[i] - altitudes[i-1]
+                if diff > 0.5:  # Filter noise
+                    total_ascent_calc += diff
+                elif diff < -0.5:
+                    total_descent_calc += abs(diff)
+            logger.info(f"Calculated elevation: +{total_ascent_calc:.0f}m / -{total_descent_calc:.0f}m")
+    
     # Use local time from watch if provided, otherwise use server time
     timestamp = datetime.now(timezone.utc)
     if workout.local_time and workout.local_time.strip():
@@ -407,15 +452,24 @@ async def submit_workout(workout: WorkoutSubmit):
             logger.warning(f"Failed to parse local_time '{workout.local_time}': {e}, using server time")
             timestamp = datetime.now(timezone.utc)
     
+    # v4.7.5: Use elevation from route if available, fallback to workout fields
+    elevation_json_final = workout.elevation_json or elevation_json_from_route
+    elevation_gain = workout.total_ascent or (int(total_ascent_calc) if total_ascent_calc > 0 else None) or workout.elevation_gain
+    elevation_loss = workout.total_descent or (int(total_descent_calc) if total_descent_calc > 0 else None) or workout.elevation_loss
+    
     workout_obj = WorkoutSummary(
         user_id=workout.user_id,
         user_name=workout.user_name,
         distance_cm=workout.distance_cm,
         duration_sec=workout.duration_sec,
         avg_hr=workout.avg_hr if workout.avg_hr and workout.avg_hr > 0 else None,
+        min_hr=workout.min_hr if workout.min_hr and workout.min_hr > 0 else None,
         max_hr=workout.max_hr if workout.max_hr and workout.max_hr > 0 else None,
-        elevation_gain=workout.elevation_gain,
-        elevation_loss=workout.elevation_loss,
+        total_ascent=int(elevation_gain) if elevation_gain else None,
+        total_descent=int(elevation_loss) if elevation_loss else None,
+        elevation_json=elevation_json_final,
+        elevation_gain=elevation_gain,
+        elevation_loss=elevation_loss,
         steps=workout.steps if workout.steps and workout.steps > 0 else None,
         cadence=workout.cadence if workout.cadence and workout.cadence > 0 else None,
         route=route_data,
@@ -426,7 +480,7 @@ async def submit_workout(workout: WorkoutSubmit):
     doc['timestamp'] = doc['timestamp'].isoformat()
     await db.workouts.insert_one(doc)
     
-    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}, time: {doc['timestamp']}")
+    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}, HR: {workout.min_hr}-{workout.max_hr}, elevation: +{workout.total_ascent}/-{workout.total_descent}")
     
     return {
         "status": "saved",
@@ -756,20 +810,30 @@ def generate_workout_html(workout, user_id, lang=0):
     secs = duration_sec % 60
     duration_str = f"{hrs}:{mins:02d}:{secs:02d}" if hrs > 0 else f"{mins}:{secs:02d}"
     
-    # Calculate pace
-    if dist_km > 0:
+    # Calculate pace - only show if reasonable (< 30 min/km)
+    pace_str = "--:--"
+    show_pace = False
+    if dist_km > 0.1:  # At least 100 meters
         pace_sec = duration_sec / dist_km
         pace_min = int(pace_sec // 60)
         pace_s = int(pace_sec % 60)
-        pace_str = f"{pace_min}:{pace_s:02d}"
-    else:
-        pace_str = "--:--"
+        if pace_min < 30:  # Only show if under 30 min/km (reasonable pace)
+            pace_str = f"{pace_min}:{pace_s:02d}"
+            show_pace = True
+    
+    # Calculate speed (km/h) - alternative to pace
+    speed_kmh = 0
+    if duration_sec > 0:
+        speed_kmh = (dist_km / duration_sec) * 3600
     
     user_name = workout.get('user_name', '')
     avg_hr = workout.get('avg_hr', '')
+    min_hr = workout.get('min_hr', '')  # NEW v4.7.0
     max_hr = workout.get('max_hr', '')
-    elevation_gain = workout.get('elevation_gain', 0) or 0
-    elevation_loss = workout.get('elevation_loss', 0) or 0
+    # Use new fields with fallback to legacy
+    elevation_gain = workout.get('total_ascent') or workout.get('elevation_gain', 0) or 0
+    elevation_loss = workout.get('total_descent') or workout.get('elevation_loss', 0) or 0
+    elevation_json = workout.get('elevation_json', '')  # NEW v4.7.0
     steps = workout.get('steps', 0) or 0
     cadence = workout.get('cadence', 0) or 0
     workout_id = workout.get('id', '')
@@ -798,30 +862,46 @@ def generate_workout_html(workout, user_id, lang=0):
     # Get base URL
     base_url = os.environ.get('APP_URL', 'https://fitbeat.it.com')
     
-    # WhatsApp share text (translated) - no emojis to avoid encoding issues
+    # WhatsApp share text (translated)
     share_texts = {
-        0: f"{user_name} finished a workout!%0A%0ADistance: {dist_km:.2f} km%0ATime: {duration_str}%0APace: {pace_str}/km",
-        1: f"{user_name} סיים אימון!%0A%0Aמרחק: {dist_km:.2f} ק״מ%0Aזמן: {duration_str}%0Aקצב: {pace_str}/ק״מ",
-        2: f"{user_name} termino un entrenamiento!%0A%0ADistancia: {dist_km:.2f} km%0ATiempo: {duration_str}%0ARitmo: {pace_str}/km",
-        3: f"{user_name} a termine un entrainement!%0A%0ADistance: {dist_km:.2f} km%0ATemps: {duration_str}%0AAllure: {pace_str}/km",
-        4: f"{user_name} hat ein Training beendet!%0A%0ADistanz: {dist_km:.2f} km%0AZeit: {duration_str}%0ATempo: {pace_str}/km",
-        5: f"{user_name} finished a workout!%0A%0ADistance: {dist_km:.2f} km%0ATime: {duration_str}%0APace: {pace_str}/km",
+        0: f"🏃‍♂️ {user_name} finished a workout!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Time: {duration_str}%0A⚡ Pace: {pace_str}/km",
+        1: f"🏃‍♂️ {user_name} סיים אימון!%0A%0A📍 מרחק: {dist_km:.2f} ק״מ%0A⏱️ זמן: {duration_str}%0A⚡ קצב: {pace_str}/ק״מ",
+        2: f"🏃‍♂️ ¡{user_name} terminó un entrenamiento!%0A%0A📍 Distancia: {dist_km:.2f} km%0A⏱️ Tiempo: {duration_str}%0A⚡ Ritmo: {pace_str}/km",
+        3: f"🏃‍♂️ {user_name} a terminé un entraînement!%0A%0A📍 Distance: {dist_km:.2f} km%0A⏱️ Temps: {duration_str}%0A⚡ Allure: {pace_str}/km",
+        4: f"🏃‍♂️ {user_name} hat ein Training beendet!%0A%0A📍 Distanz: {dist_km:.2f} km%0A⏱️ Zeit: {duration_str}%0A⚡ Tempo: {pace_str}/km",
+        5: f"🏃‍♂️ {user_name}完成了训练!%0A%0A📍 距离: {dist_km:.2f} km%0A⏱️ 时间: {duration_str}%0A⚡ 配速: {pace_str}/km",
     }
     share_text = share_texts.get(lang, share_texts[0])
     if avg_hr:
-        hr_texts = {0: f"%0AHR: {avg_hr} BPM", 1: f"%0Aדופק: {avg_hr} BPM", 2: f"%0AFC: {avg_hr} LPM", 3: f"%0AFC: {avg_hr} BPM", 4: f"%0AHF: {avg_hr} SPM", 5: f"%0AHR: {avg_hr} BPM"}
+        hr_texts = {0: f"%0A❤️ HR: {avg_hr} BPM", 1: f"%0A❤️ דופק: {avg_hr} BPM", 2: f"%0A❤️ FC: {avg_hr} LPM", 3: f"%0A❤️ FC: {avg_hr} BPM", 4: f"%0A❤️ HF: {avg_hr} SPM", 5: f"%0A❤️ 心率: {avg_hr} BPM"}
         share_text += hr_texts.get(lang, hr_texts[0])
-    share_text += f"%0A%0Ahttps://fitbeat.it.com/api/u/{user_id}/workout/{workout_id}?lang={lang}"
+    share_text += f"%0A%0A🔗 {base_url}/api/u/{user_id}?lang={lang}"
     
     # Convert route to JSON for JavaScript
     route_json = json.dumps([[p['lat'], p['lon']] for p in route]) if route else "[]"
     has_route = len(route) > 0
+    
+    # Map button labels
+    map_labels = {
+        0: {"standard": "Map", "satellite": "Satellite", "terrain": "3D"},
+        1: {"standard": "מפה", "satellite": "לוויין", "terrain": "3D"},
+        2: {"standard": "Mapa", "satellite": "Satélite", "terrain": "3D"},
+        3: {"standard": "Carte", "satellite": "Satellite", "terrain": "3D"},
+        4: {"standard": "Karte", "satellite": "Satellit", "terrain": "3D"},
+        5: {"standard": "地图", "satellite": "卫星", "terrain": "3D"},
+    }
+    map_label = map_labels.get(lang, map_labels[0])
     
     # Generate map section - Leaflet if route exists, SVG fallback otherwise
     if has_route:
         map_section = f'''
             <div class="map-container">
                 <div id="map"></div>
+                <div class="map-controls">
+                    <button class="map-btn active" data-layer="standard">🗺️ {map_label["standard"]}</button>
+                    <button class="map-btn" data-layer="satellite">🛰️ {map_label["satellite"]}</button>
+                    <button class="map-btn" data-layer="terrain">🏔️ {map_label["terrain"]}</button>
+                </div>
                 <div class="map-badge">
                     <span class="value">{dist_km:.2f}</span>
                     <span class="unit">{t('km', lang)}</span>
@@ -850,8 +930,21 @@ def generate_workout_html(workout, user_id, lang=0):
     # Build extra stats section with all parameters
     extra_stats_html = ""
     
-    # Max HR
-    if max_hr:
+    # HR Stats - Show all three if we have min/max
+    if min_hr and max_hr:
+        extra_stats_html += f'''
+            <div class="extra-stat hr-full">
+                <span class="label">❤️ HR</span>
+                <span class="value">
+                    <span style="color:#22c55e;">{min_hr}</span> / 
+                    <span style="color:#00d4ff;">{avg_hr if avg_hr else '--'}</span> / 
+                    <span style="color:#ef4444;">{max_hr}</span>
+                    <span class="unit">min/avg/max</span>
+                </span>
+            </div>
+        '''
+    elif max_hr:
+        # Fallback to just max HR
         extra_stats_html += f'''
             <div class="extra-stat">
                 <span class="label">💓 {t('max_hr', lang)}</span>
@@ -895,6 +988,16 @@ def generate_workout_html(workout, user_id, lang=0):
             </div>
         '''
     
+    # Elevation Chart Section (if we have elevation data)
+    elevation_chart_html = ""
+    if elevation_json and elevation_json.strip() and elevation_json != "[]":
+        elevation_chart_html = f'''
+            <div class="section">
+                <div class="section-title">⛰️ Elevation Profile</div>
+                <canvas id="elevationChart" height="150"></canvas>
+            </div>
+        '''
+    
     return f"""
     <!DOCTYPE html>
     <html lang="{lang_code}" {dir_attr}>
@@ -904,6 +1007,7 @@ def generate_workout_html(workout, user_id, lang=0):
         <title>FitBeat - {t('workout', lang)}</title>
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
         <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
             * {{ margin: 0; padding: 0; box-sizing: border-box; }}
             body {{ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); min-height: 100vh; color: white; padding: 1rem; }}
@@ -914,11 +1018,17 @@ def generate_workout_html(workout, user_id, lang=0):
             .user-name {{ font-size: 1.1rem; margin-top: 0.5rem; }}
             
             /* Leaflet Map Container */
-            .map-container {{ position: relative; border-radius: 1rem; height: 220px; margin-bottom: 1.5rem; overflow: hidden; }}
+            .map-container {{ position: relative; border-radius: 1rem; height: 280px; margin-bottom: 1.5rem; overflow: hidden; }}
             #map {{ width: 100%; height: 100%; border-radius: 1rem; z-index: 1; }}
             .map-container .map-badge {{ position: absolute; top: 0.75rem; {"left" if is_rtl(lang) else "right"}: 0.75rem; background: rgba(0,0,0,0.85); padding: 0.5rem 1rem; border-radius: 0.75rem; border: 1px solid rgba(255,255,255,0.2); z-index: 1000; }}
             .map-badge .value {{ font-size: 1.5rem; font-weight: bold; color: #00d4ff; }}
             .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
+            
+            /* Map Controls */
+            .map-controls {{ position: absolute; bottom: 0.75rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; z-index: 1000; }}
+            .map-btn {{ background: rgba(0,0,0,0.85); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }}
+            .map-btn:hover {{ background: rgba(0,212,255,0.2); border-color: #00d4ff; }}
+            .map-btn.active {{ background: #00d4ff; color: black; border-color: #00d4ff; }}
             
             /* SVG Fallback Map */
             .map {{ background: linear-gradient(135deg, #2d4a2d 0%, #1a2f1a 100%); border-radius: 1rem; height: 200px; margin-bottom: 1.5rem; position: relative; overflow: hidden; }}
@@ -980,19 +1090,18 @@ def generate_workout_html(workout, user_id, lang=0):
                     <div class="label">{t('duration', lang)}</div>
                     <div class="value">{duration_str}</div>
                 </div>
-                <div class="stat">
-                    <div class="icon">⚡</div>
-                    <div class="label">{t('pace', lang)}</div>
-                    <div class="value">{pace_str}<span class="unit">/{t('km', lang)}</span></div>
-                </div>
+                {f'<div class="stat"><div class="icon">⚡</div><div class="label">{t("pace", lang)}</div><div class="value">{pace_str}<span class="unit">/{t("km", lang)}</span></div></div>' if show_pace else f'<div class="stat"><div class="icon">🚀</div><div class="label">Speed</div><div class="value">{speed_kmh:.1f}<span class="unit">km/h</span></div></div>'}
                 {'<div class="stat"><div class="icon">❤️</div><div class="label">' + t("avg_hr", lang) + '</div><div class="value" style="color:#ef4444;">' + str(avg_hr) + '<span class="unit">BPM</span></div></div>' if avg_hr else ''}
             </div>
             
             {f'<div class="section"><div class="section-title">📊 {t("workout", lang)}</div><div class="extra-stats">{extra_stats_html}</div></div>' if extra_stats_html else ''}
             
-            <button onclick="copyWorkoutLink()" class="share-btn" id="copyBtn">
-                📋 {t('copy_link', lang)}
-            </button>
+            {elevation_chart_html}
+            
+            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+                {t('share_whatsapp', lang)}
+            </a>
             
             <button onclick="deleteWorkout()" class="delete-btn">🗑️ {t('delete_workout', lang)}</button>
             
@@ -1012,10 +1121,22 @@ def generate_workout_html(workout, user_id, lang=0):
                     attributionControl: false
                 }});
                 
-                // Add OpenStreetMap tiles
-                L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                // Define tile layers
+                const standardLayer = L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
                     maxZoom: 19
-                }}).addTo(map);
+                }});
+                
+                const satelliteLayer = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{{z}}/{{y}}/{{x}}', {{
+                    maxZoom: 19
+                }});
+                
+                const terrainLayer = L.tileLayer('https://{{s}}.tile.opentopomap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    maxZoom: 17
+                }});
+                
+                // Add default layer
+                standardLayer.addTo(map);
+                let currentLayer = standardLayer;
                 
                 // Create polyline from route
                 const polyline = L.polyline(routeData, {{
@@ -1048,6 +1169,30 @@ def generate_workout_html(workout, user_id, lang=0):
                 map.fitBounds(polyline.getBounds(), {{
                     padding: [30, 30]
                 }});
+                
+                // Map layer switching
+                const layers = {{
+                    'standard': standardLayer,
+                    'satellite': satelliteLayer,
+                    'terrain': terrainLayer
+                }};
+                
+                document.querySelectorAll('.map-btn').forEach(btn => {{
+                    btn.addEventListener('click', function() {{
+                        const layerName = this.dataset.layer;
+                        const newLayer = layers[layerName];
+                        
+                        if (newLayer && newLayer !== currentLayer) {{
+                            map.removeLayer(currentLayer);
+                            newLayer.addTo(map);
+                            currentLayer = newLayer;
+                            
+                            // Update active button
+                            document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+                            this.classList.add('active');
+                        }}
+                    }});
+                }});
             }}
             
             async function deleteWorkout() {{
@@ -1063,17 +1208,49 @@ def generate_workout_html(workout, user_id, lang=0):
                 }}
             }}
             
-            function copyWorkoutLink() {{
-                const url = window.location.href;
-                navigator.clipboard.writeText(url).then(() => {{
-                    const btn = document.getElementById('copyBtn');
-                    btn.innerText = '✓ {t("link_copied", lang)}';
-                    btn.style.background = 'linear-gradient(90deg, #22c55e 0%, #16a34a 100%)';
-                    setTimeout(() => {{
-                        btn.innerText = '📋 {t("copy_link", lang)}';
-                        btn.style.background = 'linear-gradient(90deg, #00d4ff 0%, #0099bb 100%)';
-                    }}, 2000);
-                }});
+            // Elevation Chart (v4.7.0)
+            const elevationData = {elevation_json if elevation_json else '[]'};
+            if (elevationData.length > 0) {{
+                const ctx = document.getElementById('elevationChart');
+                if (ctx) {{
+                    new Chart(ctx, {{
+                        type: 'line',
+                        data: {{
+                            labels: elevationData.map((_, i) => ''),
+                            datasets: [{{
+                                label: 'Elevation (m)',
+                                data: elevationData,
+                                fill: true,
+                                backgroundColor: 'rgba(0, 212, 255, 0.2)',
+                                borderColor: '#00d4ff',
+                                borderWidth: 2,
+                                pointRadius: 0,
+                                tension: 0.4
+                            }}]
+                        }},
+                        options: {{
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {{
+                                legend: {{ display: false }}
+                            }},
+                            scales: {{
+                                x: {{
+                                    display: false
+                                }},
+                                y: {{
+                                    ticks: {{
+                                        color: '#888',
+                                        callback: function(value) {{ return value + 'm'; }}
+                                    }},
+                                    grid: {{
+                                        color: 'rgba(255,255,255,0.1)'
+                                    }}
+                                }}
+                            }}
+                        }}
+                    }});
+                }}
             }}
         </script>
     </body>
