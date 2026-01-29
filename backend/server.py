@@ -947,9 +947,11 @@ def generate_workout_html(workout, user_id, lang=0):
             <div class="map-container">
                 <div id="map"></div>
                 <div class="map-controls">
-                    <button class="map-btn active" data-layer="standard">🗺️ {map_label["standard"]}</button>
-                    <button class="map-btn" data-layer="satellite">🛰️ {map_label["satellite"]}</button>
-                    <button class="map-btn" data-layer="terrain">🏔️ {map_label["terrain"]}</button>
+                    <div class="map-controls-row">
+                        <button class="map-btn active" data-layer="standard">🗺️ {map_label["standard"]}</button>
+                        <button class="map-btn" data-layer="satellite">🛰️ {map_label["satellite"]}</button>
+                    </div>
+                    <button class="map-btn map-btn-3d" data-toggle="terrain">🏔️ {map_label["terrain"]}</button>
                 </div>
                 <div class="map-badge">
                     <span class="value">{dist_km:.2f}</span>
@@ -1043,7 +1045,7 @@ def generate_workout_html(workout, user_id, lang=0):
         elevation_chart_html = f'''
             <div class="section">
                 <div class="section-title">⛰️ Elevation Profile</div>
-                <canvas id="elevationChart" height="150"></canvas>
+                <canvas id="elevationChart" height="80"></canvas>
             </div>
         '''
     
@@ -1074,8 +1076,10 @@ def generate_workout_html(workout, user_id, lang=0):
             .map-badge .unit {{ font-size: 0.8rem; color: #888; }}
             
             /* Map Controls */
-            .map-controls {{ position: absolute; bottom: 0.75rem; left: 50%; transform: translateX(-50%); display: flex; gap: 0.5rem; z-index: 1000; }}
+            .map-controls {{ position: absolute; bottom: 0.75rem; left: 50%; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 0.4rem; z-index: 1000; }}
+            .map-controls-row {{ display: flex; gap: 0.5rem; }}
             .map-btn {{ background: rgba(0,0,0,0.85); color: white; border: 1px solid rgba(255,255,255,0.2); padding: 0.5rem 0.75rem; border-radius: 0.5rem; font-size: 0.75rem; cursor: pointer; transition: all 0.2s; }}
+            .map-btn-3d {{ padding: 0.4rem 1.5rem; }}
             .map-btn:hover {{ background: rgba(0,212,255,0.2); border-color: #00d4ff; }}
             .map-btn.active {{ background: #00d4ff; color: black; border-color: #00d4ff; }}
             
@@ -1179,13 +1183,15 @@ def generate_workout_html(workout, user_id, lang=0):
                     maxZoom: 19
                 }});
                 
-                const terrainLayer = L.tileLayer('https://{{s}}.tile.opentopomap.org/{{z}}/{{x}}/{{y}}.png', {{
-                    maxZoom: 17
+                const terrainOverlay = L.tileLayer('https://{{s}}.tile.opentopomap.org/{{z}}/{{x}}/{{y}}.png', {{
+                    maxZoom: 17,
+                    opacity: 0.6
                 }});
                 
                 // Add default layer
                 standardLayer.addTo(map);
-                let currentLayer = standardLayer;
+                let currentBaseLayer = standardLayer;
+                let is3DActive = false;
                 
                 // Create polyline from route
                 const polyline = L.polyline(routeData, {{
@@ -1219,28 +1225,44 @@ def generate_workout_html(workout, user_id, lang=0):
                     padding: [30, 30]
                 }});
                 
-                // Map layer switching
-                const layers = {{
+                // Base layer switching (Map / Satellite)
+                const baseLayers = {{
                     'standard': standardLayer,
-                    'satellite': satelliteLayer,
-                    'terrain': terrainLayer
+                    'satellite': satelliteLayer
                 }};
                 
-                document.querySelectorAll('.map-btn').forEach(btn => {{
+                document.querySelectorAll('.map-btn[data-layer]').forEach(btn => {{
                     btn.addEventListener('click', function() {{
                         const layerName = this.dataset.layer;
-                        const newLayer = layers[layerName];
+                        const newLayer = baseLayers[layerName];
                         
-                        if (newLayer && newLayer !== currentLayer) {{
-                            map.removeLayer(currentLayer);
+                        if (newLayer && newLayer !== currentBaseLayer) {{
+                            map.removeLayer(currentBaseLayer);
                             newLayer.addTo(map);
-                            currentLayer = newLayer;
+                            currentBaseLayer = newLayer;
+                            
+                            // Re-add terrain overlay if 3D is active
+                            if (is3DActive) {{
+                                terrainOverlay.addTo(map);
+                            }}
                             
                             // Update active button
-                            document.querySelectorAll('.map-btn').forEach(b => b.classList.remove('active'));
+                            document.querySelectorAll('.map-btn[data-layer]').forEach(b => b.classList.remove('active'));
                             this.classList.add('active');
                         }}
                     }});
+                }});
+                
+                // 3D toggle button
+                document.querySelector('.map-btn[data-toggle="terrain"]').addEventListener('click', function() {{
+                    if (is3DActive) {{
+                        map.removeLayer(terrainOverlay);
+                        this.classList.remove('active');
+                    }} else {{
+                        terrainOverlay.addTo(map);
+                        this.classList.add('active');
+                    }}
+                    is3DActive = !is3DActive;
                 }});
             }}
             
