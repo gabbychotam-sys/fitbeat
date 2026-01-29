@@ -536,6 +536,55 @@ async def get_user_workouts(user_id: str, limit: int = 10):
         "count": len(workouts)
     }
 
+@api_router.post("/workout/fix-elevation/{user_id}")
+async def fix_elevation_for_user(user_id: str):
+    """Fix elevation data for all workouts of a user by extracting from route points"""
+    workouts = await db.workouts.find({"user_id": user_id}).to_list(1000)
+    
+    updated_count = 0
+    for workout in workouts:
+        route = workout.get('route', [])
+        if not route or len(route) < 2:
+            continue
+            
+        # Extract altitude from route points
+        altitudes = [p.get('alt') for p in route if p.get('alt') is not None]
+        if not altitudes or len(altitudes) < 2:
+            continue
+        
+        # Calculate ascent/descent
+        total_ascent = 0
+        total_descent = 0
+        for i in range(1, len(altitudes)):
+            diff = altitudes[i] - altitudes[i-1]
+            if diff > 0.5:
+                total_ascent += diff
+            elif diff < -0.5:
+                total_descent += abs(diff)
+        
+        # Create elevation JSON
+        elevation_json = json.dumps([int(a) for a in altitudes])
+        
+        # Update workout
+        await db.workouts.update_one(
+            {"id": workout.get("id")},
+            {"$set": {
+                "total_ascent": int(total_ascent) if total_ascent > 0 else None,
+                "total_descent": int(total_descent) if total_descent > 0 else None,
+                "elevation_json": elevation_json,
+                "elevation_gain": total_ascent if total_ascent > 0 else None,
+                "elevation_loss": total_descent if total_descent > 0 else None
+            }}
+        )
+        updated_count += 1
+        logger.info(f"Fixed elevation for workout {workout.get('id')}: +{total_ascent:.0f}m / -{total_descent:.0f}m")
+    
+    return {
+        "status": "completed",
+        "user_id": user_id,
+        "workouts_updated": updated_count
+    }
+
 @api_router.get("/workout/latest/{user_id}")
 async def get_latest_workout(user_id: str):
     """Get the latest workout for a user"""
