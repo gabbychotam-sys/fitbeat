@@ -1045,7 +1045,9 @@ def generate_workout_html(workout, user_id, lang=0):
         elevation_chart_html = f'''
             <div class="section">
                 <div class="section-title">⛰️ Elevation Profile</div>
-                <canvas id="elevationChart" height="80"></canvas>
+                <div class="chart-container" style="height: 100px; width: 100%;">
+                    <canvas id="elevationChart"></canvas>
+                </div>
             </div>
         '''
     
