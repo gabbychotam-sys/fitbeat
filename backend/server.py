@@ -425,6 +425,8 @@ async def submit_workout(workout: WorkoutSubmit):
     elevation_json_from_route = None
     total_ascent_calc = 0
     total_descent_calc = 0
+    distance_from_route_cm = 0
+    
     if route_data and len(route_data) > 0:
         # Check if route has altitude data
         altitudes = [p.get('alt') for p in route_data if p.get('alt') is not None]
@@ -440,6 +442,29 @@ async def submit_workout(workout: WorkoutSubmit):
                 elif diff < -0.5:
                     total_descent_calc += abs(diff)
             logger.info(f"Calculated elevation: +{total_ascent_calc:.0f}m / -{total_descent_calc:.0f}m")
+        
+        # ═══ v4.7.6: Calculate distance from route using Haversine ═══
+        import math
+        def haversine(lat1, lon1, lat2, lon2):
+            R = 6371000  # Earth radius in meters
+            phi1, phi2 = math.radians(lat1), math.radians(lat2)
+            dphi = math.radians(lat2 - lat1)
+            dlambda = math.radians(lon2 - lon1)
+            a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+            return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1-a))
+        
+        for i in range(1, len(route_data)):
+            p1, p2 = route_data[i-1], route_data[i]
+            if 'lat' in p1 and 'lon' in p1 and 'lat' in p2 and 'lon' in p2:
+                segment_m = haversine(p1['lat'], p1['lon'], p2['lat'], p2['lon'])
+                distance_from_route_cm += int(segment_m * 100)
+        logger.info(f"Calculated distance from route: {distance_from_route_cm/100000:.2f} km")
+    
+    # Use route distance if provided distance seems wrong (less than 10% of route distance)
+    final_distance_cm = workout.distance_cm
+    if distance_from_route_cm > 0 and workout.distance_cm < distance_from_route_cm * 0.1:
+        logger.warning(f"Distance mismatch! Provided: {workout.distance_cm/100000:.2f}km, Route: {distance_from_route_cm/100000:.2f}km. Using route distance.")
+        final_distance_cm = distance_from_route_cm
     
     # Use local time from watch if provided, otherwise use server time
     timestamp = datetime.now(timezone.utc)
@@ -460,7 +485,7 @@ async def submit_workout(workout: WorkoutSubmit):
     workout_obj = WorkoutSummary(
         user_id=workout.user_id,
         user_name=workout.user_name,
-        distance_cm=workout.distance_cm,
+        distance_cm=final_distance_cm,
         duration_sec=workout.duration_sec,
         avg_hr=workout.avg_hr if workout.avg_hr and workout.avg_hr > 0 else None,
         min_hr=workout.min_hr if workout.min_hr and workout.min_hr > 0 else None,
@@ -583,6 +608,52 @@ async def fix_elevation_for_user(user_id: str):
         "status": "completed",
         "user_id": user_id,
         "workouts_updated": updated_count
+    }
+
+@api_router.get("/workout/fix-distance/{user_id}")
+async def fix_distance_for_user(user_id: str):
+    """Fix distance for workouts where distance seems wrong (calculated from route)"""
+    import math
+    
+    def haversine(lat1, lon1, lat2, lon2):
+        R = 6371000  # Earth radius in meters
+        phi1, phi2 = math.radians(lat1), math.radians(lat2)
+        dphi = math.radians(lat2 - lat1)
+        dlambda = math.radians(lon2 - lon1)
+        a = math.sin(dphi/2)**2 + math.cos(phi1)*math.cos(phi2)*math.sin(dlambda/2)**2
+        return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    
+    workouts = await db.workouts.find({"user_id": user_id}).to_list(1000)
+    
+    updated_count = 0
+    for workout in workouts:
+        route = workout.get('route', [])
+        if not route or len(route) < 2:
+            continue
+        
+        # Calculate distance from route
+        distance_from_route_cm = 0
+        for i in range(1, len(route)):
+            p1, p2 = route[i-1], route[i]
+            if 'lat' in p1 and 'lon' in p1 and 'lat' in p2 and 'lon' in p2:
+                segment_m = haversine(p1['lat'], p1['lon'], p2['lat'], p2['lon'])
+                distance_from_route_cm += int(segment_m * 100)
+        
+        stored_distance = workout.get('distance_cm', 0)
+        
+        # If stored distance is less than 10% of route distance, it's wrong
+        if distance_from_route_cm > 0 and stored_distance < distance_from_route_cm * 0.1:
+            await db.workouts.update_one(
+                {"id": workout.get("id")},
+                {"$set": {"distance_cm": distance_from_route_cm}}
+            )
+            updated_count += 1
+            logger.info(f"Fixed distance for workout {workout.get('id')}: {stored_distance/100000:.2f}km -> {distance_from_route_cm/100000:.2f}km")
+    
+    return {
+        "status": "completed",
+        "user_id": user_id,
+        "workouts_fixed": updated_count
     }
 
 @api_router.get("/workout/latest/{user_id}")
@@ -852,12 +923,33 @@ def generate_workout_html(workout, user_id, lang=0):
         </html>
         """
     
-    dist_km = workout['distance_cm'] / 100000
+    dist_cm = workout['distance_cm']
+    dist_km = dist_cm / 100000
     duration_sec = workout['duration_sec']
     hrs = duration_sec // 3600
     mins = (duration_sec % 3600) // 60
     secs = duration_sec % 60
     duration_str = f"{hrs}:{mins:02d}:{secs:02d}" if hrs > 0 else f"{mins}:{secs:02d}"
+    
+    # v4.7.6: Smart distance display - meters under 1km, km over 1km
+    if dist_km < 1.0:
+        dist_meters = int(dist_cm / 100)
+        dist_display = str(dist_meters)
+        dist_unit = {0: "m", 1: "מ'", 2: "m", 3: "m", 4: "m", 5: "米"}.get(lang, "m")
+    else:
+        dist_display = f"{dist_km:.2f}"
+        dist_unit = {0: "mi", 1: "ק\"מ", 2: "km", 3: "km", 4: "km", 5: "公里"}.get(lang, "km")
+    
+    # For English, use miles
+    if lang == 0:
+        dist_miles = dist_cm / 160934
+        if dist_miles < 0.1:
+            dist_feet = int(dist_cm / 30.48)
+            dist_display = str(dist_feet)
+            dist_unit = "ft"
+        else:
+            dist_display = f"{dist_miles:.2f}"
+            dist_unit = "mi"
     
     # Calculate pace - only show if reasonable (< 30 min/km)
     pace_str = "--:--"
@@ -954,8 +1046,8 @@ def generate_workout_html(workout, user_id, lang=0):
                     <button class="map-btn map-btn-3d" data-toggle="terrain">🏔️ {map_label["terrain"]}</button>
                 </div>
                 <div class="map-badge">
-                    <span class="value">{dist_km:.2f}</span>
-                    <span class="unit">{t('km', lang)}</span>
+                    <span class="value">{dist_display}</span>
+                    <span class="unit">{dist_unit}</span>
                 </div>
             </div>
         '''
@@ -971,8 +1063,8 @@ def generate_workout_html(workout, user_id, lang=0):
                     <circle cx="360" cy="60" r="3" fill="white"/>
                 </svg>
                 <div class="map-badge">
-                    <span class="value">{dist_km:.2f}</span>
-                    <span class="unit">{t('km', lang)}</span>
+                    <span class="value">{dist_display}</span>
+                    <span class="unit">{dist_unit}</span>
                 </div>
                 <div class="no-gps">{t('no_route', lang)}</div>
             </div>
