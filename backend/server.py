@@ -536,7 +536,7 @@ async def get_user_workouts(user_id: str, limit: int = 10):
         "count": len(workouts)
     }
 
-@api_router.post("/workout/fix-elevation/{user_id}")
+@api_router.get("/workout/fix-elevation/{user_id}")
 async def fix_elevation_for_user(user_id: str):
     """Fix elevation data for all workouts of a user by extracting from route points"""
     workouts = await db.workouts.find({"user_id": user_id}).to_list(1000)
