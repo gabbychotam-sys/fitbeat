@@ -1113,8 +1113,9 @@ def generate_workout_html(workout, user_id, lang=0):
             .extra-stat .label {{ color: #888; display: flex; align-items: center; gap: 0.5rem; }}
             .extra-stat .value {{ font-weight: bold; }}
             
-            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #25D366 0%, #128C7E 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 2rem auto; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); text-decoration: none; }}
-            .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4); }}
+            .share-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.75rem; background: linear-gradient(90deg, #00d4ff 0%, #0099cc 100%); color: white; border: none; padding: 1rem 2rem; border-radius: 9999px; font-size: 1.1rem; font-weight: bold; cursor: pointer; margin: 2rem auto; box-shadow: 0 4px 15px rgba(0, 212, 255, 0.3); text-decoration: none; transition: all 0.2s; }}
+            .share-btn:hover {{ transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0, 212, 255, 0.4); }}
+            .share-btn.copied {{ background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); box-shadow: 0 4px 15px rgba(34, 197, 94, 0.3); }}
             .share-btn svg {{ width: 1.5rem; height: 1.5rem; }}
             .share-hint {{ text-align: center; color: #888; font-size: 0.8rem; margin-bottom: 1rem; }}
             .delete-btn {{ display: flex; align-items: center; justify-content: center; gap: 0.5rem; background: transparent; color: #ef4444; border: 1px solid #ef4444; padding: 0.75rem 1.5rem; border-radius: 9999px; font-size: 0.85rem; cursor: pointer; margin: 1rem auto; }}
@@ -1153,10 +1154,10 @@ def generate_workout_html(workout, user_id, lang=0):
             
             {elevation_chart_html}
             
-            <a href="https://wa.me/?text={share_text}" target="_blank" class="share-btn">
-                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
-                {t('share_whatsapp', lang)}
-            </a>
+            <button onclick="copyWorkoutLink()" class="share-btn" id="copyLinkBtn">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.5rem;height:1.5rem;"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path></svg>
+                <span id="copyLinkText">{t('copy_link', lang)}</span>
+            </button>
             
             <button onclick="deleteWorkout()" class="delete-btn">🗑️ {t('delete_workout', lang)}</button>
             
@@ -1265,6 +1266,20 @@ def generate_workout_html(workout, user_id, lang=0):
                         this.classList.add('active');
                     }}
                     is3DActive = !is3DActive;
+                }});
+            }}
+            
+            function copyWorkoutLink() {{
+                const url = window.location.href;
+                navigator.clipboard.writeText(url).then(() => {{
+                    const btn = document.getElementById('copyLinkBtn');
+                    const text = document.getElementById('copyLinkText');
+                    btn.classList.add('copied');
+                    text.textContent = '{t("link_copied", lang)}';
+                    setTimeout(() => {{
+                        btn.classList.remove('copied');
+                        text.textContent = '{t("copy_link", lang)}';
+                    }}, 2000);
                 }});
             }}
             
