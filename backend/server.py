@@ -1729,191 +1729,187 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
         0: """<b>How to use FitBeat:</b>
 
 <b>Main Screen:</b>
-• Tap the <b>TIME</b> (top) → Opens Settings (language, name, 10 colors)
-• Tap the <b>DISTANCE</b> → Set distance goal (1-100 km/mi)
-• Tap the <b>TIMER</b> → Set time goal (1-120 minutes)
-• Tap the <b>HEART</b> (bottom) → HR Zones settings
+- Tap the <b>TIME</b> (top) → Opens Settings (language, name, 10 colors)
+- Tap the <b>DISTANCE</b> → Set distance goal (1-100 km/mi)
+- Tap the <b>TIMER</b> → Set time goal (1-120 minutes)
+- Tap the <b>HEART</b> (bottom) → HR Zones settings
 
 <b>NEW: Smart HR Zones (Karvonen Formula):</b>
-• Choose "Auto" - calculates your ideal zone based on your fitness level
-• Or select Zone 1-5 manually
-• Zone 1 (50-60%): Recovery | Zone 2 (60-70%): Fat Burn
-• Zone 3 (70-80%): Aerobic | Zone 4 (80-90%): Anaerobic
-• Zone 5 (90-100%): Max Effort
-• Get alerts when you exceed your zone!
+- Choose "Auto" - calculates your ideal zone based on your fitness level
+- Or select Zone 1-5 manually
+- Zone 1 (50-60%): Recovery | Zone 2 (60-70%): Fat Burn
+- Zone 3 (70-80%): Aerobic | Zone 4 (80-90%): Anaerobic
+- Zone 5 (90-100%): Max Effort
+- Get alerts when you exceed your zone!
 
 <b>Features:</b>
-• GPS route tracking with map display
-• Elevation tracking with graph
-• Smart distance display (meters under 1km)
-• Halfway and goal completion alerts with animation
-• 10 customizable colors | 6 languages
-• Device migration: workouts saved after reinstalling
+- GPS route tracking with map display
+- Elevation tracking with graph
+- Smart distance display (meters under 1km)
+- Halfway and goal completion alerts with animation
+- 10 customizable colors | 6 languages
+- Device migration: workouts saved after reinstalling
 
 <b>After your first workout:</b>
-• Copy the link to your personal dashboard. Save it in your bookmarks!
+- Copy the link to your personal dashboard. Save it in your bookmarks!
 
 <b>Important:</b>
-• Garmin Connect app must be open on your phone for sync
-• Turn OFF Focus/DND mode on your watch for vibration alerts""",
+- Garmin Connect app must be open on your phone for sync
+- Turn OFF Focus/DND mode on your watch for vibration alerts""",
 
         1: """<b>איך להשתמש ב-FitBeat:</b>
 
 <b>מסך ראשי:</b>
-• לחץ על <b>השעה</b> (למעלה) ← הגדרות (שפה, שם, 10 צבעים)
-• לחץ על <b>המרחק</b> ← בחר יעד מרחק (1-100 ק"מ)
-• לחץ על <b>הטיימר</b> ← בחר יעד זמן (1-120 דקות)
-• לחץ על <b>הלב</b> (למטה) ← הגדרות אזורי דופק
+- לחץ על <b>השעה</b> (למעלה) ← הגדרות (שפה, שם, 10 צבעים)
+- לחץ על <b>המרחק</b> ← בחר יעד מרחק (1-100 ק"מ)
+- לחץ על <b>הטיימר</b> ← בחר יעד זמן (1-120 דקות)
+- לחץ על <b>הלב</b> (למטה) ← הגדרות אזורי דופק
 
 <b>חדש: אזורי דופק חכמים (נוסחת Karvonen):</b>
-• בחר "אוטו" - מחשב את האזור האידיאלי לפי רמת הכושר שלך
-• או בחר Zone 1-5 ידנית
-• Zone 1 (50-60%): התאוששות | Zone 2 (60-70%): שריפת שומן
-• Zone 3 (70-80%): אירובי | Zone 4 (80-90%): אנאירובי
-• Zone 5 (90-100%): מאמץ מקסימלי
-• מקבל התראה כשעוברים את האזור!
+- בחר "אוטו" - מחשב את האזור האידיאלי לפי רמת הכושר שלך
+- או בחר Zone 1-5 ידנית
+- Zone 1 (50-60%): התאוששות | Zone 2 (60-70%): שריפת שומן
+- Zone 3 (70-80%): אירובי | Zone 4 (80-90%): אנאירובי
+- Zone 5 (90-100%): מאמץ מקסימלי
+- מקבל התראה כשעוברים את האזור!
 
 <b>פיצ'רים:</b>
-• מעקב GPS עם תצוגת מפה
-• מעקב גובה עם גרף
-• תצוגת מרחק חכמה (מטרים מתחת ל-1 ק"מ)
-• התראות בחצי הדרך ובסיום היעד עם אנימציה
-• 10 צבעים | 6 שפות
-• שמירת אימונים: נשמרים גם אחרי התקנה מחדש
+- מעקב GPS עם תצוגת מפה
+- מעקב גובה עם גרף
+- תצוגת מרחק חכמה (מטרים מתחת ל-1 ק"מ)
+- התראות בחצי הדרך ובסיום היעד עם אנימציה
+- 10 צבעים | 6 שפות
+- שמירת אימונים: נשמרים גם אחרי התקנה מחדש
 
 <b>אחרי האימון הראשון:</b>
-• העתק את הלינק לדשבורד האישי שלך. שמור אותו בסימניות!
+- העתק את הלינק לדשבורד האישי שלך. שמור אותו בסימניות!
 
 <b>חשוב:</b>
-• אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון
-• כבה מצב מיקוד (DND) בשעון כדי לקבל רטטים והתראות""",
+- אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון
+- כבה מצב מיקוד (DND) בשעון כדי לקבל רטטים והתראות""",
 
         2: """<b>Cómo usar FitBeat:</b>
 
 <b>Pantalla principal:</b>
-• Toca la <b>HORA</b> (arriba) → Ajustes (idioma, nombre, 10 colores)
-• Toca la <b>DISTANCIA</b> → Establecer meta de distancia (1-100 km)
-• Toca el <b>TEMPORIZADOR</b> → Establecer meta de tiempo (1-120 min)
-• Toca el <b>CORAZÓN</b> (abajo) → Ajustes de zonas FC
+- Toca la <b>HORA</b> (arriba) → Ajustes (idioma, nombre, 10 colores)
+- Toca la <b>DISTANCIA</b> → Establecer meta de distancia (1-100 km)
+- Toca el <b>TEMPORIZADOR</b> → Establecer meta de tiempo (1-120 min)
+- Toca el <b>CORAZÓN</b> (abajo) → Ajustes de zonas FC
 
 <b>NUEVO: Zonas FC Inteligentes (Formula Karvonen):</b>
-• Elige "Auto" - calcula tu zona ideal segun tu nivel de fitness
-• O selecciona Zone 1-5 manualmente
-• Zone 1 (50-60%): Recuperacion | Zone 2 (60-70%): Quema grasa
-• Zone 3 (70-80%): Aerobico | Zone 4 (80-90%): Anaerobico
-• Zone 5 (90-100%): Esfuerzo maximo
-• Recibe alertas cuando superas tu zona!
+- Elige "Auto" - calcula tu zona ideal segun tu nivel de fitness
+- O selecciona Zone 1-5 manualmente
+- Zone 1 (50-60%): Recuperacion | Zone 2 (60-70%): Quema grasa
+- Zone 3 (70-80%): Aerobico | Zone 4 (80-90%): Anaerobico
+- Zone 5 (90-100%): Esfuerzo maximo
+- Recibe alertas cuando superas tu zona!
 
 <b>Caracteristicas:</b>
-• Seguimiento GPS con mapa
-• Seguimiento de elevacion con grafico
-• Pantalla de distancia inteligente (metros bajo 1km)
-• Alertas a mitad y al completar meta
-• 10 colores | 6 idiomas
-• Migracion: entrenamientos guardados despues de reinstalar
+- Seguimiento GPS con mapa
+- Seguimiento de elevacion con grafico
+- Pantalla de distancia inteligente (metros bajo 1km)
+- Alertas a mitad y al completar meta
+- 10 colores | 6 idiomas
+- Migracion: entrenamientos guardados despues de reinstalar
 
 <b>Despues de tu primer entrenamiento:</b>
-• Copia el enlace a tu panel personal. Guardalo en favoritos!
+- Copia el enlace a tu panel personal. Guardalo en favoritos!
 
 <b>Importante:</b> Garmin Connect debe estar abierta en tu telefono.
-• Desactiva el modo No Molestar para recibir vibraciones.""",
+- Desactiva el modo No Molestar para recibir vibraciones.""",
 
         3: """<b>Comment utiliser FitBeat:</b>
 
 <b>Ecran principal:</b>
-• Touchez l'<b>HEURE</b> (haut) → Parametres (langue, nom, 10 couleurs)
-• Touchez la <b>DISTANCE</b> → Definir objectif distance (1-100 km)
-• Touchez le <b>CHRONO</b> → Definir objectif temps (1-120 min)
-• Touchez le <b>COEUR</b> (bas) → Parametres zones FC
+- Touchez l'<b>HEURE</b> (haut) → Parametres (langue, nom, 10 couleurs)
+- Touchez la <b>DISTANCE</b> → Definir objectif distance (1-100 km)
+- Touchez le <b>CHRONO</b> → Definir objectif temps (1-120 min)
+- Touchez le <b>COEUR</b> (bas) → Parametres zones FC
 
 <b>NOUVEAU: Zones FC Intelligentes (Formule Karvonen):</b>
-• Choisissez "Auto" - calcule votre zone ideale selon votre niveau
-• Ou selectionnez Zone 1-5 manuellement
-• Zone 1 (50-60%): Recuperation | Zone 2 (60-70%): Brule-graisse
-• Zone 3 (70-80%): Aerobique | Zone 4 (80-90%): Anaerobique
-• Zone 5 (90-100%): Effort max
-• Alertes quand vous depassez votre zone!
+- Choisissez "Auto" - calcule votre zone ideale selon votre niveau
+- Ou selectionnez Zone 1-5 manuellement
+- Zone 1 (50-60%): Recuperation | Zone 2 (60-70%): Brule-graisse
+- Zone 3 (70-80%): Aerobique | Zone 4 (80-90%): Anaerobique
+- Zone 5 (90-100%): Effort max
+- Alertes quand vous depassez votre zone!
 
 <b>Fonctionnalites:</b>
-• Suivi GPS avec carte
-• Suivi d'elevation avec graphique
-• Affichage distance intelligent (metres sous 1km)
-• Alertes mi-parcours et fin d'objectif
-• 10 couleurs | 6 langues
-• Migration: entrainements sauvegardes apres reinstallation
+- Suivi GPS avec carte
+- Suivi d'elevation avec graphique
+- Affichage distance intelligent (metres sous 1km)
+- Alertes mi-parcours et fin d'objectif
+- 10 couleurs | 6 langues
+- Migration: entrainements sauvegardes apres reinstallation
 
 <b>Apres votre premier entrainement:</b>
-• Copiez le lien vers votre tableau de bord. Sauvegardez-le!
+- Copiez le lien vers votre tableau de bord. Sauvegardez-le!
 
 <b>Important:</b>
-• Garmin Connect doit etre ouverte sur votre telephone
-• Desactivez le mode Ne Pas Deranger pour les vibrations""",
+- Garmin Connect doit etre ouverte sur votre telephone
+- Desactivez le mode Ne Pas Deranger pour les vibrations""",
 
         4: """<b>So verwendest du FitBeat:</b>
 
 <b>Hauptbildschirm:</b>
-• Tippe auf die <b>UHRZEIT</b> (oben) → Einstellungen (Sprache, Name, 10 Farben)
-• Tippe auf die <b>DISTANZ</b> → Distanzziel setzen (1-100 km)
-• Tippe auf den <b>TIMER</b> → Zeitziel setzen (1-120 min)
-• Tippe auf das <b>HERZ</b> (unten) → HF-Zonen Einstellungen
+- Tippe auf die <b>UHRZEIT</b> (oben) → Einstellungen (Sprache, Name, 10 Farben)
+- Tippe auf die <b>DISTANZ</b> → Distanzziel setzen (1-100 km)
+- Tippe auf den <b>TIMER</b> → Zeitziel setzen (1-120 min)
+- Tippe auf das <b>HERZ</b> (unten) → HF-Zonen Einstellungen
 
 <b>NEU: Intelligente HF-Zonen (Karvonen-Formel):</b>
-• Wahle "Auto" - berechnet deine ideale Zone nach Fitnesslevel
-• Oder wahle Zone 1-5 manuell
-• Zone 1 (50-60%): Erholung | Zone 2 (60-70%): Fettverbrennung
-• Zone 3 (70-80%): Aerob | Zone 4 (80-90%): Anaerob
-• Zone 5 (90-100%): Max Belastung
-• Alarm wenn du deine Zone uberschreitest!
+- Wahle "Auto" - berechnet deine ideale Zone nach Fitnesslevel
+- Oder wahle Zone 1-5 manuell
+- Zone 1 (50-60%): Erholung | Zone 2 (60-70%): Fettverbrennung
+- Zone 3 (70-80%): Aerob | Zone 4 (80-90%): Anaerob
+- Zone 5 (90-100%): Max Belastung
+- Alarm wenn du deine Zone uberschreitest!
 
 <b>Funktionen:</b>
-• GPS-Tracking mit Karte
-• Hohenverfolgung mit Grafik
-• Intelligente Distanzanzeige (Meter unter 1km)
-• Halbzeit- und Zielalarme
-• 10 Farben | 6 Sprachen
-• Migration: Trainings bleiben nach Neuinstallation
+- GPS-Tracking mit Karte
+- Hohenverfolgung mit Grafik
+- Intelligente Distanzanzeige (Meter unter 1km)
+- Halbzeit- und Zielalarme
+- 10 Farben | 6 Sprachen
+- Migration: Trainings bleiben nach Neuinstallation
 
 <b>Nach deinem ersten Training:</b>
-• Kopiere den Link zu deinem Dashboard. Speichere ihn!
+- Kopiere den Link zu deinem Dashboard. Speichere ihn!
 
 <b>Wichtig:</b>
-• Garmin Connect muss auf deinem Handy geoffnet sein
-• Deaktiviere den Nicht-Storen-Modus fur Vibrationen""",
+- Garmin Connect muss auf deinem Handy geoffnet sein
+- Deaktiviere den Nicht-Storen-Modus fur Vibrationen""",
 
         5: """<b>如何使用FitBeat：</b>
 
 <b>主屏幕：</b>
-• 点击<b>时间</b>（顶部）→ 设置（语言、名称、10种颜色）
-• 点击<b>距离</b> → 设置距离目标（1-100公里）
-• 点击<b>计时器</b> → 设置时间目标（1-120分钟）
-• 点击<b>心脏</b>（底部）→ 心率区间设置
+- 点击<b>时间</b>（顶部）→ 设置（语言、名称、10种颜色）
+- 点击<b>距离</b> → 设置距离目标（1-100公里）
+- 点击<b>计时器</b> → 设置时间目标（1-120分钟）
+- 点击<b>心脏</b>（底部）→ 心率区间设置
 
 <b>新功能：智能心率区间（Karvonen公式）：</b>
-• 选择"自动" - 根据您的健身水平计算理想区间
-• 或手动选择Zone 1-5
-• Zone 1 (50-60%): 恢复 | Zone 2 (60-70%): 燃脂
-• Zone 3 (70-80%): 有氧 | Zone 4 (80-90%): 无氧
-• Zone 5 (90-100%): 最大强度
-• 超过区间时收到警报！
+- 选择"自动" - 根据您的健身水平计算理想区间
+- 或手动选择Zone 1-5
+- Zone 1 (50-60%): 恢复 | Zone 2 (60-70%): 燃脂
+- Zone 3 (70-80%): 有氧 | Zone 4 (80-90%): 无氧
+- Zone 5 (90-100%): 最大强度
+- 超过区间时收到警报！
 
 <b>功能：</b>
-• GPS路线追踪与地图
-• 海拔追踪与图表
-• 智能距离显示（1公里以下显示米）
-• 半程和目标完成提醒
-• 10种颜色 | 6种语言
-• 迁移：重新安装后保留训练记录
+- GPS路线追踪与地图
+- 海拔追踪与图表
+- 智能距离显示（1公里以下显示米）
+- 半程和目标完成提醒
+- 10种颜色 | 6种语言
+- 迁移：重新安装后保留训练记录
 
 <b>首次训练后：</b>
-• 复制您的个人仪表板链接，请保存它！
+- 复制您的个人仪表板链接，请保存它！
 
 <b>重要:</b>
-• Garmin Connect必须在手机上打开
-• 关闭勿扰模式以接收振动提醒"""
-
-<b>重要:</b>
-• 手机上的Garmin Connect必须打开
-• 关闭勿扰模式以接收振动提醒"""
+- Garmin Connect必须在手机上打开
+- 关闭勿扰模式以接收振动提醒"""
     }
     
     app_desc = app_descriptions.get(lang, app_descriptions[0])
