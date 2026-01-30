@@ -48,8 +48,8 @@ TRANSLATIONS = {
     "distance": ["Distance", "מרחק", "Distancia", "Distance", "Distanz", "距离"],
     "duration": ["Duration", "משך", "Duración", "Durée", "Dauer", "时长"],
     "share_whatsapp": ["Share on WhatsApp", "שתף ב-WhatsApp", "Compartir en WhatsApp", "Partager sur WhatsApp", "Auf WhatsApp teilen", "分享到WhatsApp"],
-    "show_my_link": ["📋 Show my personal link", "📋 הצג את הלינק האישי שלי", "📋 Mostrar mi enlace personal", "📋 Afficher mon lien personnel", "📋 Meinen persönlichen Link anzeigen", "📋 显示我的个人链接"],
-    "copy_link": ["Copy link", "העתק לינק", "Copiar enlace", "Copier le lien", "Link kopieren", "复制链接"],
+    "show_my_link": ["Show my personal link", "הצג את הלינק האישי שלי", "Mostrar mi enlace personal", "Afficher mon lien personnel", "Meinen persönlichen Link anzeigen", "显示我的个人链接"],
+    "copy_link": ["Copy Link", "העתק לינק", "Copiar enlace", "Copier le lien", "Link kopieren", "复制链接"],
     "link_copied": ["Link copied!", "הלינק הועתק!", "¡Enlace copiado!", "Lien copié!", "Link kopiert!", "链接已复制！"],
     "your_personal_link": ["Your personal dashboard link:", "הלינק האישי שלך לדשבורד:", "Tu enlace personal al panel:", "Votre lien personnel:", "Dein persönlicher Dashboard-Link:", "您的个人仪表板链接："],
     "save_this_link": ["Save this link to access your workouts anytime!", "שמור את הלינק הזה כדי לגשת לאימונים שלך בכל עת!", "¡Guarda este enlace para acceder a tus entrenamientos!", "Sauvegardez ce lien pour accéder à vos entraînements!", "Speichere diesen Link um jederzeit auf deine Trainings zuzugreifen!", "保存此链接以随时查看您的训练！"],
@@ -85,7 +85,11 @@ TRANSLATIONS = {
     "feature_gps": ["GPS route tracking", "מעקב מסלול GPS", "Seguimiento de ruta GPS", "Suivi GPS du parcours", "GPS-Streckenverfolgung", "GPS路线追踪"],
     "feature_goals": ["Distance and time goals", "יעדי מרחק וזמן", "Metas de distancia y tiempo", "Objectifs de distance et temps", "Distanz- und Zeitziele", "距离和时间目标"],
     "feature_dashboard": ["Personal web dashboard to view all workouts", "דשבורד אישי לצפייה בכל האימונים", "Panel web personal para ver todos los entrenamientos", "Tableau de bord web pour voir tous les entrainements", "Personliches Web-Dashboard fur alle Trainings", "个人网页仪表板查看所有训练"],
-    "feature_share": ["Share achievements on WhatsApp", "שיתוף הישגים ב-WhatsApp", "Compartir logros en WhatsApp", "Partager les reussites sur WhatsApp", "Erfolge auf WhatsApp teilen", "在WhatsApp上分享成就"],
+    "feature_share": ["Share link with friends", "שיתוף לינק לחברים", "Compartir enlace con amigos", "Partager le lien avec des amis", "Link mit Freunden teilen", "与朋友分享链接"],
+    "feature_hr_zones": ["5 HR Zones with Karvonen formula + Auto mode", "5 אזורי דופק עם נוסחת Karvonen + מצב אוטו", "5 Zonas FC con formula Karvonen + modo Auto", "5 Zones FC avec formule Karvonen + mode Auto", "5 HF-Zonen mit Karvonen-Formel + Auto-Modus", "5个心率区间与Karvonen公式 + 自动模式"],
+    "feature_elevation": ["Elevation tracking with graph", "מעקב גובה עם גרף", "Seguimiento de elevacion con grafico", "Suivi d'elevation avec graphique", "Höhenverfolgung mit Grafik", "海拔追踪与图表"],
+    "feature_device_migration": ["Workouts saved after reinstalling", "אימונים נשמרים גם אחרי התקנה מחדש", "Entrenamientos guardados despues de reinstalar", "Entrainements sauvegardes apres reinstallation", "Trainings bleiben nach Neuinstallation", "重新安装后保留训练记录"],
+    "feature_smart_distance": ["Smart distance display (m/km)", "תצוגת מרחק חכמה (מ'/ק\"מ)", "Pantalla de distancia inteligente (m/km)", "Affichage distance intelligent (m/km)", "Intelligente Distanzanzeige (m/km)", "智能距离显示 (米/公里)"],
     "how_it_works": ["How Does It Work?", "איך זה עובד?", "Como Funciona?", "Comment ca Marche?", "Wie Funktioniert Es?", "如何使用？"],
     "step1": ["Download FitBeat from the Garmin Connect IQ Store", "הורד את FitBeat מחנות Garmin Connect IQ", "Descarga FitBeat desde la tienda Garmin Connect IQ", "Telechargez FitBeat depuis le store Garmin Connect IQ", "Lade FitBeat aus dem Garmin Connect IQ Store herunter", "从Garmin Connect IQ商店下载FitBeat"],
     "step2": ["Make sure Garmin Connect app is open on your phone", "ודא שאפליקציית Garmin Connect פתוחה בטלפון", "Asegurate de que la app Garmin Connect este abierta en tu telefono", "Assurez-vous que l'app Garmin Connect est ouverte sur votre telephone", "Stelle sicher dass die Garmin Connect App auf deinem Handy offen ist", "确保手机上的Garmin Connect应用已打开"],
@@ -1726,25 +1730,28 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 
 <b>Main Screen:</b>
 • Tap the <b>TIME</b> (top) → Opens Settings (language, name, 10 colors)
-• Tap the <b>DISTANCE</b> → Set distance goal (1-20 km/mi)
-• Tap the <b>TIMER</b> → Set time goal (10-120 minutes)
-• Tap the <b>HEART</b> (bottom) → Heart rate monitoring settings
+• Tap the <b>DISTANCE</b> → Set distance goal (1-100 km/mi)
+• Tap the <b>TIMER</b> → Set time goal (1-120 minutes)
+• Tap the <b>HEART</b> (bottom) → HR Zones settings
 
-<b>Smart Heart Rate:</b>
-• Choose "Auto" - measures your current HR and sets target +15 BPM
-• Or select a percentage (50%-90%) of your max heart rate
-• Get alerts when you exceed your target!
-• Get notified when you're back in the safe zone
+<b>NEW: Smart HR Zones (Karvonen Formula):</b>
+• Choose "Auto" - calculates your ideal zone based on your fitness level
+• Or select Zone 1-5 manually
+• Zone 1 (50-60%): Recovery | Zone 2 (60-70%): Fat Burn
+• Zone 3 (70-80%): Aerobic | Zone 4 (80-90%): Anaerobic
+• Zone 5 (90-100%): Max Effort
+• Get alerts when you exceed your zone!
 
 <b>Features:</b>
 • GPS route tracking with map display
-• Halfway & goal completion alerts with celebration animation
-• 10 customizable colors
-• 6 languages supported
-• Auto-sync to this dashboard
+• Elevation tracking with graph
+• Smart distance display (meters under 1km)
+• Halfway and goal completion alerts with animation
+• 10 customizable colors | 6 languages
+• Device migration: workouts saved after reinstalling
 
 <b>After your first workout:</b>
-• A WhatsApp share button will appear - tap it to send yourself the link to your personal dashboard. Save this link!
+• Copy the link to your personal dashboard. Save it in your bookmarks!
 
 <b>Important:</b>
 • Garmin Connect app must be open on your phone for sync
@@ -1754,25 +1761,28 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 
 <b>מסך ראשי:</b>
 • לחץ על <b>השעה</b> (למעלה) ← הגדרות (שפה, שם, 10 צבעים)
-• לחץ על <b>המרחק</b> ← בחר יעד מרחק (1-20 ק"מ)
-• לחץ על <b>הטיימר</b> ← בחר יעד זמן (10-120 דקות)
-• לחץ על <b>הלב</b> (למטה) ← הגדרות ניטור דופק
+• לחץ על <b>המרחק</b> ← בחר יעד מרחק (1-100 ק"מ)
+• לחץ על <b>הטיימר</b> ← בחר יעד זמן (1-120 דקות)
+• לחץ על <b>הלב</b> (למטה) ← הגדרות אזורי דופק
 
-<b>ניטור דופק חכם:</b>
-• בחר "אוטו" - מודד את הדופק הנוכחי ומגדיר יעד +15 פעימות
-• או בחר אחוז (50%-90%) מהדופק המקסימלי שלך
-• מקבל התראה כשעוברים את היעד!
-• מקבל הודעה כשחוזרים לטווח הבטוח
+<b>חדש: אזורי דופק חכמים (נוסחת Karvonen):</b>
+• בחר "אוטו" - מחשב את האזור האידיאלי לפי רמת הכושר שלך
+• או בחר Zone 1-5 ידנית
+• Zone 1 (50-60%): התאוששות | Zone 2 (60-70%): שריפת שומן
+• Zone 3 (70-80%): אירובי | Zone 4 (80-90%): אנאירובי
+• Zone 5 (90-100%): מאמץ מקסימלי
+• מקבל התראה כשעוברים את האזור!
 
 <b>פיצ'רים:</b>
 • מעקב GPS עם תצוגת מפה
+• מעקב גובה עם גרף
+• תצוגת מרחק חכמה (מטרים מתחת ל-1 ק"מ)
 • התראות בחצי הדרך ובסיום היעד עם אנימציה
-• 10 צבעים לבחירה
-• 6 שפות נתמכות
-• סנכרון אוטומטי לדשבורד
+• 10 צבעים | 6 שפות
+• שמירת אימונים: נשמרים גם אחרי התקנה מחדש
 
 <b>אחרי האימון הראשון:</b>
-• יופיע כפתור שיתוף ל-WhatsApp - לחץ עליו כדי לשלוח לעצמך את הלינק לדשבורד האישי שלך. שמור את הלינק הזה!
+• העתק את הלינק לדשבורד האישי שלך. שמור אותו בסימניות!
 
 <b>חשוב:</b>
 • אפליקציית Garmin Connect צריכה להיות פתוחה בטלפון לסנכרון
@@ -1782,108 +1792,124 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 
 <b>Pantalla principal:</b>
 • Toca la <b>HORA</b> (arriba) → Ajustes (idioma, nombre, 10 colores)
-• Toca la <b>DISTANCIA</b> → Establecer meta de distancia (1-20 km)
-• Toca el <b>TEMPORIZADOR</b> → Establecer meta de tiempo (10-120 min)
-• Toca el <b>CORAZÓN</b> (abajo) → Ajustes de frecuencia cardíaca
+• Toca la <b>DISTANCIA</b> → Establecer meta de distancia (1-100 km)
+• Toca el <b>TEMPORIZADOR</b> → Establecer meta de tiempo (1-120 min)
+• Toca el <b>CORAZÓN</b> (abajo) → Ajustes de zonas FC
 
-<b>Monitoreo cardíaco inteligente:</b>
-• Elige "Auto" - mide tu FC actual y establece objetivo +15 LPM
-• O selecciona un porcentaje (50%-90%) de tu FC máxima
-• ¡Recibe alertas cuando superas tu objetivo!
-• Te avisa cuando vuelves a la zona segura
+<b>NUEVO: Zonas FC Inteligentes (Formula Karvonen):</b>
+• Elige "Auto" - calcula tu zona ideal segun tu nivel de fitness
+• O selecciona Zone 1-5 manualmente
+• Zone 1 (50-60%): Recuperacion | Zone 2 (60-70%): Quema grasa
+• Zone 3 (70-80%): Aerobico | Zone 4 (80-90%): Anaerobico
+• Zone 5 (90-100%): Esfuerzo maximo
+• Recibe alertas cuando superas tu zona!
 
-<b>Características:</b>
-• Seguimiento GPS con visualización de mapa
-• Alertas a mitad de camino y al completar meta
-• 10 colores personalizables
-• 6 idiomas soportados
-• Sincronización automática
+<b>Caracteristicas:</b>
+• Seguimiento GPS con mapa
+• Seguimiento de elevacion con grafico
+• Pantalla de distancia inteligente (metros bajo 1km)
+• Alertas a mitad y al completar meta
+• 10 colores | 6 idiomas
+• Migracion: entrenamientos guardados despues de reinstalar
 
-<b>Después de tu primer entrenamiento:</b>
-• Aparecerá tu enlace personal. ¡Guárdalo!
+<b>Despues de tu primer entrenamiento:</b>
+• Copia el enlace a tu panel personal. Guardalo en favoritos!
 
-<b>Importante:</b> Garmin Connect debe estar abierta en tu teléfono.
+<b>Importante:</b> Garmin Connect debe estar abierta en tu telefono.
 • Desactiva el modo No Molestar para recibir vibraciones.""",
 
         3: """<b>Comment utiliser FitBeat:</b>
 
-<b>Écran principal:</b>
-• Touchez l'<b>HEURE</b> (haut) → Paramètres (langue, nom, 10 couleurs)
-• Touchez la <b>DISTANCE</b> → Définir objectif distance (1-20 km)
-• Touchez le <b>CHRONO</b> → Définir objectif temps (10-120 min)
-• Touchez le <b>CŒUR</b> (bas) → Paramètres fréquence cardiaque
+<b>Ecran principal:</b>
+• Touchez l'<b>HEURE</b> (haut) → Parametres (langue, nom, 10 couleurs)
+• Touchez la <b>DISTANCE</b> → Definir objectif distance (1-100 km)
+• Touchez le <b>CHRONO</b> → Definir objectif temps (1-120 min)
+• Touchez le <b>COEUR</b> (bas) → Parametres zones FC
 
-<b>Suivi cardiaque intelligent:</b>
-• Choisissez "Auto" - mesure votre FC et définit objectif +15 BPM
-• Ou sélectionnez un pourcentage (50%-90%) de votre FC max
-• Alertes quand vous dépassez votre objectif!
-• Notification quand vous revenez dans la zone sûre
+<b>NOUVEAU: Zones FC Intelligentes (Formule Karvonen):</b>
+• Choisissez "Auto" - calcule votre zone ideale selon votre niveau
+• Ou selectionnez Zone 1-5 manuellement
+• Zone 1 (50-60%): Recuperation | Zone 2 (60-70%): Brule-graisse
+• Zone 3 (70-80%): Aerobique | Zone 4 (80-90%): Anaerobique
+• Zone 5 (90-100%): Effort max
+• Alertes quand vous depassez votre zone!
 
-<b>Fonctionnalités:</b>
-• Suivi GPS avec affichage carte
-• Alertes mi-parcours et fin d'objectif avec animation
-• 10 couleurs personnalisables
-• 6 langues supportées
-• Synchronisation automatique
+<b>Fonctionnalites:</b>
+• Suivi GPS avec carte
+• Suivi d'elevation avec graphique
+• Affichage distance intelligent (metres sous 1km)
+• Alertes mi-parcours et fin d'objectif
+• 10 couleurs | 6 langues
+• Migration: entrainements sauvegardes apres reinstallation
 
-<b>Après votre premier entraînement:</b>
-• Un bouton apparaîtra pour voir votre lien personnel. Sauvegardez-le!
+<b>Apres votre premier entrainement:</b>
+• Copiez le lien vers votre tableau de bord. Sauvegardez-le!
 
 <b>Important:</b>
-• Garmin Connect doit être ouverte sur votre téléphone
-• Désactivez le mode Ne Pas Déranger pour les vibrations""",
+• Garmin Connect doit etre ouverte sur votre telephone
+• Desactivez le mode Ne Pas Deranger pour les vibrations""",
 
         4: """<b>So verwendest du FitBeat:</b>
 
 <b>Hauptbildschirm:</b>
 • Tippe auf die <b>UHRZEIT</b> (oben) → Einstellungen (Sprache, Name, 10 Farben)
-• Tippe auf die <b>DISTANZ</b> → Distanzziel setzen (1-20 km)
-• Tippe auf den <b>TIMER</b> → Zeitziel setzen (10-120 min)
-• Tippe auf das <b>HERZ</b> (unten) → Herzfrequenz-Einstellungen
+• Tippe auf die <b>DISTANZ</b> → Distanzziel setzen (1-100 km)
+• Tippe auf den <b>TIMER</b> → Zeitziel setzen (1-120 min)
+• Tippe auf das <b>HERZ</b> (unten) → HF-Zonen Einstellungen
 
-<b>Intelligente Herzüberwachung:</b>
-• Wähle "Auto" - misst deine aktuelle HF und setzt Ziel +15 SPM
-• Oder wähle einen Prozentsatz (50%-90%) deiner max. HF
-• Alarm wenn du dein Ziel überschreitest!
-• Benachrichtigung wenn du wieder im sicheren Bereich bist
+<b>NEU: Intelligente HF-Zonen (Karvonen-Formel):</b>
+• Wahle "Auto" - berechnet deine ideale Zone nach Fitnesslevel
+• Oder wahle Zone 1-5 manuell
+• Zone 1 (50-60%): Erholung | Zone 2 (60-70%): Fettverbrennung
+• Zone 3 (70-80%): Aerob | Zone 4 (80-90%): Anaerob
+• Zone 5 (90-100%): Max Belastung
+• Alarm wenn du deine Zone uberschreitest!
 
 <b>Funktionen:</b>
-• GPS-Tracking mit Kartenanzeige
-• Halbzeit- und Zielalarme mit Animation
-• 10 anpassbare Farben
-• 6 Sprachen unterstützt
-• Automatische Synchronisation
+• GPS-Tracking mit Karte
+• Hohenverfolgung mit Grafik
+• Intelligente Distanzanzeige (Meter unter 1km)
+• Halbzeit- und Zielalarme
+• 10 Farben | 6 Sprachen
+• Migration: Trainings bleiben nach Neuinstallation
 
 <b>Nach deinem ersten Training:</b>
-• Dein persönlicher Link wird angezeigt. Speichere ihn!
+• Kopiere den Link zu deinem Dashboard. Speichere ihn!
 
 <b>Wichtig:</b>
-• Garmin Connect muss auf deinem Handy geöffnet sein
-• Deaktiviere den Nicht-Stören-Modus für Vibrationen""",
+• Garmin Connect muss auf deinem Handy geoffnet sein
+• Deaktiviere den Nicht-Storen-Modus fur Vibrationen""",
 
         5: """<b>如何使用FitBeat：</b>
 
 <b>主屏幕：</b>
 • 点击<b>时间</b>（顶部）→ 设置（语言、名称、10种颜色）
-• 点击<b>距离</b> → 设置距离目标（1-20公里）
-• 点击<b>计时器</b> → 设置时间目标（10-120分钟）
-• 点击<b>心脏</b>（底部）→ 心率监测设置
+• 点击<b>距离</b> → 设置距离目标（1-100公里）
+• 点击<b>计时器</b> → 设置时间目标（1-120分钟）
+• 点击<b>心脏</b>（底部）→ 心率区间设置
 
-<b>智能心率监测：</b>
-• 选择"自动" - 测量当前心率并设置目标+15次/分
-• 或选择最大心率的百分比（50%-90%）
-• 超过目标时收到警报！
-• 回到安全区域时收到通知
+<b>新功能：智能心率区间（Karvonen公式）：</b>
+• 选择"自动" - 根据您的健身水平计算理想区间
+• 或手动选择Zone 1-5
+• Zone 1 (50-60%): 恢复 | Zone 2 (60-70%): 燃脂
+• Zone 3 (70-80%): 有氧 | Zone 4 (80-90%): 无氧
+• Zone 5 (90-100%): 最大强度
+• 超过区间时收到警报！
 
 <b>功能：</b>
-• GPS路线追踪与地图显示
-• 半程和目标完成提醒带动画
-• 10种可自定义颜色
-• 支持6种语言
-• 自动同步到仪表板
+• GPS路线追踪与地图
+• 海拔追踪与图表
+• 智能距离显示（1公里以下显示米）
+• 半程和目标完成提醒
+• 10种颜色 | 6种语言
+• 迁移：重新安装后保留训练记录
 
 <b>首次训练后：</b>
-• 会显示您的个人链接，请保存它！
+• 复制您的个人仪表板链接，请保存它！
+
+<b>重要：</b>
+• Garmin Connect必须在手机上打开
+• 关闭勿扰模式以接收振动提醒"""
 
 <b>重要：</b>
 • 手机上的Garmin Connect必须打开
