@@ -1907,11 +1907,11 @@ async def dashboard_page(user_id: str, welcome: str = None, lang: int = None):
 <b>首次训练后：</b>
 • 复制您的个人仪表板链接，请保存它！
 
-<b>重要：</b>
+<b>重要:</b>
 • Garmin Connect必须在手机上打开
 • 关闭勿扰模式以接收振动提醒"""
 
-<b>重要：</b>
+<b>重要:</b>
 • 手机上的Garmin Connect必须打开
 • 关闭勿扰模式以接收振动提醒"""
     }
