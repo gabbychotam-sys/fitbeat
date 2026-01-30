@@ -186,6 +186,7 @@ class WorkoutPoint(BaseModel):
 class WorkoutSubmit(BaseModel):
     user_id: str
     user_name: str = ""
+    device_id: Optional[str] = None  # NEW v4.7.9: Permanent device identifier
     distance_cm: int
     duration_sec: int
     avg_hr: Optional[int] = None
@@ -208,6 +209,7 @@ class WorkoutSummary(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     user_id: str
     user_name: str = ""
+    device_id: Optional[str] = None  # NEW v4.7.9: Permanent device identifier
     distance_cm: int
     duration_sec: int
     avg_hr: Optional[int] = None
@@ -408,6 +410,29 @@ async def reset_fitbeat_state():
 async def submit_workout(workout: WorkoutSubmit):
     """Receive workout data from watch and save to DB"""
     
+    # ═══ v4.7.9: DEVICE ID MIGRATION ═══
+    # If device_id is provided, check for old workouts from same device with different user_id
+    # and migrate them to the new user_id
+    if workout.device_id and workout.device_id.strip():
+        device_id = workout.device_id.strip()
+        
+        # Find workouts from this device with different user_id
+        old_workouts = await db.workouts.find({
+            "device_id": device_id,
+            "user_id": {"$ne": workout.user_id}
+        }).to_list(1000)
+        
+        if old_workouts:
+            old_user_ids = set(w.get('user_id') for w in old_workouts)
+            logger.info(f"Device migration: Found {len(old_workouts)} workouts from device {device_id} with old user_ids: {old_user_ids}")
+            
+            # Update all old workouts to new user_id
+            result = await db.workouts.update_many(
+                {"device_id": device_id},
+                {"$set": {"user_id": workout.user_id}}
+            )
+            logger.info(f"Device migration: Updated {result.modified_count} workouts to new user_id {workout.user_id}")
+    
     # Parse route from either route array or route_json string
     route_data = None
     if workout.route:
@@ -485,6 +510,7 @@ async def submit_workout(workout: WorkoutSubmit):
     workout_obj = WorkoutSummary(
         user_id=workout.user_id,
         user_name=workout.user_name,
+        device_id=workout.device_id if workout.device_id else None,
         distance_cm=final_distance_cm,
         duration_sec=workout.duration_sec,
         avg_hr=workout.avg_hr if workout.avg_hr and workout.avg_hr > 0 else None,
@@ -505,7 +531,7 @@ async def submit_workout(workout: WorkoutSubmit):
     doc['timestamp'] = doc['timestamp'].isoformat()
     await db.workouts.insert_one(doc)
     
-    logger.info(f"Workout saved for user {workout.user_id}: {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}, HR: {workout.min_hr}-{workout.max_hr}, elevation: +{workout.total_ascent}/-{workout.total_descent}")
+    logger.info(f"Workout saved for user {workout.user_id} (device: {workout.device_id}): {workout.distance_cm}cm in {workout.duration_sec}s, route points: {len(route_data) if route_data else 0}, HR: {workout.min_hr}-{workout.max_hr}, elevation: +{workout.total_ascent}/-{workout.total_descent}")
     
     return {
         "status": "saved",
@@ -513,18 +539,8 @@ async def submit_workout(workout: WorkoutSubmit):
         "user_id": workout.user_id
     }
 
-@api_router.get("/workout/all")
-async def get_all_workouts(limit: int = 50):
-    """Get all workouts (for debugging)"""
-    workouts = await db.workouts.find(
-        {},
-        {"_id": 0}
-    ).sort("timestamp", -1).to_list(limit)
-    
-    return {
-        "workouts": workouts,
-        "count": len(workouts)
-    }
+# REMOVED: /workout/all endpoint - security risk (exposed all user data)
+# Was used for debugging only
 
 @api_router.delete("/workout/user/{user_id}/all")
 async def delete_all_user_workouts(user_id: str):
